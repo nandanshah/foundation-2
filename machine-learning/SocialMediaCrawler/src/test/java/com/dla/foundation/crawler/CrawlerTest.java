@@ -19,8 +19,8 @@ import com.dla.foundation.crawler.util.CrawlerPropKeys;
 public class CrawlerTest {
 
 	static CassandraContext context;
-	public static final String propertisFilePath = "src/main/resources/crawler_test.properties";
-	public static final String commandsFile = "src/main/resources/crawlercommands.txt";
+	public static final String propertisFilePath = "src/test/resources/crawler_test.properties";
+	public static final String commandsFile = "src/test/resources/crawlercommands.txt";
 	private static String socialProfileCF, friendsCF, keySpace;
 
 	@BeforeClass
@@ -94,8 +94,11 @@ public class CrawlerTest {
 			BufferedReader in = new BufferedReader(new FileReader(commandsFile));
 			String command;
 			while ((command = in.readLine()) != null) {
-				System.out.println("Executing Command :" + command);
-				context.executeCommand(command.trim());
+				command = command.trim();
+				if (!command.equalsIgnoreCase("")) {
+					System.out.println("Executing Command :" + command);
+					context.executeCommand(command.trim());
+				}
 			}
 			in.close();
 		} catch (IOException ex) {

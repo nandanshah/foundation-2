@@ -17,18 +17,21 @@ import com.dla.foundation.crawler.util.SparkCrawlerUtils.GigyaConfig;
  */
 public class CrawlerDriver {
 
-	public static final String DEFAULT_PROPERTIES_FILE_PATH = "src/main/resources/crawler.properties";
-	public static final String PROPERTIES_FILE_VAR = "propertiesfile";
 	public static final long DEF_INITIAL_THREASHOLDTIME = 9999999999999L;
 
 	private static Logger logger = Logger.getLogger(CrawlerDriver.class);
 
 	public static void main(String[] args) throws IOException {
-		String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR,
-				DEFAULT_PROPERTIES_FILE_PATH);
-		CrawlerDriver driver = new CrawlerDriver();
-		long outDatedThresholdTime = DEF_INITIAL_THREASHOLDTIME;
-		driver.run(propertiesFilePath, outDatedThresholdTime);
+		if (args.length > 0) {
+			String propertiesFilePath = args[0];
+			CrawlerDriver driver = new CrawlerDriver();
+			long outDatedThresholdTime = DEF_INITIAL_THREASHOLDTIME;
+			if(args.length >1)
+				outDatedThresholdTime = Long.parseLong(args[1]);
+			driver.run(propertiesFilePath, outDatedThresholdTime);
+		} else {
+			System.err.println("USAGE: CrawlerDriver propertiesfile lastoudatedtime[optional]");
+		}
 	}
 
 	public void run(String propertiesFilePath, long outDatedThresholdTime)

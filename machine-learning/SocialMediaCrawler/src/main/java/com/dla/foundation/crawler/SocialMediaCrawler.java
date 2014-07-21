@@ -88,7 +88,7 @@ public class SocialMediaCrawler {
 						crawlerConf.profileCF, inputCQLPageRowSize, whereClause);
 
 		// Getting dla and social id from columnfamily (Cassandra)
-		JavaPairRDD<Long, String> userSocialPair = SparkCrawlerUtils
+		JavaPairRDD<String, String> userSocialPair = SparkCrawlerUtils
 				.getIDLAandSocialID(profileRDD, crawlerConf.profileIdKey,
 						crawlerConf.socialIdKey);
 
@@ -97,8 +97,12 @@ public class SocialMediaCrawler {
 				gigyaConf.apiDomain);
 
 		// Calling Gigya to get social data for user
-		JavaPairRDD<Long, UserProfileResponse> socialProfile = gigyaConnector
+		JavaPairRDD<String, UserProfileResponse> rawsocialProfile = gigyaConnector
 				.getSocialProfile(userSocialPair, gigyaConf.timeoutMillis);
+
+		// Filtering null records
+		JavaPairRDD<String, UserProfileResponse> socialProfile = CrawlerPostProcecssing
+				.filterSocialProfile(rawsocialProfile);
 
 		// Caching data otherwise the stream runs twice once for social profile
 		// table update and second for profile table update
@@ -119,7 +123,7 @@ public class SocialMediaCrawler {
 				filteredSocialProfile);
 
 		// Calling gigya to get friends info
-		JavaPairRDD<Long, Friend> friendsInfo = gigyaConnector.getFriends(
+		JavaPairRDD<String, Friend> friendsInfo = gigyaConnector.getFriends(
 				userSocialPair, gigyaConf.timeoutMillis);
 
 		// PostProcessing data to resolve Friend's Social id to DLA user id
