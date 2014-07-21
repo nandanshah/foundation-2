@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.dla.foundation</groupId>
+		<artifactId>foundation-intelligence-system</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>featured-and-promoted</artifactId>
+	<packaging>jar</packaging>
+
+	<name>intelligence-eo</name>
+	<url>http://maven.apache.org</url>
+	
+	<properties>
+		<cassandra-version>2.0.4</cassandra-version>
+		<hadoop-version>1.0.4</hadoop-version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>${rabbitmq-client-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.prediction</groupId>
+			<artifactId>client</artifactId>
+			<version>${prediction-io-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${org-json-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cassandra</groupId>
+			<artifactId>cassandra-all</artifactId>
+			<version>${cassandra-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-core</artifactId>
+			 <version>2.0.0-rc1</version>
+		</dependency>
+<!-- 		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>${hadoop-version}</version>
+		</dependency> -->
+		<dependency>
+			<groupId>com.dla.foundation</groupId>
+			<artifactId>commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptor>${basedir}/assembly-desc.xml</descriptor>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

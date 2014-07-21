@@ -1,0 +1,38 @@
+{
+	"rabbitmq_server_host" : "localhost",
+	"rabbitmq_server_port" : 5672,
+	"exchange_name" : "FOUNDATION_EXCH",
+	"exchange_type" : "topic",
+	"queue_config" : [
+		{
+			"queue_name" : "queue_1",
+		 	"queue_type" : "async",
+		 	"queue_updater" : "PIOUpdater",
+		 	"queue_bind_key" : "#.watchlist.pio.async.event.message"
+		},
+		{
+			"queue_name" : "queue_2",
+		 	"queue_type" : "async",
+		 	"queue_updater" : "ElasticSearchUpdater",
+		 	"queue_bind_key" : "#.watchlist.es.async.event.message"
+		},
+		{
+			"queue_name" : "queue_5",
+		 	"queue_type" : "sync",
+		 	"queue_updater" : "ElasticSearchUpdater",
+		 	"queue_bind_key" : "#.watchlist.es.sync.event.message"
+		},
+		{
+			"queue_name" : "queue_3",
+		 	"queue_type" : "async",
+		 	"queue_updater" : "CassandraUpdater",
+		 	"queue_bind_key" : "#.watchlist.cassandra.async.event.message"
+		},
+		{
+			"queue_name" : "queue_4",
+		 	"queue_type" : "sync",
+		 	"queue_updater" : "CassandraUpdater",
+		 	"queue_bind_key" : "#.watchlist.cassandra.sync.event.message"
+		}
+	]
+}

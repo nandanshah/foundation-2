@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.dla.foundation.intelligence</groupId>
+	<artifactId>foundation-intelligence-system</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>foundation-intelligence-system</name>
+	<url>http://maven.apache.org</url>
+
+	<modules>
+		<module>commons</module>
+		<module>machine-learning</module>
+		<module>data-sync-consumer</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk-version>1.7</jdk-version>
+		<platform-common-version>0.0.1-SNAPSHOT</platform-common-version>
+		<junit-version>4.10</junit-version>
+		<rabbitmq-client-version>3.3.3</rabbitmq-client-version>
+		<spark-version>1.0.0</spark-version>
+		<prediction-io-version>0.6.1</prediction-io-version>
+		<org-json-version>20140107</org-json-version>
+		<cassandra-apache-version>2.0.4</cassandra-apache-version>
+		<cassandra-dse-driver-version>2.0.0-rc1</cassandra-dse-driver-version>
+		<gigya-api-version>0.1.0</gigya-api-version>
+
+		<groovy-version>1.8.6</groovy-version>
+		<maven-comipler-plugin-version>2.5.1</maven-comipler-plugin-version>
+		<groovy-eclipse-compiler-version>2.7.0-01</groovy-eclipse-compiler-version>
+		<maven-clover2-plugin-version>3.1.7</maven-clover2-plugin-version>
+		<groovy-eclipse-batch-version>1.8.6-01</groovy-eclipse-batch-version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!--dependency> <groupId>org.codehaus.groovy</groupId> <artifactId>groovy-all</artifactId> 
+			<version>${groovy-version}</version> </dependency -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-core_2.10</artifactId>
+			<version>${spark-version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cassandra</groupId>
+			<artifactId>cassandra-all</artifactId>
+			<version>${cassandra-apache-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-core</artifactId>
+			<version>${cassandra-dse-driver-version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-comipler-plugin-version}</version>
+					<configuration>
+						<!-- Bind Groovy Eclipse Compiler -->
+						<compilerId>groovy-eclipse-compiler</compilerId>
+						<source>${jdk-version}</source>
+						<target>${jdk-version}</target>
+					</configuration>
+					<dependencies>
+						<!-- Define which Groovy version will be used for build (default is 
+							2.0) -->
+						<dependency>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-batch</artifactId>
+							<version>${groovy-eclipse-batch-version}</version>
+						</dependency>
+						<!-- Define dependency to Groovy Eclipse Compiler (as it's referred 
+							in compilerId) -->
+						<dependency>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-compiler</artifactId>
+							<version>${groovy-eclipse-compiler-version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<!-- Define Groovy Eclipse Compiler again and set extensions=true. Thanks 
+					to this, plugin will -->
+				<!-- enhance default build life cycle with an extra phase which adds 
+					additional Groovy source folders -->
+				<!-- It works fine under Maven 3.x, but we've encountered problems with 
+					Maven 2.x -->
+				<plugin>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-eclipse-compiler</artifactId>
+					<version>${groovy-eclipse-compiler-version}</version>
+					<extensions>true</extensions>
+				</plugin>
+				<!-- Configure Clover for Maven plug-in. Please note that it's not bound 
+					to any execution phase, -->
+				<!-- so you'll have to call Clover goals from command line. -->
+				<plugin>
+					<groupId>com.atlassian.maven.plugins</groupId>
+					<artifactId>maven-clover2-plugin</artifactId>
+					<version>${maven-clover2-plugin-version}</version>
+					<configuration>
+						<generateHtml>true</generateHtml>
+						<historyDir>.cloverhistory</historyDir>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>
