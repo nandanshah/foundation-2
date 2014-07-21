@@ -1,0 +1,6 @@
+serverAddress = 10.77.237.101
+httpPort = 9200
+transportPort = 9300
+clusterName = escluster
+index = catalog
+type = movie

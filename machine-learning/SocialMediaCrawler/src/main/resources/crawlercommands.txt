@@ -1,0 +1,9 @@
+create keyspace IF NOT EXISTS junit with replication={'class':'SimpleStrategy', 'replication_factor':1};
+use junit;
+create table IF NOT EXISTS profile(id bigint, lastmodified bigint, socialAuth text, dummyflag int, primary key(id) );
+create index IF NOT EXISTS flagindex on profile(dummyflag);
+create index IF NOT EXISTS modifiedindex on profile(lastmodified);
+insert into profile (id, lastmodified, socialAuth, dummyflag) values (1,1402857000000, '_guid_qTs9AocOF0kG8U-r-6AG6A==',1);
+insert into profile (id, lastmodified, socialAuth, dummyflag) values (3,9902857000000,'_guid_nyPQuul4wgjquuI_SoEII_rc7To2GBARIRkg9riVmN8=', 1);
+create table IF NOT EXISTS socialprofile(id text, name text, url text, username text, location text, gender text, country text, timezone text, primary key(id));
+create table IF NOT EXISTS friendsinfo( userfrdpair text, relation text, primary key(userfrdpair));
