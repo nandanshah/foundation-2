@@ -45,7 +45,7 @@ public class CassandraContext {
 	}
 
 	public void close() {
-		cluster.close();
+		cluster.shutdown();
 	}
 
 	/**
