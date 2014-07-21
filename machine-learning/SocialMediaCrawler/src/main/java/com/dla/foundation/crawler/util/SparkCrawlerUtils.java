@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
@@ -62,32 +63,31 @@ public class SparkCrawlerUtils {
 	 * @param timeStampKey
 	 * @return
 	 */
-	public static JavaPairRDD<Long, String> getIDLAandSocialID(
+	public static JavaPairRDD<String, String> getIDLAandSocialID(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
 			final String profileIdKey, final String socialIdKey) {
 
-		JavaPairRDD<Long, String> pairs = cassandraRDD
-				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, Long, String>() {
+		JavaPairRDD<String, String> pairs = cassandraRDD
+				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public Tuple2<Long, String> call(
+					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> tuple)
 							throws Exception {
-						String socialID = null;
-						long profileId = 0;
+						String socialID = null, profileId = null;
 						Map<String, ByteBuffer> keys = tuple._1();
 
 						if (keys != null) {
-							profileId = ByteBufferUtil.toLong(keys
-									.get(profileIdKey));
+							profileId =  UUIDType.instance.compose(keys
+									.get(profileIdKey)).toString();
 
 							socialID = ByteBufferUtil.string(tuple._2
 									.get(socialIdKey));
 
-							return new Tuple2<Long, String>(profileId, socialID);
+							return new Tuple2<String, String>(profileId, socialID);
 						} else {
-							return new Tuple2<Long, String>(null, null);
+							return new Tuple2<String, String>(null, null);
 						}
 					}
 				});
@@ -108,33 +108,33 @@ public class SparkCrawlerUtils {
 	 * @param timeStampKey
 	 * @return
 	 */
-	public static JavaPairRDD<String, Long> getSocialIDLAandID(
+	public static JavaPairRDD<String, String> getSocialIDLAandID(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
 			final String profileIdKey, final String socialIdKey) {
 
-		JavaPairRDD<String, Long> pairs = cassandraRDD
-				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, Long>() {
+		JavaPairRDD<String, String> pairs = cassandraRDD
+				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public Tuple2<String, Long> call(
+					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> tuple)
 							throws Exception {
 						String socialID = null;
-						long profileId = 0;
+						String profileId = null;
 						Map<String, ByteBuffer> keys = tuple._1();
 
 						if (keys != null) {
-							ByteBuffer buff = keys.get(profileIdKey);
+							ByteBuffer buff = keys.get(profileIdKey); 
 							if (buff != null)
-								profileId = ByteBufferUtil.toLong(buff);
+								profileId = UUIDType.instance.compose(buff).toString();
 
 							socialID = ByteBufferUtil.string(tuple._2
 									.get(socialIdKey));
 
-							return new Tuple2<String, Long>(socialID, profileId);
+							return new Tuple2<String, String>(socialID, profileId);
 						} else {
-							return new Tuple2<String, Long>(null, null);
+							return new Tuple2<String, String>(null, null);
 						}
 					}
 				});

@@ -14,6 +14,7 @@ import scala.Tuple2;
 import com.dla.foundation.model.FriendsInfoResponse;
 import com.dla.foundation.model.FriendsInfoResponse.Friend;
 import com.dla.foundation.model.UserProfileResponse;
+import com.gigya.socialize.GSException;
 
 public class SparkGigyaConnector implements Serializable {
 
@@ -35,26 +36,35 @@ public class SparkGigyaConnector implements Serializable {
 	 * @param timeout
 	 * @return social profile information in cassandra format
 	 */
-	public JavaPairRDD<Long, UserProfileResponse> getSocialProfile(
-			JavaPairRDD<Long, String> pairs, final int timeout) {
+	public JavaPairRDD<String, UserProfileResponse> getSocialProfile(
+			JavaPairRDD<String, String> pairs, final int timeout) {
 
-		JavaPairRDD<Long, UserProfileResponse> userProfileRDD = pairs
-				.mapToPair(new PairFunction<Tuple2<Long, String>, Long, UserProfileResponse>() {
+		JavaPairRDD<String, UserProfileResponse> userProfileRDD = pairs
+				.mapToPair(new PairFunction<Tuple2<String, String>, String, UserProfileResponse>() {
 					private static final long serialVersionUID = -1252569529998566825L;
 
 					@Override
-					public Tuple2<Long, UserProfileResponse> call(
-							Tuple2<Long, String> tuple) throws Exception {
+					public Tuple2<String, UserProfileResponse> call(
+							Tuple2<String, String> tuple) throws Exception {
 
-						Long uid = tuple._1;
+						String uid = tuple._1;
 						String userid = tuple._2;
+
+						UserProfileResponse userProfileResponse = null;
 						// Calling Gigya to get Social Profile
 						logger.info("Calling Gigya to get User Profile for userid: "
 								+ userid);
-						UserProfileResponse userProfileResponse = gigya
-								.getUserInfo(userid, timeout);
+						try {
+							userProfileResponse = gigya.getUserInfo(userid,
+									timeout);
+						} catch (GSException e) {
+							logger.error(
+									"Error while fetching data from Gigya "
+											+ e.getMessage(), e);
+							return null;
+						}
 
-						return new Tuple2<Long, UserProfileResponse>(uid,
+						return new Tuple2<String, UserProfileResponse>(uid,
 								userProfileResponse);
 					}
 				});
@@ -70,20 +80,20 @@ public class SparkGigyaConnector implements Serializable {
 	 * @param timeout
 	 * @return
 	 */
-	public JavaPairRDD<Long, Friend> getFriends(
-			JavaPairRDD<Long, String> pairs, final int timeout) {
+	public JavaPairRDD<String, Friend> getFriends(
+			JavaPairRDD<String, String> pairs, final int timeout) {
 
-		JavaPairRDD<Long, Friend> friendsInfo = pairs
-				.flatMapToPair(new PairFlatMapFunction<Tuple2<Long, String>, Long, Friend>() {
+		JavaPairRDD<String, Friend> friendsInfo = pairs
+				.flatMapToPair(new PairFlatMapFunction<Tuple2<String, String>, String, Friend>() {
 
 					private static final long serialVersionUID = -1982180058742299170L;
 					String userid = null;
-					long profileId = 0;
-					List<Tuple2<Long, Friend>> friendsList = new ArrayList<Tuple2<Long, Friend>>();
+					String profileId = null;
+					List<Tuple2<String, Friend>> friendsList = new ArrayList<Tuple2<String, Friend>>();
 
 					@Override
-					public Iterable<Tuple2<Long, Friend>> call(
-							Tuple2<Long, String> tuple) throws Exception {
+					public Iterable<Tuple2<String, Friend>> call(
+							Tuple2<String, String> tuple) throws Exception {
 						profileId = tuple._1;
 						userid = tuple._2;
 						try {
@@ -94,11 +104,11 @@ public class SparkGigyaConnector implements Serializable {
 									userid, false, timeout);
 
 							for (Friend friend : response.friends) {
-								friendsList.add(new Tuple2<Long, Friend>(
+								friendsList.add(new Tuple2<String, Friend>(
 										profileId, friend));
 							}
 
-						} catch (Exception e) {
+						} catch (GSException e) {
 							logger.error(
 									"Error while fetching data from Gigya "
 											+ e.getMessage(), e);
