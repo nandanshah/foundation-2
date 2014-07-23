@@ -15,6 +15,7 @@
 	<name>machine-learning</name>
 
 	<modules>
+		<module>UserItemRecommendation</module>
 		<module>TrendRecommendation</module>
 		<module>SocialMediaCrawler</module>
 		<module>ElasticSearch-MovieSimilarity</module>
