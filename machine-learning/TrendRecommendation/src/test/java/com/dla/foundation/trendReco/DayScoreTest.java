@@ -35,8 +35,8 @@ public class DayScoreTest {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(
-						"src/main/resources/appPropTest",
-						"src/main/resources/dayScorePropTest");
+						"src/main/resources/local/appPropTest",
+						"src/main/resources/local/dayScorePropTest");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");
@@ -67,7 +67,7 @@ public class DayScoreTest {
 		try {
 			BufferedReader in = new BufferedReader(
 					new FileReader(
-							"src/main/resources/dayScoreCom.txt"));
+							"src/main/resources/local/dayScoreCom.txt"));
 			String command;
 			while ((command = in.readLine()) != null) {
 				cassandra.executeCommand(command.trim());

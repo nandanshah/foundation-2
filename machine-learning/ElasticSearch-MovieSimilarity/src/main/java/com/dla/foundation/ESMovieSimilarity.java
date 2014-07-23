@@ -28,13 +28,13 @@ public class ESMovieSimilarity {
 
 		// Read ElasticSearch properties
 		PropertiesHandler esProperties = new PropertiesHandler(
-				"src/main/resources/ES.properties");
+				"src/main/resources/local/ES.properties");
 		// Read Cassandra Properties
 		PropertiesHandler cassandraProperties = new PropertiesHandler(
-				"src/main/resources/Cassandra.properties");
+				"src/main/resources/local/Cassandra.properties");
 		// Read Spark properties
 		PropertiesHandler sparkProperties = new PropertiesHandler(
-				"src/main/resources/Spark.properties");
+				"src/main/resources/local/Spark.properties");
 		ESSparkConnector con = new ESSparkConnector(
 				sparkProperties.getValue("sparkMaster"),
 				sparkProperties.getValue("sparkAppName"),

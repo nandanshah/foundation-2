@@ -29,7 +29,7 @@ public class ESMovieSimilarityTest {
 	public void createMockCassandra() throws InterruptedException, IOException {
 
 		cassandraProperties = new PropertiesHandler(
-				"src/main/resources/Cassandra.properties");
+				"src/main/resources/local/Cassandra.properties");
 		cassandraInstance = new CassandraContext();
 		cassandraInstance.connect();
 		cassandraInstance
