@@ -5,11 +5,9 @@
 		<artifactId>machine-learning</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-
 	<artifactId>pio-item-similarity-fetcher</artifactId>
 	<name>pio-item-similarity-fetcher</name>
 	<packaging>jar</packaging>
-
 	<dependencies>
 		<dependency>
 			<groupId>io.prediction</groupId>
