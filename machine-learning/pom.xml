@@ -19,6 +19,7 @@
 		<module>SocialMediaCrawler</module>
 		<module>ElasticSearch-MovieSimilarity</module>
 		<module>pio-recommendation-fetcher</module>
+		<module>pio-item-similarity-fetcher</module>
 	</modules>
 
 	<dependencies>
