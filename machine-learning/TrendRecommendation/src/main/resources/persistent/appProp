@@ -1,0 +1,7 @@
+spark_mode=spark://10.0.143.147:7077
+app_name=TrendRecommendation
+read_host_list=10.0.143.118
+write_host_list=10.0.143.118
+input_partitioner=Murmur3Partitioner
+output_partitioner=Murmur3Partitioner
+rpc_port=9160

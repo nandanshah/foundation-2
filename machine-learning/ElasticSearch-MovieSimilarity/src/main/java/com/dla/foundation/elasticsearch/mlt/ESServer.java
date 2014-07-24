@@ -17,6 +17,7 @@ public class ESServer {
 	}
 
 	public ESServer(String serverIP, int serverPort, String clusterName) {
+		// TODO Auto-generated constructor stub
 		this.serverIP = serverIP;
 		this.serverPort = serverPort;
 		this.clusterName = clusterName;

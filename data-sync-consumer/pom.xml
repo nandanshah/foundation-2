@@ -48,7 +48,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dla.foundation</groupId>
-			<artifactId>platform-common</artifactId>
+			<artifactId>platform</artifactId>
 			<version>${platform-common-version}</version>
 		</dependency>
 	</dependencies>
@@ -64,5 +64,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
