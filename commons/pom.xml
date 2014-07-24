@@ -23,7 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dla.foundation</groupId>
-			<artifactId>platform-common</artifactId>
+			<artifactId>platform</artifactId>
 			<version>${platform-common-version}</version>
 		</dependency>
 		<dependency>
