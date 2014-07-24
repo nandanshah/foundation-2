@@ -15,8 +15,6 @@ import com.dla.foundation.pio.util.PropKeys;
 public class RecommendationFetcher implements Serializable {
 	
 	private static final long serialVersionUID = 648420875123997020L;
-	public static final String DEFAULT_PROPERTIES_FILE_PATH = "src/main/resources/PIO_props.properties";
-	public static final String PROPERTIES_FILE_VAR = "propertiesfile";
 	public static final String DEFAULT_API_PORT_NUM = "8000";
 	private static final String DEFAULT_CASSANDRA_PORT_NUM = "9160";
 	private static Logger logger = Logger.getLogger(RecommendationFetcher.class.getName());
@@ -104,13 +102,16 @@ public class RecommendationFetcher implements Serializable {
 	}
 
 	public static void main(String[] args) throws IOException {
-
+		String propertiesFilePath= "";
 		RecommendationFetcher recommndationFetcher = new RecommendationFetcher();
-		PropertiesHandler propertyHandler = new PropertiesHandler(
-				System.getProperty(PROPERTIES_FILE_VAR,
-						DEFAULT_PROPERTIES_FILE_PATH));
-		recommndationFetcher.runRecommendationFetcher(propertyHandler);
-
+		if (args.length > 0) {
+			propertiesFilePath = args[0];
+			PropertiesHandler propertyHandler = new PropertiesHandler(propertiesFilePath);
+			recommndationFetcher.runRecommendationFetcher(propertyHandler);
+		} else {
+			System.err.println(" USAGE: RecommendationFetcher propertiesfile");
+		}
+		
 	}
 
 }

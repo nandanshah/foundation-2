@@ -1,5 +1,5 @@
 {
-	"rabbitmq_server_host" : "localhost",
+	"rabbitmq_server_host" : "127.0.0.1",
 	"rabbitmq_server_port" : 5672,
 	"exchange_name" : "FOUNDATION_EXCH",
 	"exchange_type" : "topic",
