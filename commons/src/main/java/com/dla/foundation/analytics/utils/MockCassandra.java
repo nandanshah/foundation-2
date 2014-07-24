@@ -19,7 +19,7 @@ public class MockCassandra extends Thread {
 		String current_dir = System.getProperty("user.dir");
 		System.out.println(current_dir);
 		System.setProperty("cassandra.config", "file:///" + current_dir
-				+ "/../../commons/src/main/resources/local/cassandra.yaml");
+				+ "/../../commons/src/main/resources/cassandra.yaml");
 		try {
 			if (cassandra == null) {
 				cassandra = new EmbeddedCassandraService();
