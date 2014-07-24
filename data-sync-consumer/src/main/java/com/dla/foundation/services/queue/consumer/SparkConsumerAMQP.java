@@ -74,6 +74,8 @@ final class QueueReceiverAMQP extends Receiver<AnalyticsCollectionEvent> impleme
 				updater = es;
 			else if(oneQConfig.getUpdater().equalsIgnoreCase("CassandraUpdater"))
 				updater = new CassandraUpdater();
+			else if (oneQConfig.getUpdater().equalsIgnoreCase("EmailUpdater"))
+				updater = new EmailUpdater();
 
 			if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.sync)
 				new Thread(new SyncQueueConsumer(oneQConfig,updater)).start();
