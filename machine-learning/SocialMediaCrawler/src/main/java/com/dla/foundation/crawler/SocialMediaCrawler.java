@@ -17,6 +17,7 @@ import com.dla.foundation.model.FriendsInfoResponse.Friend;
 import com.dla.foundation.model.Profile;
 import com.dla.foundation.model.SocialProfile;
 import com.dla.foundation.model.UserProfileResponse;
+import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 
 public class SocialMediaCrawler {
 
