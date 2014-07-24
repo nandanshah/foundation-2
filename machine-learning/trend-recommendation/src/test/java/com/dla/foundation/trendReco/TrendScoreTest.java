@@ -28,7 +28,7 @@ public class TrendScoreTest {
 	}
 
 	@Test
-	public void userEvtSummaryCalTest() {
+	public void TrendScoreCalTest() {
 		assertNotNull(trendScoreDriver);
 		trendScoreDriver
 				.runTrendScoreDriver(
@@ -44,6 +44,7 @@ public class TrendScoreTest {
 
 				assertEquals(1.6, row.getDouble("trendscore"), 0.1);
 				assertEquals(1, row.getDouble("normalizedscore"), 0);
+				assertEquals("trending", row.getString("trendscorereason").toLowerCase());
 			}
 
 		}

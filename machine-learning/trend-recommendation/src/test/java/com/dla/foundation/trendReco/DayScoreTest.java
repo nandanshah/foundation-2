@@ -32,7 +32,7 @@ public class DayScoreTest {
 	}
 	
 	@Test
-	public void userEvtSummaryCalTest() {
+	public void dayScoreCalTest() {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(

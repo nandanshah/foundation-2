@@ -85,7 +85,8 @@ public class TrendScoreDriver implements Serializable {
 					+ trendScoreProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
 							.getValue()) + " SET "
 					+ Trend.TREND_SCORE.getColumn() + " =?, "
-					+ Trend.NORMALIZED_SCORE.getColumn() + " =?";
+					+ Trend.NORMALIZED_SCORE.getColumn() + " =?"
+					+ Trend.TREND_SCORE_REASON.getColumn() + " =?";
 
 			// initializing spark context
 			logger.info("initializing spark context");
@@ -296,7 +297,6 @@ public class TrendScoreDriver implements Serializable {
 
 	}
 
-	
 	private JavaPairRDD<String, DayScore> preprocessingForZScore(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
 			int period, long currentDateTimestamp) {

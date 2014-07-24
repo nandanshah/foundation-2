@@ -314,7 +314,7 @@ public class DayScoreDriver implements Serializable {
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
 		logger.info("Preprocessing: transforming record from cassandra format to required user summary ");
 		JavaPairRDD<String, UserSummary> userSummarytRDD = UserSummaryTransformation
-				.getUserEventWithKey(cassandraRDD);
+				.getUserSummaryWithKey(cassandraRDD);
 		logger.info("Preprocessing: Filtering incomplete records");
 		JavaPairRDD<String, UserSummary> filteredUserEventRDD = Filter
 				.filterUserSummaryEvent(userSummarytRDD);

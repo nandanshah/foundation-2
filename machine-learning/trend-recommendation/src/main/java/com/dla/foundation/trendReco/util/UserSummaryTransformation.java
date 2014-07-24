@@ -38,7 +38,7 @@ public class UserSummaryTransformation implements Serializable{
 	
 	private static final String DELIMITER_PROPERTY = "#";
 
-	public static JavaPairRDD<String, UserSummary> getUserEventWithKey(
+	public static JavaPairRDD<String, UserSummary> getUserSummaryWithKey(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
 
 		JavaPairRDD<String, UserSummary> userSummaryRDD = cassandraRDD
