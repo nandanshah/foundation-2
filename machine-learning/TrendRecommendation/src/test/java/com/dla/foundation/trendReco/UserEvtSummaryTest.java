@@ -34,8 +34,8 @@ public class UserEvtSummaryTest {
 		assertNotNull(userEventSummaryDriver);
 		userEventSummaryDriver
 				.runUserEvtSummaryDriver(
-						"src/main/resources/local/appPropTest",
-						"src/main/resources/local/userSumPropTest");
+						"src/test/resources/appPropTest",
+						"src/test/resources/userSumPropTest");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest3",
 				"dailyeventsummaryperuseritem");
@@ -67,7 +67,7 @@ public class UserEvtSummaryTest {
 		try {
 			BufferedReader in = new BufferedReader(
 					new FileReader(
-							"src/main/resources/local/userSumCom.txt"));
+							"src/test/resources/userSumCom.txt"));
 			String command;
 			while ((command = in.readLine()) != null) {
 				cassandra.executeCommand(command.trim());

@@ -32,8 +32,8 @@ public class TrendScoreTest {
 		assertNotNull(trendScoreDriver);
 		trendScoreDriver
 				.runTrendScoreDriver(
-						"src/main/resources/local/appPropTest",
-						"src/main/resources/local/trendScorePropTest");
+						"src/test/resources/appPropTest",
+						"src/test/resources/trendScorePropTest");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra
 				.getRows("sampletrendrecotest2", "trend");
@@ -61,7 +61,7 @@ public class TrendScoreTest {
 		try {
 			BufferedReader in = new BufferedReader(
 					new FileReader(
-							"src/main/resources/local/trendScoreCom.txt"));
+							"src/test/resources/trendScoreCom.txt"));
 			String command;
 			while ((command = in.readLine()) != null) {
 				cassandra.executeCommand(command.trim());

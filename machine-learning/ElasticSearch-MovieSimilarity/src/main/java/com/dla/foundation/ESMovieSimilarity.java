@@ -16,25 +16,22 @@ public class ESMovieSimilarity {
 
 	public static void main(String[] args) {
 		try {
-			launchApp();
+			launchApp(args[0],args[1],args[2]);
 		} catch (IOException e) {
 			System.out.println("Error in reading Properties");
 			System.exit(0);
 		}
 	}
 
-	public static void launchApp() throws IOException {
+	public static void launchApp(String esProps,String cassandraProps,String sparkProps) throws IOException {
 		JobConf conf = new JobConf();
 
 		// Read ElasticSearch properties
-		PropertiesHandler esProperties = new PropertiesHandler(
-				"src/main/resources/local/ES.properties");
+		PropertiesHandler esProperties = new PropertiesHandler(esProps);
 		// Read Cassandra Properties
-		PropertiesHandler cassandraProperties = new PropertiesHandler(
-				"src/main/resources/local/Cassandra.properties");
+		PropertiesHandler cassandraProperties = new PropertiesHandler(cassandraProps);
 		// Read Spark properties
-		PropertiesHandler sparkProperties = new PropertiesHandler(
-				"src/main/resources/local/Spark.properties");
+		PropertiesHandler sparkProperties = new PropertiesHandler(sparkProps);
 		ESSparkConnector con = new ESSparkConnector(
 				sparkProperties.getValue("sparkMaster"),
 				sparkProperties.getValue("sparkAppName"),

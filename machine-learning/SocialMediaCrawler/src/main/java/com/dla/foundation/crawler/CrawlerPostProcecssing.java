@@ -23,6 +23,7 @@ import com.dla.foundation.model.FriendsInfo;
 import com.dla.foundation.model.FriendsInfoResponse.Friend;
 import com.dla.foundation.model.Profile;
 import com.dla.foundation.model.UserProfileResponse;
+import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 
 /**
  * Class with methods required for Post Processing data after successful crawler
