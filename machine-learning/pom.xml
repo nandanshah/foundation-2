@@ -15,11 +15,13 @@
 	<name>machine-learning</name>
 
 	<modules>
-		<module>UserItemRecommendation</module>
+		<module>user-item-recommendation</module>
 		<module>TrendRecommendation</module>
 		<module>SocialMediaCrawler</module>
 		<module>ElasticSearch-MovieSimilarity</module>
 		<module>pio-recommendation-fetcher</module>
+		<module>elastic-search-updater</module>
+		<module>pio-item-similarity-fetcher</module>
 	</modules>
 
 	<dependencies>

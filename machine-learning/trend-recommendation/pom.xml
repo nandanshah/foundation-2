@@ -8,7 +8,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>TrendRecommendation</artifactId>
-	<name>TrendRecommendation</name>
+	<artifactId>trend-recommendation</artifactId>
+	<name>trend-recommendation</name>
 	<packaging>jar</packaging>
 </project>

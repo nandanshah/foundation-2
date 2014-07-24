@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
   
-  <artifactId>UserItemRecommendation</artifactId>
+  <artifactId>user-item-recommendation</artifactId>
   <packaging>jar</packaging>
-   <name>UserItemRecommendation</name>
+   <name>user-item-recommendation</name>
 </project>
