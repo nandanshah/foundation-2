@@ -1,0 +1,10 @@
+input_keyspace=useritemreco
+input_columnfamily=item
+page_row_size=3
+output_keyspace=useritemreco
+output_columnfamily=scoresummary
+input_date=2014-06-30
+item_level_keyspace=useritemreco
+item_level_trend_columnfamily=trend
+item_level_popularity_columnfamily=popularity
+item_level_cf_page_row_size=3

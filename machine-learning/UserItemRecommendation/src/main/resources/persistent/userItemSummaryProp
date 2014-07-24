@@ -1,0 +1,10 @@
+input_keyspace=useritemreco
+input_columnfamily=profile
+page_row_size=3
+output_keyspace=useritemreco
+output_columnfamily=useritemrecommendation
+input_date=2014-06-30
+item_level_keyspace=useritemreco
+item_level_score_summary_columnfamily=scoresummary
+item_level_cf_page_row_size=3
+account_columnfamily=account
