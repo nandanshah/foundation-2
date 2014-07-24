@@ -19,93 +19,124 @@ public class SimilarityFetcher implements Serializable {
 	public static final String PROPERTIES_FILE_VAR = "propertiesfile";
 	public static final String DEFAULT_API_PORT_NUM = "8000";
 	private static final String DEFAULT_CASSANDRA_PORT_NUM = "9160";
-	private static Logger logger = Logger.getLogger(SimilarityFetcher.class.getName());
-	
+	private static Logger logger = Logger.getLogger(SimilarityFetcher.class
+			.getName());
 
 	/**
-	 * This method reads all configurable properties from Property Files and initializes PIOConfig and CassandraConfig
-	 *  
-	 * @param propertyHandler: instance of PropertyHandler which helps to retrieve values
+	 * This method reads all configurable properties from Property Files and
+	 * initializes PIOConfig and CassandraConfig
+	 * 
+	 * @param propertyHandler
+	 *            : instance of PropertyHandler which helps to retrieve values
 	 *            for different properties.
 	 */
 
-	public void runSimilarityFetcher(PropertiesHandler propertyHandler) {
-		
-		//Calculating PIO appURL
-		String port;
+	public void runSimilarityFetcher(String dataPropertiesFile,
+			String environmentPropertiesFile) {
+		PropertiesHandler dataPropertyHandler;
+		PropertiesHandler envPropertyHandler;
 		try {
-			port = propertyHandler.getValue(PropKeys.PIOPort.getValue()) != null ? propertyHandler.getValue(PropKeys.PIOPort.getValue())
+			dataPropertyHandler = new PropertiesHandler(dataPropertiesFile);
+			envPropertyHandler = new PropertiesHandler(
+					environmentPropertiesFile);
+
+			// Calculating PIO appURL
+			String port;
+
+			port = envPropertyHandler.getValue(PropKeys.PIOPort.getValue()) != null ? envPropertyHandler
+					.getValue(PropKeys.PIOPort.getValue())
 					: DEFAULT_API_PORT_NUM;
-		
-		final String appURL = "http://" +  propertyHandler.getValue(PropKeys.HOSTNAME.getValue()) + ":" + port;
 
-		// Instantiates PIOConfig Class : This class holds config properties
-		// needed to make call to predictionIO (PIO).
-		PIOConfig pioConfig = new PIOConfig(propertyHandler.getValue(PropKeys.APPKEY.getValue()),
-				appURL,propertyHandler.getValue(PropKeys.ENGINE.getValue()),
-				Integer.parseInt(propertyHandler.getValue(PropKeys.NUM_REC_PER_ITEM.getValue())));
-		logger.info("Instantited PIOConfig with provided details of PredictionIO Engine");
+			final String appURL = "http://"
+					+ envPropertyHandler
+							.getValue(PropKeys.HOSTNAME.getValue()) + ":"
+					+ port;
 
+			// Instantiates PIOConfig Class : This class holds config properties
+			// needed to make call to predictionIO (PIO).
+			PIOConfig pioConfig = new PIOConfig(
+					envPropertyHandler.getValue(PropKeys.APPKEY.getValue()),
+					appURL, dataPropertyHandler.getValue(PropKeys.ENGINE
+							.getValue()), Integer.parseInt(dataPropertyHandler
+							.getValue(PropKeys.NUM_REC_PER_ITEM.getValue())));
+			logger.info("Instantited PIOConfig with provided details of PredictionIO Engine");
 
-		
-		// Forms Cassandra update query : This query will be used for inserting
-		// fetched similarities to Cassandra table.
-				final String similarityUpdateQuery = "UPDATE "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()) + "."
-				+ propertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()) + " SET "
-				+ propertyHandler.getValue(PropKeys.DESTINATION_SIM_COL.getValue()) + "=?,"
-				+ propertyHandler.getValue(PropKeys.DESTINATION_TIMESTAMP_COL.getValue()) + "=?";
-				
-		
+			// Forms Cassandra update query : This query will be used for
+			// inserting
+			// fetched similarities to Cassandra table.
+			final String similarityUpdateQuery = "UPDATE "
+					+ dataPropertyHandler
+							.getValue(PropKeys.KEYSPACE.getValue())
+					+ "."
+					+ dataPropertyHandler.getValue(PropKeys.DESTINATION_CF
+							.getValue())
+					+ " SET "
+					+ dataPropertyHandler.getValue(PropKeys.DESTINATION_SIM_COL
+							.getValue())
+					+ "=?,"
+					+ dataPropertyHandler
+							.getValue(PropKeys.DESTINATION_TIMESTAMP_COL
+									.getValue()) + "=?";
 
-		SimilarityFetcherDriver similarityFetcherDriver = new SimilarityFetcherDriver();
-		Configuration conf = new Configuration();
+			SimilarityFetcherDriver similarityFetcherDriver = new SimilarityFetcherDriver();
+			Configuration conf = new Configuration();
 
-		
-				CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-				 getCassnadraIPArray(propertyHandler.getValue(PropKeys.CASSANDRA_IP.getValue())),								
-				propertyHandler.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-				propertyHandler.getValue(PropKeys.CASSANDRA_PORT.getValue()),
-				getCassnadraIPArray(propertyHandler.getValue(PropKeys.CASSANDRA_IP.getValue())),									
-				propertyHandler.getValue(PropKeys.OUTPUT_PARTITIONER.getValue()));
-				
-				
-		// Instantiates CassandraConfig : This class holds parameters that are
-		// used for reading and writing data from and to Cassandra respectively.
-		
-		CassandraConfig cassandraPIOConfig = new CassandraConfig(
-				propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-				propertyHandler.getValue(PropKeys.SOURCE_CF.getValue()),
-				propertyHandler.getValue(PropKeys.PAGE_ROW_SIZE.getValue()),
-				propertyHandler.getValue(PropKeys.SOURCE_KEY.getValue()),
-				similarityUpdateQuery, propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-				propertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()),
-				propertyHandler.getValue(PropKeys.DESTINATION_PK.getValue()));
-		
-		
+			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
+					getCassnadraIPArray(envPropertyHandler.getValue(PropKeys.CASSANDRA_IP
+							.getValue())),
+					dataPropertyHandler.getValue(PropKeys.INPUT_PARTITIONER
+							.getValue()),
+					dataPropertyHandler.getValue(PropKeys.CASSANDRA_PORT
+							.getValue()),
+					getCassnadraIPArray(dataPropertyHandler
+							.getValue(PropKeys.CASSANDRA_IP.getValue())),
+					dataPropertyHandler.getValue(PropKeys.OUTPUT_PARTITIONER
+							.getValue()));
 
-		similarityFetcherDriver.fetchSimilarity(cassandraSparkConnector, conf,
-				cassandraPIOConfig, pioConfig,
-				propertyHandler.getValue(PropKeys.SPARK_MASTER.getValue()),
-				propertyHandler.getValue(PropKeys.SPARK_APPNAME.getValue()));
+			// Instantiates CassandraConfig : This class holds parameters that
+			// are
+			// used for reading and writing data from and to Cassandra
+			// respectively.
+
+			CassandraConfig cassandraPIOConfig = new CassandraConfig(
+					dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
+					dataPropertyHandler.getValue(PropKeys.SOURCE_CF.getValue()),
+					dataPropertyHandler.getValue(PropKeys.PAGE_ROW_SIZE
+							.getValue()), dataPropertyHandler
+							.getValue(PropKeys.SOURCE_KEY.getValue()),
+					similarityUpdateQuery, dataPropertyHandler
+							.getValue(PropKeys.KEYSPACE.getValue()),
+					dataPropertyHandler.getValue(PropKeys.DESTINATION_CF
+							.getValue()), dataPropertyHandler
+							.getValue(PropKeys.DESTINATION_PK.getValue()));
+
+			similarityFetcherDriver.fetchSimilarity(cassandraSparkConnector,
+					conf, cassandraPIOConfig, pioConfig, envPropertyHandler
+							.getValue(PropKeys.SPARK_MASTER.getValue()),
+					dataPropertyHandler.getValue(PropKeys.SPARK_APPNAME
+							.getValue()));
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 		}
 
 	}
-	
-	
-	private String [] getCassnadraIPArray(String strCassnadraIP){
+
+	private String[] getCassnadraIPArray(String strCassnadraIP) {
 		return strCassnadraIP.split(",");
 	}
 
 	public static void main(String[] args) throws IOException {
 
-		SimilarityFetcher similarityFetcher = new SimilarityFetcher();
-		PropertiesHandler propertyHandler = new PropertiesHandler(
-				System.getProperty(PROPERTIES_FILE_VAR,
-						DEFAULT_PROPERTIES_FILE_PATH));
-		similarityFetcher.runSimilarityFetcher(propertyHandler);
+		if (args.length == 2) {
+			String dataPropertiesFile = args[0];
+			String environmentPropertiesFile = args[1];
+			SimilarityFetcher similarityFetcher = new SimilarityFetcher();
+			similarityFetcher.runSimilarityFetcher(dataPropertiesFile,
+					environmentPropertiesFile);
+		} else {
+			System.err
+					.println(" USAGE: SimilarityFetcher dataPropertiesFile environmentPropertiesFile");
+		}
 
 	}
 

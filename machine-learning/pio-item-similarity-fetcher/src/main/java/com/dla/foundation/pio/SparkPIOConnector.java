@@ -216,8 +216,8 @@ public class SparkPIOConnector implements Serializable {
 	 * @param allItemsRecords
 	 * 			RDD containing records read from Source Cassandra table
 	 * 			
-	 * @param cassandraConfig
-	 * 			Instance of CassandraConfig
+	 * @param sourcePrimaryKey
+	 * 			Col Name of Source primary key.
 	 * 
 	 * @return
 	 * 		JavaRDD containing itemids in String format.
@@ -225,7 +225,7 @@ public class SparkPIOConnector implements Serializable {
 
 	public JavaRDD<String> getItemsFromCassandraRecords(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> allItemsRecords,
-			final CassandraConfig cassandraConfig) {
+			final String sourcePrimaryKey  ) {
 		JavaRDD<String> items = allItemsRecords
 				.map(new Function<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String>() {
 
@@ -237,7 +237,7 @@ public class SparkPIOConnector implements Serializable {
 							throws Exception {
 						Map<String, ByteBuffer> keySet = dataFromCassandra._1();
 						ByteBuffer ID = keySet
-								.get(cassandraConfig.sourcePrimaryKey);
+								.get(sourcePrimaryKey);
 						return UUIDType.instance.compose(ID).toString();
 					}
 

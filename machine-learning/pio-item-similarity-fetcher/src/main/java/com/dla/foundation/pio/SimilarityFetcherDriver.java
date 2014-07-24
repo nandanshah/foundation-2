@@ -11,8 +11,6 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import scala.Tuple2;
-
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 import com.dla.foundation.pio.util.CassandraConfig;
 import com.dla.foundation.pio.util.PIOConfig;
@@ -61,13 +59,13 @@ public class SimilarityFetcherDriver implements Serializable {
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> recordsFromCassandra = cassandraSparkConnector
 				.read(conf, sparkContext, cassandraConfig.sourceKeySpace,
 						cassandraConfig.sourceColFamily,
-						cassandraConfig.pageRowSize);
+						cassandraConfig.pageRowSize,new String[]{cassandraConfig.sourcePrimaryKey});
 
-		// Retrives itemid from Data read from Cassandra.
+		// Retrieves itemid from Data read from Cassandra.
 		logger.info("Retriving itemids from items records");
 		JavaRDD<String> allItemsRDD = sparkPIOConnector
 				.getItemsFromCassandraRecords(recordsFromCassandra,
-						cassandraConfig);
+						cassandraConfig.sourcePrimaryKey);
 
 		
 		JavaPairRDD<String, List<String>> fetchedItemSimilarities = getItemSimilarity(

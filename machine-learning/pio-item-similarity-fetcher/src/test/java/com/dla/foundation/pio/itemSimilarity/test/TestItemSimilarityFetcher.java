@@ -27,11 +27,12 @@ import junit.framework.TestCase;
 public class TestItemSimilarityFetcher extends TestCase {
 	private static Map<String, List<String>> preDataMap;
 	public static final String DEFAULT_USERS_FILE_PATH = "src/test/resources/users.csv";
-	public static final String DEFAULT_PROPERTIES_FILE_PATH = "src/test/resources/PIO_props.properties";
+	public static final String DEFAULT_DATA_PROPERTIES_FILE_PATH = "src/test/resources/PIO_data.properties";
+	public static final String DEFAULT_ENV_PROPERTIES_FILE_PATH = "src/test/resources/PIO_env.properties";
 	public static final String DEFAULT_ITEMS_FILE_PATH = "src/test/resources/movieData.csv";
 	public static final String DEFAULT_BEHAVIOUR_FILE_PATH = "src/test/resources/activity.csv";
 	public static final String DEFAULT_PREFETCHED_USER_FILE_PATH = "src/test/resources/userlist.csv";
-	private static PropertiesHandler propertyHandler;
+	private static PropertiesHandler dataPropertyHandler;
 	public CassandraContext cassandraContext;
 	public static final String FILE_VAR = "propertiesfile";
 	private static Logger logger = Logger
@@ -41,54 +42,55 @@ public class TestItemSimilarityFetcher extends TestCase {
 	protected void setUp() throws Exception {
 		preDataMap = new HashMap<String, List<String>>();
 		initPreDataMap();
-		propertyHandler = new PropertiesHandler(System.getProperty(FILE_VAR,
-				DEFAULT_PROPERTIES_FILE_PATH));
+		dataPropertyHandler = new PropertiesHandler(System.getProperty(FILE_VAR,
+				DEFAULT_DATA_PROPERTIES_FILE_PATH));
+		
 
 		cassandraContext = new CassandraContext();
 		cassandraContext.connect();
 
 		cassandraContext
 				.executeCommand("CREATE KEYSPACE IF NOT EXISTS "
-						+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue())
+						+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue())
 						+ " WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};");
 		logger.info("Created keyspace "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 		System.out.println("Created keyspace "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 		cassandraContext.executeCommand("use "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 		logger.info("Using keyspace "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 		System.out.println("Using keyspace "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 
 		cassandraContext.executeCommand("CREATE TABLE IF NOT EXISTS "
-				+ propertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
+				+ dataPropertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
 				+ " ( id uuid,PRIMARY KEY (id));");
 
 		logger.info("Created columnfamily : "
-				+ propertyHandler.getValue(PropKeys.SOURCE_CF.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.SOURCE_CF.getValue()));
 
 		cassandraContext
 				.executeCommand("CREATE TABLE IF NOT EXISTS "
-						+ propertyHandler.getValue(PropKeys.DESTINATION_CF
+						+ dataPropertyHandler.getValue(PropKeys.DESTINATION_CF
 								.getValue())
-						+ " ( itemid uuid,"+propertyHandler.getValue(PropKeys.DESTINATION_SIM_COL.getValue()) +" list<uuid>,lastupdate timestamp, PRIMARY KEY (itemid));");
+						+ " ( itemid uuid,"+dataPropertyHandler.getValue(PropKeys.DESTINATION_SIM_COL.getValue()) +" list<uuid>,lastupdate timestamp, PRIMARY KEY (itemid));");
 		logger.info("Created columnfamily : "
-				+ propertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
+				+ dataPropertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
 		ResultSet similarityResults = cassandraContext.getRows(
-				propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-				propertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
+				dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
+				dataPropertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
 
-		ImportData dataImporter = new ImportData(propertyHandler);
+		ImportData dataImporter = new ImportData(dataPropertyHandler);
 
 		for (String itemid : dataImporter.readUsers(
 				DEFAULT_ITEMS_FILE_PATH, ",")) {
 			String query = "INSERT INTO "
-					+ propertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
+					+ dataPropertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
 					+ "(id) VALUES (" + itemid + ")";
 			logger.info("Inserting test data to "
-					+ propertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
+					+ dataPropertyHandler.getValue(PropKeys.SOURCE_CF.getValue())
 					+ " : " + query);
 			cassandraContext.executeCommand(query);
 
@@ -100,15 +102,15 @@ public class TestItemSimilarityFetcher extends TestCase {
 		SimilarityFetcher recFetcher = new SimilarityFetcher();
 		try {
 			logger.info("Started spark context for fetching similarities from PIO.");
-			recFetcher.runSimilarityFetcher(propertyHandler);
+			recFetcher.runSimilarityFetcher(DEFAULT_DATA_PROPERTIES_FILE_PATH,DEFAULT_ENV_PROPERTIES_FILE_PATH);
 			logger.info("Completed fetching similarities from PIO.");
 			cassandraContext.executeCommand("use "
-					+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+					+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 			logger.info("Using keyspace "
-					+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
+					+ dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()));
 			ResultSet similarityResults = cassandraContext.getRows(
-					propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-					propertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
+					dataPropertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
+					dataPropertyHandler.getValue(PropKeys.DESTINATION_CF.getValue()));
 			
 			assertTrue(compareResults(similarityResults));
 		} catch (IOException e) {
@@ -118,8 +120,8 @@ public class TestItemSimilarityFetcher extends TestCase {
 	
 	public static boolean compareResults(ResultSet similarityResults) throws IOException{
 		for(Row record : similarityResults.all()){
-			String itemid = record.getUUID(propertyHandler.getValue(PropKeys.DESTINATION_PK.getValue())).toString();
-			List<UUID> fetchedSimilarityUUID = record.getList(propertyHandler.getValue(PropKeys.DESTINATION_SIM_COL.getValue()),
+			String itemid = record.getUUID(dataPropertyHandler.getValue(PropKeys.DESTINATION_PK.getValue())).toString();
+			List<UUID> fetchedSimilarityUUID = record.getList(dataPropertyHandler.getValue(PropKeys.DESTINATION_SIM_COL.getValue()),
 					UUID.class);
 			List<String> fetchedSimilaritiesString = new ArrayList<String>();
 			for(UUID item: fetchedSimilarityUUID){

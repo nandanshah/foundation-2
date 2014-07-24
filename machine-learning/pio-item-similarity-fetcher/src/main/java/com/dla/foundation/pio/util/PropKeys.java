@@ -6,7 +6,7 @@ public enum PropKeys {
 	APPKEY("appkey"), 	   //PIO App key 
 	ENGINE("engine"),	   //PIO Engine Name
 	PIOPort("PIOPort"),	   //PIO API Port
-	NUM_REC_PER_ITEM("numRecsPerUser"), //Number of similar items to be fetched for each item.
+	NUM_REC_PER_ITEM("numRecsPerItem"), //Number of similar items to be fetched for each item.
 	SPARK_MASTER("sparkMaster"),  //Spark Master Mode
 	SPARK_APPNAME("sparkAppName"),// Spark App Name
 	CASSANDRA_PORT("cassendraPort"),// Cassandra Port.
