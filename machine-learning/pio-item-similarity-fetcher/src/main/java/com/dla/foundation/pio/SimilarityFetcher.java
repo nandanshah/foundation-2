@@ -25,12 +25,9 @@ public class SimilarityFetcher implements Serializable {
 	/**
 	 * This method reads all configurable properties from Property Files and
 	 * initializes PIOConfig and CassandraConfig
-	 * 
-	 * @param propertyHandler
-	 *            : instance of PropertyHandler which helps to retrieve values
-	 *            for different properties.
+	 * @param dataPropertiesFile : path to PIO_data.properties file. 
+	 * @param environmentPropertiesFile path to PIO_env.properties file.
 	 */
-
 	public void runSimilarityFetcher(String dataPropertiesFile,
 			String environmentPropertiesFile) {
 		PropertiesHandler dataPropertyHandler;
