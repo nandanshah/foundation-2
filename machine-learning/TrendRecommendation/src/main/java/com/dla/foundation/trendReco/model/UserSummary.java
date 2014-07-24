@@ -8,16 +8,16 @@ public class UserSummary implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1323109724398361790L;
-	private int tenantId;
-	private int regionId;
-	private int itemId;
+	private String tenantId;
+	private String regionId;
+	private String itemId;
 	private long timestamp;
-	private int userId;
-	private Map<Integer, Integer> eventTypeAggregate;
+	private String userId;
+	private Map<String, Integer> eventTypeAggregate;
 	private double dayScore;
 
-	public UserSummary(int tenantId, int regionId, int itemId, long timestamp,
-			int userId, Map<Integer, Integer> eventTypeAggregate,
+	public UserSummary(String tenantId, String regionId, String itemId, long timestamp,
+			String userId, Map<String, Integer> eventTypeAggregate,
 			double dayScore) {
 		super();
 		this.tenantId = tenantId;
@@ -34,15 +34,15 @@ public class UserSummary implements Serializable {
 
 	}
 
-	public int getTenantId() {
+	public String getTenantId() {
 		return tenantId;
 	}
 
-	public int getRegionId() {
+	public String getRegionId() {
 		return regionId;
 	}
 
-	public int getItemId() {
+	public String getItemId() {
 		return itemId;
 	}
 
@@ -50,11 +50,11 @@ public class UserSummary implements Serializable {
 		return timestamp;
 	}
 
-	public int getUserId() {
+	public String getUserId() {
 		return userId;
 	}
 
-	public Map<Integer, Integer> getEventTypeAggregate() {
+	public Map<String, Integer> getEventTypeAggregate() {
 		return eventTypeAggregate;
 	}
 
@@ -62,15 +62,15 @@ public class UserSummary implements Serializable {
 		return dayScore;
 	}
 
-	public void setTenantId(int tenantId) {
+	public void setTenantId(String tenantId) {
 		this.tenantId = tenantId;
 	}
 
-	public void setRegionId(int regionId) {
+	public void setRegionId(String regionId) {
 		this.regionId = regionId;
 	}
 
-	public void setItemId(int itemId) {
+	public void setItemId(String itemId) {
 		this.itemId = itemId;
 	}
 
@@ -78,11 +78,11 @@ public class UserSummary implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
-	public void setEventTypeAggregate(Map<Integer, Integer> eventTypeAggregate) {
+	public void setEventTypeAggregate(Map<String, Integer> eventTypeAggregate) {
 		this.eventTypeAggregate = eventTypeAggregate;
 	}
 

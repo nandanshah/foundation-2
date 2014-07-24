@@ -8,14 +8,14 @@ public class TrendScore implements Serializable {
 	 */
 	private static final long serialVersionUID = -4236461259788692600L;
 	long timestamp;
-	int tenantId;
-	int regionId;
-	int itemId;
+	String tenantId;
+	String regionId;
+	String itemId;
 
 	double trendScore;
 	double normalizedScore;
 
-	public TrendScore(int tenantId, int regionId, int itemId, double trend,
+	public TrendScore(String tenantId, String regionId, String itemId, double trend,
 			long timestamp) {
 		super();
 		this.tenantId = tenantId;
@@ -29,15 +29,15 @@ public class TrendScore implements Serializable {
 		return timestamp;
 	}
 
-	public int getTenantId() {
+	public String getTenantId() {
 		return tenantId;
 	}
 
-	public int getRegionId() {
+	public String getRegionId() {
 		return regionId;
 	}
 
-	public int getItemId() {
+	public String getItemId() {
 		return itemId;
 	}
 

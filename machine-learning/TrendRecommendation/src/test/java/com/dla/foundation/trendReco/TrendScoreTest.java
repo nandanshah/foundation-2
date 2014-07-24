@@ -39,8 +39,8 @@ public class TrendScoreTest {
 				.getRows("sampletrendrecotest2", "trend");
 		for (Row row : dayScoreResult) {
 
-			if (row.getInt("tenantid") == 1 && row.getInt("regionid") == 1
-					&& row.getInt("itemid") == 122) {
+			if (0==row.getUUID("tenantid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc9a1") && 0==row.getUUID("regionid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc9a1")
+					&& 0==row.getUUID("itemid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc122")) {
 
 				assertEquals(1.6, row.getDouble("trendscore"), 0.1);
 				assertEquals(1, row.getDouble("normalizedscore"), 0);

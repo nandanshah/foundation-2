@@ -109,7 +109,7 @@ public class UserEventSummaryDriver implements Serializable {
 							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
 							.getValue()));
 
-			Map<Integer, EventType> requiredEventType = TrendRecommendationUtil
+			Map<String, EventType> requiredEventType = TrendRecommendationUtil
 					.getRequiredEvent(userSumProp
 							.getValue(PropKeys.EVENT_REQUIRED.getValue()));
 
@@ -335,7 +335,7 @@ public class UserEventSummaryDriver implements Serializable {
 	 */
 	private JavaPairRDD<String, UserEvent> preprocessingForUserEvtSummary(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
-			Map<Integer, EventType> requiredEventMap) {
+			Map<String, EventType> requiredEventMap) {
 		logger.info("Preprocessing: transforming record from cassandra format to required user event ");
 		JavaPairRDD<String, UserEvent> userEventRDD = UserEventTransformation
 				.getUserEventWithKey(cassandraRDD);
@@ -350,10 +350,10 @@ public class UserEventSummaryDriver implements Serializable {
 		public Date startDate;
 		public Date endDate;
 		public int periodForRecal;
-		public Map<Integer, EventType> requiredEvent;
+		public Map<String, EventType> requiredEvent;
 
 		public UserEvtSummaryConfig(Date startDate, Date endDate,
-				Map<Integer, EventType> requiredEvent, int periodForRecal) {
+				Map<String, EventType> requiredEvent, int periodForRecal) {
 			super();
 			this.startDate = startDate;
 			this.endDate = endDate;
@@ -362,7 +362,7 @@ public class UserEventSummaryDriver implements Serializable {
 		}
 
 		public UserEvtSummaryConfig(Date startDate, Date endDate,
-				Map<Integer, EventType> requiredEvent) {
+				Map<String, EventType> requiredEvent) {
 			this(startDate, endDate, requiredEvent, -1);
 		}
 	}
