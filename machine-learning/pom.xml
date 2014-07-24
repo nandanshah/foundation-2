@@ -16,7 +16,7 @@
 
 	<modules>
 		<module>user-item-recommendation</module>
-		<module>TrendRecommendation</module>
+		<module>trend-recommendation</module>
 		<module>SocialMediaCrawler</module>
 		<module>ElasticSearch-MovieSimilarity</module>
 		<module>pio-recommendation-fetcher</module>
