@@ -130,6 +130,9 @@
 			<build>
 				<resources>
 					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
 						<directory>src/main/resources/local</directory>
 					</resource>
 				</resources>
@@ -140,6 +143,9 @@
 			<build>
 				<resources>
 					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
 						<directory>src/main/resources/persistent</directory>
 					</resource>
 				</resources>
@@ -149,6 +155,9 @@
 			<id>dev</id>
 			<build>
 				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
 					<resource>
 						<directory>src/main/resources/dev</directory>
 					</resource>
