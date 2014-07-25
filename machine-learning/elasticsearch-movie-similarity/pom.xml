@@ -9,8 +9,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>ElasticSearch-MovieSimilarity</artifactId>
-	<name>ElasticSearch-MovieSimilarity</name>
+	<artifactId>elasticsearch-movie-similarity</artifactId>
+	<name>elasticsearch-movie-similarity</name>
 	<packaging>jar</packaging>
 
 	<dependencies>
