@@ -70,10 +70,41 @@ public class UserEventSummaryDriver implements Serializable {
 	 */
 	public void runUserEvtSummaryDriver(String appPropFilePath,
 			String userSumPropFilePath) {
-		try {
+		
+		try{
 			logger.info("Initializing property handler ");
 			// Initializing property handler
 			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
+			// initializing spark context
+			logger.info("initializing spark context");
+			JavaSparkContext sparkContext = new JavaSparkContext(
+					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
+					appProp.getValue(PropKeys.APP_NAME.getValue()));
+			
+			// initializing spark-cassandra connector
+			logger.info("initializing spark-cassandra connector");
+			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
+					TrendRecommendationUtil.getList(appProp
+							.getValue(PropKeys.INPUT_HOST_LIST.getValue()),
+							IP_SEPARATOR),
+					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
+					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
+					TrendRecommendationUtil.getList(appProp
+							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
+							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
+							.getValue()));
+			runUserEvtSummaryDriver(sparkContext,cassandraSparkConnector,userSumPropFilePath);
+		}catch(Exception e){
+			logger.error(e);
+		}
+		
+
+	}
+	
+	public void runUserEvtSummaryDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,
+			String userSumPropFilePath) {
+		try {
+			
 			PropertiesHandler userSumProp = new PropertiesHandler(
 					userSumPropFilePath);
 
@@ -89,25 +120,6 @@ public class UserEventSummaryDriver implements Serializable {
 					+ "=?," + DailyEventSummaryPerUserItem.DATE.getColumn()
 					+ "=?," + DailyEventSummaryPerUserItem.FLAG.getColumn()
 					+ "=?";
-
-			// initializing spark context
-			logger.info("initializing spark context");
-			JavaSparkContext sparkContext = new JavaSparkContext(
-					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
-					appProp.getValue(PropKeys.APP_NAME.getValue()));
-
-			// initializing spark-cassandra connector
-			logger.info("initializing spark-cassandra connector");
-			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.INPUT_HOST_LIST.getValue()),
-							IP_SEPARATOR),
-					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
-							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
-							.getValue()));
 
 			Map<String, EventType> requiredEventType = TrendRecommendationUtil
 					.getRequiredEvent(userSumProp
