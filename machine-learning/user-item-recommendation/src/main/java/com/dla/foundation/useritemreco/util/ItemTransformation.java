@@ -13,6 +13,13 @@ import scala.Tuple2;
 
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
+/**
+ * This class is used to transform record of item in cassandra format into
+ * required format
+ * 
+ * @author shishir_shivhare
+ * 
+ */
 public class ItemTransformation implements Serializable {
 
 	/**

@@ -20,6 +20,13 @@ import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
+/**
+ * This class is used to transform record of score summary in cassandra format
+ * into required format
+ * 
+ * @author shishir_shivhare
+ * 
+ */
 public class ScoreSummaryTransformation implements Serializable {
 
 	/**

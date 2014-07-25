@@ -22,7 +22,12 @@ import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.model.UserItemSummary;
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
-public class UserItemRecoPostprocessing implements Serializable {
+/**
+ * This class is used to convert record in cassandra format before writing to any cassandra column family
+ * @author shishir_shivhare
+ *
+ */
+public class UserItemRecoPostprocess implements Serializable {
 
 	/**
 	 * 
@@ -30,7 +35,7 @@ public class UserItemRecoPostprocessing implements Serializable {
 	private static final long serialVersionUID = -6629019652932514108L;
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
 
-	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processingScoreSummary(
+	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processScoreSummary(
 			JavaRDD<ItemSummary> scoreSummaryRDD) {
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraOutputRDD = scoreSummaryRDD
 				.mapToPair(new PairFunction<ItemSummary, Map<String, ByteBuffer>, List<ByteBuffer>>() {
@@ -83,7 +88,7 @@ public class UserItemRecoPostprocessing implements Serializable {
 		return cassandraOutputRDD;
 	}
 
-	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processingUserItemScoreSummary(
+	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processUserItemScoreSummary(
 			JavaRDD<UserItemSummary> userItemScoreRDD) {
 
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraOutputRDD = userItemScoreRDD

@@ -1,4 +1,4 @@
-package com.dla.foundation.useritemreco.services;
+package com.dla.foundation.useritemreco;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -24,7 +25,14 @@ import com.dla.foundation.useritemreco.util.PropKeys;
 import com.dla.foundation.useritemreco.util.UserItemRecommendationUtil;
 import com.google.common.base.Optional;
 
-public class ItemSummaryService implements Serializable {
+/**
+ * This class will provide the functionality of performing left join with item
+ * level column families.
+ * 
+ * @author shishir_shivhare
+ * 
+ */
+public class ItemSummaryCalc implements Serializable {
 
 	/**
 	 * 
@@ -38,8 +46,10 @@ public class ItemSummaryService implements Serializable {
 	private Map<String, String> itemLevelRecommendationCF;
 	private String pageRowSize;
 	private Date inputDate;
+	private static final Logger logger = Logger
+			.getLogger(ItemSummaryCalc.class);
 
-	public ItemSummaryService(String itemLevelCFKeyspace,
+	public ItemSummaryCalc(String itemLevelCFKeyspace,
 			Map<String, String> itemLevelColumnFamilies, String pageRowSize,
 			Date inputDate) {
 		super();
@@ -49,20 +59,39 @@ public class ItemSummaryService implements Serializable {
 		this.inputDate = UserItemRecommendationUtil.processInputDate(inputDate);
 	}
 
+	/**
+	 * This function will provide the functionality of performing left join with
+	 * item level column families.
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param itemRDD
+	 * @return
+	 * @throws Exception
+	 */
 	public JavaRDD<ItemSummary> calculateScoreSummary(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, String> itemRDD) throws Exception {
+		logger.info("performing left outer join between item and trend column family");
 		JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> itemTrendRDD = joinTrend(
 				sparkContext, cassandraSparkConnector, itemRDD);
+		logger.info("performing left outer join between result (left outer join of item and trend) and popularity column family");
 		JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD = joinPopularity(
 				sparkContext, cassandraSparkConnector, itemTrendRDD);
 		return getScoreSummary(itemTrendPopRDD);
 	}
 
+	/**
+	 * This function will combine the result of all the join into item summary.
+	 * 
+	 * @param itemTrendPopRDD
+	 * @return
+	 */
 	private JavaRDD<ItemSummary> getScoreSummary(
 			JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD) {
 
+		logger.info("combining the result of all the joins into item summary");
 		JavaRDD<ItemSummary> scoreSummaryRDD = itemTrendPopRDD
 				.map(new Function<Tuple2<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>>, ItemSummary>() {
 
@@ -129,6 +158,16 @@ public class ItemSummaryService implements Serializable {
 		return scoreSummaryRDD;
 	}
 
+	/**
+	 * This function will fetch the trend column family ,transform and filter it
+	 * and then perform left outer join with item column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param itemRDD
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> joinTrend(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
@@ -137,21 +176,38 @@ public class ItemSummaryService implements Serializable {
 				.getValue());
 		if (null != trendCF && "" != trendCF) {
 			Configuration conf = new Configuration();
+			logger.info("reading trend column family");
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraTrendRDD = cassandraSparkConnector
 					.read(conf, sparkContext, itemLevelCFKeyspace, trendCF,
 							pageRowSize, UserItemRecommendationUtil
 									.getWhereClause(inputDate));
+			logger.info("transforming record of trend column family");
 			JavaPairRDD<String, ItemSummary> trendRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraTrendRDD);
+			logger.info("filtering record of trend column family");
 			JavaPairRDD<String, ItemSummary> filteredTrendRDD = Filter
 					.filterItemSummary(trendRDD);
+			logger.info("performing left outer join between item and trend column family");
+			//key for both is: tenantid#regionid#itemid
 			return itemRDD.leftOuterJoin(filteredTrendRDD);
 		} else {
-			throw new Exception("Trend Column family name is not proper");
+			throw new Exception(
+					"Trend Column family name is not properly specified in property file");
 		}
 
 	}
 
+	/**
+	 * This function will fetch the popularity column family ,transform and
+	 * filter it and then perform left outer join with provided the
+	 * parameter(result of left outer join of item and trend) column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param itemTrendRDD
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> joinPopularity(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
@@ -162,18 +218,24 @@ public class ItemSummaryService implements Serializable {
 
 		if (null != popularityCF && "" != popularityCF) {
 			Configuration conf = new Configuration();
+			logger.info("reading popularity column family");
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraPopularityRDD = cassandraSparkConnector
 					.read(conf, sparkContext, itemLevelCFKeyspace,
 							popularityCF, pageRowSize,
 							UserItemRecommendationUtil
 									.getWhereClause(inputDate));
+			logger.info("transforming record of popularity column family");
 			JavaPairRDD<String, ItemSummary> popularityRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraPopularityRDD);
+			logger.info("filtering record of popularity column family");
 			JavaPairRDD<String, ItemSummary> filteredPopularityRDD = Filter
 					.filterItemSummary(popularityRDD);
+			logger.info("performing left outer join between result of item and trend with popularity column family");
+			//key for both is: tenantid#regionid#itemid
 			return itemTrendRDD.leftOuterJoin(filteredPopularityRDD);
 		} else {
-			throw new Exception("Popularity column family name is not proper");
+			throw new Exception(
+					"Popularity column family name is not properly specified in property file");
 		}
 	}
 

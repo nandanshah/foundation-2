@@ -20,6 +20,14 @@ import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
+/**
+ * This class is used to transform record of trend, popularity in cassandra
+ * format into required format. it will also provide support to other item level
+ * column family in future
+ * 
+ * @author shishir_shivhare
+ * 
+ */
 public class ItemSummaryTransformation implements Serializable {
 
 	/**
