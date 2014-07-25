@@ -15,6 +15,15 @@ import org.apache.log4j.Logger;
 import scala.NotImplementedError;
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 
+/**
+ * 
+ * @author ashish belokar
+ * 
+ *         Updater module for Email messages. Forwards the messages to the
+ *         EmailWorker class. Custom labels from the AnalyticsCollectionEvent
+ *         are used since there are no specific fields for email service.
+ * 
+ */
 public class EmailUpdater implements Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
@@ -32,11 +41,9 @@ public class EmailUpdater implements Updater {
 		try {
 			event.customEventLabel = future.get();
 		} catch (InterruptedException e) {
-			logger.error("Error receiving response from Mandrill Service");
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (ExecutionException e) {
-			logger.error("Error receiving response from Mandrill Service");
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		logger.info("Email status: " + event.customEventLabel);
 		return event;
@@ -53,6 +60,10 @@ public class EmailUpdater implements Updater {
 
 	}
 
+	/**
+	 * This class forwards the email message to the Mandrill email service.
+	 * 
+	 */
 	private class EmailWorker implements Callable<String> {
 
 		String emailMsgContent;
@@ -89,8 +100,6 @@ public class EmailUpdater implements Updater {
 					sb.append(output);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
 				if (conn != null) {
 					conn.disconnect();
 				}
@@ -102,11 +111,8 @@ public class EmailUpdater implements Updater {
 					}
 				}
 			}
-
 			return sb.toString();
 
 		}
-
 	}
-
 }
