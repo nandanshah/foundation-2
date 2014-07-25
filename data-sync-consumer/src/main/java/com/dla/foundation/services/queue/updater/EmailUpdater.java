@@ -62,7 +62,7 @@ public class EmailUpdater implements Updater {
 
 	/**
 	 * This class forwards the email message to the Mandrill email service.
-	 * 
+	 * This class is moved as it is from the platform project since email sending funtionality is moved here.
 	 */
 	private class EmailWorker implements Callable<String> {
 
