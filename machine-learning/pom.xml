@@ -15,14 +15,15 @@
 	<name>machine-learning</name>
 
 	<modules>
-		<module>TrendRecommendation</module>
-		<module>SocialMediaCrawler</module>
-		<module>ElasticSearch-MovieSimilarity</module>
+		<module>trend-recommendation</module>
+		<module>social-media-crawler</module>
+		<module>elasticsearch-movie-similarity</module>
 		<module>pio-recommendation-fetcher</module>
+		<module>pio-item-similarity-fetcher</module>
 	</modules>
 
 	<dependencies>
-		<dependency>
+	<dependency>
 			<groupId>com.dla.foundation.intelligence</groupId>
 			<artifactId>intelligence-commons</artifactId>
 			<scope>compile</scope>
