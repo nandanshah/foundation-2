@@ -164,6 +164,53 @@ public class CassandraSparkConnector {
 	}
 
 	/**
+	 * This function will read specified columns' data from cassandra and return
+	 * in Java pair RDD having key as maps and values map. First map contains
+	 * the primary keys, specified while creating the schema of columnfamily as
+	 * map's key and their value as map's value in bytebuffer. Second map
+	 * contains other columns which are not specified in primary key while
+	 * creating the schema for columnfamily as map's key and their value as
+	 * map's value in bytebuffer.
+	 * 
+	 * @param conf
+	 *            : Configuration to set properties related to cassandra.
+	 * @param sparkContext
+	 *            : spark context to interact with cassandra.
+	 * @param keySpace
+	 *            : Keyspace in which it will look for columnfamily to read
+	 *            data.
+	 * @param columnfamily
+	 *            : Columnfamily from which it will read the data.
+	 * @param pageRowSize
+	 *            :number of rows per page.
+	 * @param selectColumns[] 
+	 * 			 : String array that will list column names to be rea from
+	 *            Cassandra.
+	 * @return :Java Pair RDD having key as map string and bytebuffer and values
+	 *         as map string and bytebuffer.
+	 * 
+	 */
+
+	public JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> read(
+			Configuration conf, JavaSparkContext sparkContext, String keySpace,
+			String columnfamily, String pageRowSize, String selectColumns[]) {
+		initializeConf(conf);
+		ConfigHelper.setInputColumnFamily(conf, keySpace, columnfamily);
+		CqlConfigHelper.setInputCQLPageRowSize(conf, pageRowSize);
+		for (int i = 0; i < selectColumns.length; i++) {
+			CqlConfigHelper.setInputColumns(conf, selectColumns[i]);
+		}
+
+		@SuppressWarnings("unchecked")
+		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD = (JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>>) sparkContext
+				.newAPIHadoopRDD(conf, CqlPagingInputFormat.class,
+						keyClass.getClass(), valueClass.getClass());
+
+		return cassandraRDD;
+
+	}
+
+	/**
 	 * This function writes data into specified Cassandra columnfamily.
 	 * 
 	 * @param conf
