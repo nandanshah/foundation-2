@@ -9,16 +9,16 @@ public class DayScore implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4635904137451689023L;
-	private int itemId;
+	private String itemId;
 	private long timestamp;
-	private int tenantId;
-	private int regionId;
-	private Map<Integer, Integer> eventTypeAggregate;
+	private String tenantId;
+	private String regionId;
+	private Map<String, Integer> eventTypeAggregate;
 	private double dayScore;
 
-	public DayScore(int tenantId, int regionId, long timestamp, int movieId,
-			Map<Integer, Integer> eventTypeAggregate, double dayScore) {
-		super();
+	public DayScore(String tenantId, String regionId, long timestamp, String movieId,
+			Map<String, Integer> eventTypeAggregate, double dayScore) {
+	
 		this.itemId = movieId;
 		this.timestamp = timestamp;
 		this.tenantId = tenantId;
@@ -27,8 +27,8 @@ public class DayScore implements Serializable {
 		this.dayScore = dayScore;
 	}
 
-	public DayScore(int tenantId, int regionId, int movieId,
-			Map<Integer, Integer> eventTypeAggregate, double dayScore) {
+	public DayScore(String tenantId, String regionId, String movieId,
+			Map<String, Integer> eventTypeAggregate, double dayScore) {
 		this(tenantId, regionId, -1, movieId, eventTypeAggregate, dayScore);
 	}
 
@@ -40,7 +40,7 @@ public class DayScore implements Serializable {
 		return dayScore;
 	}
 
-	public void setItemId(int movieId) {
+	public void setItemId(String movieId) {
 		this.itemId = movieId;
 	}
 
@@ -48,11 +48,11 @@ public class DayScore implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public void setTenantId(int tenantId) {
+	public void setTenantId(String tenantId) {
 		this.tenantId = tenantId;
 	}
 
-	public void setRegionId(int regionId) {
+	public void setRegionId(String regionId) {
 		this.regionId = regionId;
 	}
 
@@ -60,13 +60,14 @@ public class DayScore implements Serializable {
 		this.dayScore = dayScore;
 	}
 
-	public DayScore(int tenantId, int regionId, int movieId, long timestamp,
-			Map<Integer, Integer> eventTypeAggregate) {
+	public DayScore(String tenantId, String regionId, String movieId, long timestamp,
+			Map<String, Integer> eventTypeAggregate) {
 		this(tenantId, regionId, timestamp, movieId, eventTypeAggregate, 0);
 
 	}
 
-	public int getItemId() {
+	
+	public String getItemId() {
 		return itemId;
 	}
 
@@ -74,19 +75,19 @@ public class DayScore implements Serializable {
 		return timestamp;
 	}
 
-	public int getTenantId() {
+	public String getTenantId() {
 		return tenantId;
 	}
 
-	public int getRegionId() {
+	public String getRegionId() {
 		return regionId;
 	}
 
-	public Map<Integer, Integer> getEventTypeAggregate() {
+	public Map<String, Integer> getEventTypeAggregate() {
 		return eventTypeAggregate;
 	}
 
-	public void setEventTypeAggregate(Map<Integer, Integer> eventTypeAggregate) {
+	public void setEventTypeAggregate(Map<String, Integer> eventTypeAggregate) {
 		this.eventTypeAggregate = eventTypeAggregate;
 	}
 

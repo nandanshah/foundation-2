@@ -61,7 +61,7 @@ public class DayScoreService implements Serializable {
 					Iterator<UserSummary> userSummaryIterator;
 					UserSummary userSummary;
 					DayScore dayScore;
-					Map<Integer, Integer> eventAggregate;
+					Map<String, Integer> eventAggregate;
 
 					@Override
 					public DayScore call(
@@ -71,11 +71,11 @@ public class DayScoreService implements Serializable {
 						int count = 0;
 						double dayScoreCount = 0;
 						String[] keys = records._1.split(DELIMITER_PROPERTY);
-						eventAggregate = new HashMap<Integer, Integer>();
+						eventAggregate = new HashMap<String, Integer>();
 						userSummaryIterator = records._2.iterator();
 						while (userSummaryIterator.hasNext()) {
 							userSummary = userSummaryIterator.next();
-							for (Entry<Integer, Integer> event : userSummary
+							for (Entry<String, Integer> event : userSummary
 									.getEventTypeAggregate().entrySet()) {
 								if (eventAggregate.containsKey(event.getKey())) {
 									count = eventAggregate.get(event.getKey());
@@ -90,11 +90,7 @@ public class DayScoreService implements Serializable {
 							dayScoreCount += userSummary.getDayScore();
 
 						}
-						dayScore = new DayScore(Integer.parseInt(keys[0]),
-								Integer.parseInt(keys[1]), Long
-										.parseLong(keys[3]), Integer
-										.parseInt(keys[2]), eventAggregate,
-								dayScoreCount);
+						dayScore = new DayScore(keys[0],keys[1], Long.parseLong(keys[3]),keys[2], eventAggregate,dayScoreCount);
 						return dayScore;
 					}
 				});

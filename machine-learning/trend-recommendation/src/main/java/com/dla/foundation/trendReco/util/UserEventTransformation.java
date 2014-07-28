@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
@@ -55,7 +56,7 @@ public class UserEventTransformation implements Serializable {
 							date = TrendRecommendationUtil
 									.getFormattedDate(userEvent.getDate()
 											.getTime());
-							if(-1!=userEvent.getEventType()){
+							if(null!=userEvent.getEventType()){
 								primaryKey = primaryKey.concat(userEvent
 										.getTenantId()
 										+ DELIMITER_PROPERTY
@@ -97,26 +98,26 @@ public class UserEventTransformation implements Serializable {
 				if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setTenantId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userEvent.setTenantId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setRegionId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userEvent.setRegionId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.USER.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setUserId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userEvent.setUserId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setMovieid(ByteBufferUtil.toInt(column
-								.getValue()));
+						userEvent.setMovieid(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				}
 
@@ -129,10 +130,10 @@ public class UserEventTransformation implements Serializable {
 				if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userEvent.setEventType(ByteBufferUtil.toInt(column
-								.getValue()));
+						userEvent.setEventType(UUIDType.instance.compose(column
+								.getValue()).toString());
 					}else{
-						userEvent.setEventType(-1);
+						userEvent.setEventType(null);
 					}
 				} else if (column.getKey().toLowerCase()
 						.compareTo(UserEventSummary.TIMESTAMP.getColumn()) == 0) {

@@ -69,30 +69,17 @@ public class TrendScoreDriver implements Serializable {
 	 */
 	public void runTrendScoreDriver(String appPropFilePath,
 			String trendRecoPropFilePath) {
-		try {
-			logger.info("Initializing property handler ");
+		
+		try{
 			// Initializing property handler
 			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
-			PropertiesHandler trendScoreProp = new PropertiesHandler(
-					trendRecoPropFilePath);
-
-			// initializing query for zscore
-			logger.info("initializing query for zscore");
-			final String TREND_SCORE_QUERY_PROPERTY = "UPDATE "
-					+ trendScoreProp.getValue(PropKeys.OUTPUT_KEYSPACE
-							.getValue())
-					+ "."
-					+ trendScoreProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()) + " SET "
-					+ Trend.TREND_SCORE.getColumn() + " =?, "
-					+ Trend.NORMALIZED_SCORE.getColumn() + " =?";
-
+			
 			// initializing spark context
 			logger.info("initializing spark context");
 			JavaSparkContext sparkContext = new JavaSparkContext(
 					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
 					appProp.getValue(PropKeys.APP_NAME.getValue()));
-
+			
 			// initializing cassandra service
 			logger.info("initializing cassandra service");
 			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
@@ -105,6 +92,30 @@ public class TrendScoreDriver implements Serializable {
 							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
 							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
 							.getValue()));
+			runTrendScoreDriver(sparkContext, cassandraSparkConnector, trendRecoPropFilePath);
+		}catch(Exception e){
+			logger.error(e);
+		}
+	}
+	
+	public void runTrendScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String trendRecoPropFilePath) {
+		try {
+			logger.info("Initializing property handler ");
+			
+			PropertiesHandler trendScoreProp = new PropertiesHandler(
+					trendRecoPropFilePath);
+
+			// initializing query for zscore
+			logger.info("initializing query for zscore");
+			final String TREND_SCORE_QUERY_PROPERTY = "UPDATE "
+					+ trendScoreProp.getValue(PropKeys.OUTPUT_KEYSPACE
+							.getValue())
+					+ "."
+					+ trendScoreProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
+							.getValue()) + " SET "
+					+ Trend.TREND_SCORE.getColumn() + " =?, "
+					+ Trend.NORMALIZED_SCORE.getColumn() + " =?,"
+					+ Trend.TREND_SCORE_REASON.getColumn() + " =?";
 
 			logger.info("initializing cassandra config for zscore service");
 			// initializing cassandra config for zscore service
@@ -296,7 +307,6 @@ public class TrendScoreDriver implements Serializable {
 
 	}
 
-	
 	private JavaPairRDD<String, DayScore> preprocessingForZScore(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
 			int period, long currentDateTimestamp) {

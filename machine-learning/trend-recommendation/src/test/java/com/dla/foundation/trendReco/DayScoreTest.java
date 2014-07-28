@@ -1,6 +1,7 @@
 package com.dla.foundation.trendReco;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -31,7 +32,7 @@ public class DayScoreTest {
 	}
 	
 	@Test
-	public void userEvtSummaryCalTest() {
+	public void dayScoreCalTest() {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(

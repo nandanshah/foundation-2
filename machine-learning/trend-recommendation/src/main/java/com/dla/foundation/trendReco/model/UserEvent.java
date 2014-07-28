@@ -11,35 +11,35 @@ public class UserEvent implements Serializable {
 	 */
 	private static final long serialVersionUID = -808961715382376700L;
 
-	int userId;
-	int movieId;
-	int eventType;
-	Date date;
-	int tenantId;
-	int regionId;
+	private String userId;
+	private String movieId;
+	private String eventType;
+	private Date date;
+	private String tenantId;
+	private String regionId;
 	Map<String, String> avp;
 
-	public int getMovieid() {
+	public String getMovieid() {
 		return movieId;
 	}
 
-	public void setMovieid(int movieid) {
+	public void setMovieid(String movieid) {
 		this.movieId = movieid;
 	}
 
-	public int getUserId() {
+	public String getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
-	public int getEventType() {
+	public String getEventType() {
 		return eventType;
 	}
 
-	public void setEventType(int event_type) {
+	public void setEventType(String event_type) {
 		this.eventType = event_type;
 	}
 
@@ -51,19 +51,19 @@ public class UserEvent implements Serializable {
 		this.date = date;
 	}
 
-	public int getTenantId() {
+	public String getTenantId() {
 		return tenantId;
 	}
 
-	public void setTenantId(int tenantID) {
+	public void setTenantId(String tenantID) {
 		this.tenantId = tenantID;
 	}
 
-	public int getRegionId() {
+	public String getRegionId() {
 		return regionId;
 	}
 
-	public void setRegionId(int regionId) {
+	public void setRegionId(String regionId) {
 		this.regionId = regionId;
 	}
 
@@ -76,9 +76,4 @@ public class UserEvent implements Serializable {
 		this.avp = avp;
 	}
 
-	@Override
-	public String toString() {
-
-		return regionId + "::" + tenantId + "::" + movieId + avp.keySet();
-	}
 }

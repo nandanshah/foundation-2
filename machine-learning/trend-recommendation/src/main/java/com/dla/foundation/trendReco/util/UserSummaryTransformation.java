@@ -3,12 +3,15 @@ package com.dla.foundation.trendReco.util;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
@@ -35,7 +38,7 @@ public class UserSummaryTransformation implements Serializable{
 	
 	private static final String DELIMITER_PROPERTY = "#";
 
-	public static JavaPairRDD<String, UserSummary> getUserEventWithKey(
+	public static JavaPairRDD<String, UserSummary> getUserSummaryWithKey(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
 
 		JavaPairRDD<String, UserSummary> userSummaryRDD = cassandraRDD
@@ -81,7 +84,7 @@ public class UserSummaryTransformation implements Serializable{
 	private static UserSummary getDayScorePerUser(
 			Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
 			throws NumberFormatException, CharacterCodingException {
-
+		Map<String,Integer> eventTypeAggregate;
 		UserSummary userSummary = new UserSummary();
 		Map<String, ByteBuffer> priamryKeyColumns = record._1();
 		if (priamryKeyColumns != null) {
@@ -94,8 +97,7 @@ public class UserSummaryTransformation implements Serializable{
 						.compareTo(
 								DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setTenantId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userSummary.setTenantId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column
 						.getKey()
@@ -103,8 +105,7 @@ public class UserSummaryTransformation implements Serializable{
 						.compareTo(
 								DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setRegionId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userSummary.setRegionId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column
 						.getKey()
@@ -112,8 +113,7 @@ public class UserSummaryTransformation implements Serializable{
 						.compareTo(
 								DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setItemId(ByteBufferUtil.toInt(column
-								.getValue()));
+						userSummary.setItemId(UUIDType.instance.compose(column.getValue()).toString());
 
 				}
 
@@ -149,11 +149,15 @@ public class UserSummaryTransformation implements Serializable{
 								DailyEventSummaryPerUserItem.EVENT_AGGREGATE
 										.getColumn()) == 0) {
 
-					MapType<Integer, Integer> mapType = MapType.getInstance(
-							Int32Type.instance, Int32Type.instance);
-					if (null != column.getValue())
-						userSummary.setEventTypeAggregate(mapType
-								.compose(column.getValue()));
+					MapType<UUID, Integer> mapType = MapType.getInstance(UUIDType.instance, Int32Type.instance);
+					eventTypeAggregate = new HashMap<String, Integer>();
+					if (null != column.getValue()){
+						Map<UUID,Integer> tmpMap =    mapType.compose(column.getValue());
+						for (Entry<UUID, Integer> map : tmpMap.entrySet()) {
+							eventTypeAggregate.put(map.getKey().toString() , map.getValue());
+						}
+						userSummary.setEventTypeAggregate(eventTypeAggregate);
+					}
 
 				}
 

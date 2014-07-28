@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
@@ -73,20 +74,20 @@ public class DayScoreTransformation implements Serializable {
 				if (column.getKey().toLowerCase()
 						.compareTo(DailyEventSummaryPerItem.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setTenantId(ByteBufferUtil.toInt(column
-								.getValue()));
+						dayScore.setTenantId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase()
 						.compareTo(DailyEventSummaryPerItem.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setRegionId(ByteBufferUtil.toInt(column
-								.getValue()));
+						dayScore.setRegionId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase()
 						.compareTo(DailyEventSummaryPerItem.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setItemId(ByteBufferUtil.toInt(column
-								.getValue()));
+						dayScore.setItemId(UUIDType.instance.compose(column
+								.getValue()).toString());
 
 				}
 

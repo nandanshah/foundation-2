@@ -104,9 +104,9 @@ public class TrendRecommendationUtil implements Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<Integer, EventType> getRequiredEvent(String value)
+	public static Map<String, EventType> getRequiredEvent(String value)
 			throws NumberFormatException {
-		Map<Integer, EventType> requiredEvent = new HashedMap();
+		Map<String, EventType> requiredEvent = new HashedMap();
 		EventType eventType;
 		Map<String, Integer> threshold;
 		String[] events = value.split("\\|");
@@ -118,15 +118,12 @@ public class TrendRecommendationUtil implements Serializable {
 				threshold = new HashedMap();
 				String[] values = record[3].split("#");
 				threshold.put(values[0], Integer.parseInt(values[1]));
-				eventType = new EventType(Integer.parseInt(record[0].trim()),
-						record[1].trim(), threshold, Integer.parseInt(record[2]
-								.trim()));
+				eventType = new EventType(record[0].trim(),record[1].trim(), threshold,Integer.parseInt(record[2]));
 			} else {
-				eventType = new EventType(Integer.parseInt(record[0].trim()),
-						record[1].trim(), Integer.parseInt(record[2].trim()));
+				eventType = new EventType(record[0].trim(),record[1].trim(),Integer.parseInt(record[2].trim()));
 			}
 
-			requiredEvent.put(Integer.parseInt(record[0]), eventType);
+			requiredEvent.put(record[0].toLowerCase(), eventType);
 
 		}
 		return requiredEvent;

@@ -70,10 +70,41 @@ public class UserEventSummaryDriver implements Serializable {
 	 */
 	public void runUserEvtSummaryDriver(String appPropFilePath,
 			String userSumPropFilePath) {
-		try {
+		
+		try{
 			logger.info("Initializing property handler ");
 			// Initializing property handler
 			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
+			// initializing spark context
+			logger.info("initializing spark context");
+			JavaSparkContext sparkContext = new JavaSparkContext(
+					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
+					appProp.getValue(PropKeys.APP_NAME.getValue()));
+			
+			// initializing spark-cassandra connector
+			logger.info("initializing spark-cassandra connector");
+			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
+					TrendRecommendationUtil.getList(appProp
+							.getValue(PropKeys.INPUT_HOST_LIST.getValue()),
+							IP_SEPARATOR),
+					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
+					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
+					TrendRecommendationUtil.getList(appProp
+							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
+							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
+							.getValue()));
+			runUserEvtSummaryDriver(sparkContext,cassandraSparkConnector,userSumPropFilePath);
+		}catch(Exception e){
+			logger.error(e);
+		}
+		
+
+	}
+	
+	public void runUserEvtSummaryDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,
+			String userSumPropFilePath) {
+		try {
+			
 			PropertiesHandler userSumProp = new PropertiesHandler(
 					userSumPropFilePath);
 
@@ -90,26 +121,7 @@ public class UserEventSummaryDriver implements Serializable {
 					+ "=?," + DailyEventSummaryPerUserItem.FLAG.getColumn()
 					+ "=?";
 
-			// initializing spark context
-			logger.info("initializing spark context");
-			JavaSparkContext sparkContext = new JavaSparkContext(
-					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
-					appProp.getValue(PropKeys.APP_NAME.getValue()));
-
-			// initializing spark-cassandra connector
-			logger.info("initializing spark-cassandra connector");
-			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.INPUT_HOST_LIST.getValue()),
-							IP_SEPARATOR),
-					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
-							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
-							.getValue()));
-
-			Map<Integer, EventType> requiredEventType = TrendRecommendationUtil
+			Map<String, EventType> requiredEventType = TrendRecommendationUtil
 					.getRequiredEvent(userSumProp
 							.getValue(PropKeys.EVENT_REQUIRED.getValue()));
 
@@ -335,7 +347,7 @@ public class UserEventSummaryDriver implements Serializable {
 	 */
 	private JavaPairRDD<String, UserEvent> preprocessingForUserEvtSummary(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
-			Map<Integer, EventType> requiredEventMap) {
+			Map<String, EventType> requiredEventMap) {
 		logger.info("Preprocessing: transforming record from cassandra format to required user event ");
 		JavaPairRDD<String, UserEvent> userEventRDD = UserEventTransformation
 				.getUserEventWithKey(cassandraRDD);
@@ -350,10 +362,10 @@ public class UserEventSummaryDriver implements Serializable {
 		public Date startDate;
 		public Date endDate;
 		public int periodForRecal;
-		public Map<Integer, EventType> requiredEvent;
+		public Map<String, EventType> requiredEvent;
 
 		public UserEvtSummaryConfig(Date startDate, Date endDate,
-				Map<Integer, EventType> requiredEvent, int periodForRecal) {
+				Map<String, EventType> requiredEvent, int periodForRecal) {
 			super();
 			this.startDate = startDate;
 			this.endDate = endDate;
@@ -362,7 +374,7 @@ public class UserEventSummaryDriver implements Serializable {
 		}
 
 		public UserEvtSummaryConfig(Date startDate, Date endDate,
-				Map<Integer, EventType> requiredEvent) {
+				Map<String, EventType> requiredEvent) {
 			this(startDate, endDate, requiredEvent, -1);
 		}
 	}
