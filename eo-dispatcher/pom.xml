@@ -2,13 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.dla.foundation</groupId>
+	<groupId>com.dla.foundation.fis</groupId>
 	<artifactId>eo-dispatcher</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>eo-dispatcher</name>
 	<url>http://maven.apache.org</url>
-
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,20 +15,8 @@
 		<platform-common-version>1.0</platform-common-version>
 		<junit-version>4.10</junit-version>
 		<rabbitmq-client-version>3.3.3</rabbitmq-client-version>
-		<spark-version>1.0.0</spark-version>
-		<prediction-io-version>0.6.1</prediction-io-version>
-		<org-json-version>20140107</org-json-version>
-		<cassandra-apache-version>2.0.4</cassandra-apache-version>
-		<cassandra-dse-driver-version>2.0.0-rc1</cassandra-dse-driver-version>
-		<gigya-api-version>0.1.0</gigya-api-version>
-
-		<groovy-version>1.8.6</groovy-version>
 		<maven-comipler-plugin-version>2.5.1</maven-comipler-plugin-version>
-		<groovy-eclipse-compiler-version>2.7.0-01</groovy-eclipse-compiler-version>
-		<maven-clover2-plugin-version>3.1.7</maven-clover2-plugin-version>
-		<groovy-eclipse-batch-version>1.8.6-01</groovy-eclipse-batch-version>
 		<log4j-version>1.2.17</log4j-version>
-
 	</properties>
 
 	<dependencies>
@@ -59,7 +46,10 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-comipler-plugin-version}</version>
-
+					<configuration>
+						<source>${jdk-version}</source>
+						<target>${jdk-version}</target>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
