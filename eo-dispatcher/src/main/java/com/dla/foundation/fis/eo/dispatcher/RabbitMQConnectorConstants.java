@@ -8,15 +8,15 @@ package com.dla.foundation.fis.eo.dispatcher;
  */
 public class RabbitMQConnectorConstants {
 	
+	/* RabbitMQ Server properties */
 	public static final String RABBITMQ_HOST = "localhost";
 	public static final int RABBITMQ_PORT = 5672;
 	
+	/* RabbitMQ Exchange properties */
 	public static final String EXCHANGE_NAME = "FOUNDATION_EXCH";
 	public static final String EXCHANGE_TYPE = "topic";
 	
-	public static final String RABBITMQ_USERNAME = "test";
-	public static final String RABBITMQ_PASSWORD = "test";
-	
+	/* Message routing keys for events/messages propagating to Cassandra */
 	public static final String profileAdded_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "profileAdded.profile.cassandra.async.event.message";
 	public static final String profileDeleted_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "profileDeleted.profile.cassandra.async.event.message";
 	public static final String profileUpdatePreferredRegion_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "profileUpdatePreferredRegion.profile.cassandra.async.event.message";
@@ -32,6 +32,7 @@ public class RabbitMQConnectorConstants {
 	public static final String addSession_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "addSession.account.cassandra.async.event.message";
 	public static final String userItemRent_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemRent.account.cassandra.async.event.message";
 	public static final String userItemPurchase_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemPurchase.account.cassandra.async.event.message";
+	public static final String userItemImpression_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemImpression.account.cassandra.async.event.message";
 	
 	public static final String userSearch_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userSearch.search.cassandra.async.event.message";
 	public static final String userSearchResultClick_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userSearchResultClick.search.cassandra.async.event.message";
@@ -47,4 +48,5 @@ public class RabbitMQConnectorConstants {
 	public static final String userItemPlayPercentage_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemPlayPercentage.playback.cassandra.async.event.message";
 	public static final String userItemPlayStop_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemPlayStop.playback.cassandra.async.event.message";
 	public static final String userItemPlayPause_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemPlayPause.playback.cassandra.async.event.message";
+	public static final String userItemPlayResume_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "userItemPlayResume.playback.cassandra.async.event.message";
 }

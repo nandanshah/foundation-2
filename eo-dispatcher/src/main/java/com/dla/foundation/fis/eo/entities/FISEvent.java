@@ -9,13 +9,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
-public class AnalyticsEvent implements Serializable {
+public class FISEvent implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1170682511448219134L;
 
+	private EventType type;
 	private UUID tenantID;
 	private UUID sessionID;
 	private UUID accountID;
@@ -46,10 +44,18 @@ public class AnalyticsEvent implements Serializable {
 	private UserActions action;
 	private long purchaseStartTimestamp;
 		
-	public AnalyticsEvent() {
+	public FISEvent() {
 		
 	}
 	
+	public EventType getType() {
+		return type;
+	}
+
+	public void setType(EventType type) {
+		this.type = type;
+	}
+
 	public UUID getTenantID() {
 		return tenantID;
 	}
@@ -299,11 +305,11 @@ public class AnalyticsEvent implements Serializable {
 	}
 
 	//fromBytes() will allow event orchestration layer consumer to instantiate event object from raw bytes
-	public static AnalyticsEvent fromBytes(byte[] body) {
-		AnalyticsEvent obj = null;
+	public static FISEvent fromBytes(byte[] body) {
+		FISEvent obj = null;
 		try (ByteArrayInputStream bis = new ByteArrayInputStream(body)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-				obj = (AnalyticsEvent) ois.readObject();
+				obj = (FISEvent) ois.readObject();
 			}
 		}
 		catch (Exception e) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import com.dla.foundation.fis.eo.dispatcher.RabbitMQAMQPConnector;
 import com.dla.foundation.fis.eo.entities.DeviceType;
@@ -27,14 +28,15 @@ public class DispatcherTest {
 
 	@Test
 	public void testAddSyncEvent() {
-		for(int i = 0; i < 50; i++) {
+		for(int i = 0; i < 500; i++) {
 			try {
-				Thread.sleep(200);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			try {
-				rmqC.accountAdd(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), System.currentTimeMillis(), UUID.randomUUID(), UUID.randomUUID(), DeviceType.ANDROID_PHONE, UUID.randomUUID());
+				boolean success = rmqC.accountAdd(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), System.currentTimeMillis(), UUID.randomUUID(), UUID.randomUUID(), DeviceType.ANDROID_PHONE, UUID.randomUUID());
+				assertEquals(true, success);
 			} catch (DispatcherException e) {
 
 			}
