@@ -33,6 +33,12 @@
 		 	"queue_type" : "sync",
 		 	"queue_updater" : "CassandraUpdater",
 		 	"queue_bind_key" : "#.watchlist.cassandra.sync.event.message"
+		},
+		{
+			"queue_name" : "queue_6",
+		 	"queue_type" : "sync",
+		 	"queue_updater" : "EmailUpdater",
+		 	"queue_bind_key" : "#.email.sync.event.message"
 		}
 	]
 }

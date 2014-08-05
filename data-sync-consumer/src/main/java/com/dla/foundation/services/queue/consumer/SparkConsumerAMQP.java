@@ -14,6 +14,7 @@ import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.services.queue.updater.CassandraUpdater;
 import com.dla.foundation.services.queue.updater.ElasticSearchUpdater;
 import com.dla.foundation.services.queue.updater.PIOUpdater;
+import com.dla.foundation.services.queue.updater.EmailUpdater;
 import com.dla.foundation.services.queue.updater.Updater;
 import com.dla.foundation.services.queue.util.QueueListenerConfigHandler;
 import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
@@ -74,6 +75,8 @@ final class QueueReceiverAMQP extends Receiver<AnalyticsCollectionEvent> impleme
 				updater = es;
 			else if(oneQConfig.getUpdater().equalsIgnoreCase("CassandraUpdater"))
 				updater = new CassandraUpdater();
+			else if (oneQConfig.getUpdater().equalsIgnoreCase("EmailUpdater"))
+				updater = new EmailUpdater();
 
 			if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.sync)
 				new Thread(new SyncQueueConsumer(oneQConfig,updater)).start();
