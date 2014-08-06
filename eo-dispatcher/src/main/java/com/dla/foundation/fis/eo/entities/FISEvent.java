@@ -192,7 +192,7 @@ public class FISEvent implements Serializable {
 		this.purchaseTimestamp = purchaseTimestamp;
 	}
 
-	public double getRateScore() {
+	public int getRateScore() {
 		return rateScore;
 	}
 
