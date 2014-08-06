@@ -7,18 +7,18 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-import com.dla.foundation.fis.eo.dispatcher.RabbitMQAMQPConnector;
+import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcher;
 import com.dla.foundation.fis.eo.entities.DeviceType;
 import com.dla.foundation.fis.eo.entities.EOConfig;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 
 public class DispatcherTest {
 
-	private RabbitMQAMQPConnector rmqC;
+	private RabbitMQDispatcher rmqC;
 
 	@Before
 	public void before() {
-		rmqC = new RabbitMQAMQPConnector();
+		rmqC = new RabbitMQDispatcher();
 		try {
 			rmqC.init(new EOConfig());
 		} catch (IOException e) {

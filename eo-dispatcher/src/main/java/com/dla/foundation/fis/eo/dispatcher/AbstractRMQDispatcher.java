@@ -51,15 +51,15 @@ public abstract class AbstractRMQDispatcher<E extends FISEvent> implements EODis
 		factory.setPort(conf.rmqPort);
 		connection = factory.newConnection();
 		asyncChannel = connection.createChannel();
-		asyncChannel.exchangeDeclare(RabbitMQConnectorConstants.EXCHANGE_NAME, RabbitMQConnectorConstants.EXCHANGE_TYPE);
+		asyncChannel.exchangeDeclare(RabbitMQDispatcherConstants.EXCHANGE_NAME, RabbitMQDispatcherConstants.EXCHANGE_TYPE);
 
 		syncChannel = connection.createChannel();
-		syncChannel.exchangeDeclare(RabbitMQConnectorConstants.EXCHANGE_NAME, RabbitMQConnectorConstants.EXCHANGE_TYPE);
+		syncChannel.exchangeDeclare(RabbitMQDispatcherConstants.EXCHANGE_NAME, RabbitMQDispatcherConstants.EXCHANGE_TYPE);
 
 		syncReplyQueueName = syncChannel.queueDeclare().getQueue();
 		syncConsumer = new QueueingConsumer(syncChannel);
 		syncChannel.basicConsume(syncReplyQueueName, true, syncConsumer);
-		logger.info("RabbitMQ Connector initialized with Host: " + conf.rmqHost + ", port: " + conf.rmqPort + ", exchange: " + RabbitMQConnectorConstants.EXCHANGE_NAME);
+		logger.info("RabbitMQ Connector initialized with Host: " + conf.rmqHost + ", port: " + conf.rmqPort + ", exchange: " + RabbitMQDispatcherConstants.EXCHANGE_NAME);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public abstract class AbstractRMQDispatcher<E extends FISEvent> implements EODis
 		if(null!=message) {
 			byte[] obj = message.getBytes();
 			try {
-				asyncChannel.basicPublish(RabbitMQConnectorConstants.EXCHANGE_NAME, route_key, MessageProperties.PERSISTENT_TEXT_PLAIN, obj);
+				asyncChannel.basicPublish(RabbitMQDispatcherConstants.EXCHANGE_NAME, route_key, MessageProperties.PERSISTENT_TEXT_PLAIN, obj);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -97,7 +97,7 @@ public abstract class AbstractRMQDispatcher<E extends FISEvent> implements EODis
 			String corrId = UUID.randomUUID().toString();
 			BasicProperties props = new BasicProperties.Builder().correlationId(corrId).replyTo(syncReplyQueueName).build();
 			try {
-				syncChannel.basicPublish(RabbitMQConnectorConstants.EXCHANGE_NAME, route_key, props, obj);
+				syncChannel.basicPublish(RabbitMQDispatcherConstants.EXCHANGE_NAME, route_key, props, obj);
 				while (true) {
 					QueueingConsumer.Delivery delivery = syncConsumer.nextDelivery();
 					if (delivery.getProperties().getCorrelationId().equals(corrId)) {
