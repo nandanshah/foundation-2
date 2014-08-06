@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.dla.foundation.fis.eo.entities.DeviceType;
-import com.dla.foundation.fis.eo.entities.EOConfig;
 import com.dla.foundation.fis.eo.entities.EventType;
 import com.dla.foundation.fis.eo.entities.FISEvent;
 import com.dla.foundation.fis.eo.entities.ImpressionSource;

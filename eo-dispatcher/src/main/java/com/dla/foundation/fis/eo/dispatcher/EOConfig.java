@@ -1,4 +1,4 @@
-package com.dla.foundation.fis.eo.entities;
+package com.dla.foundation.fis.eo.dispatcher;
 
 import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcherConstants;
 

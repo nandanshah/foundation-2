@@ -5,11 +5,12 @@ import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
+import com.dla.foundation.fis.eo.dispatcher.EOConfig;
 import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcher;
 import com.dla.foundation.fis.eo.entities.DeviceType;
-import com.dla.foundation.fis.eo.entities.EOConfig;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 
 public class DispatcherTest {

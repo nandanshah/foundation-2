@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.dla.foundation.fis.eo.entities.FISEvent;
-import com.dla.foundation.fis.eo.entities.EOConfig;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 import com.dla.foundation.fis.eo.exception.NullMessageDispatcherException;
 import com.rabbitmq.client.AMQP.BasicProperties;
