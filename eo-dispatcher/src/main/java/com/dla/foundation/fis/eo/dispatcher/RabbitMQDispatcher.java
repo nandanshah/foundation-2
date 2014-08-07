@@ -7,6 +7,7 @@ import com.dla.foundation.fis.eo.entities.DeviceType;
 import com.dla.foundation.fis.eo.entities.EventType;
 import com.dla.foundation.fis.eo.entities.FISEvent;
 import com.dla.foundation.fis.eo.entities.ImpressionSource;
+import com.dla.foundation.fis.eo.entities.NetworkType;
 import com.dla.foundation.fis.eo.entities.SearchType;
 import com.dla.foundation.fis.eo.entities.SocialMediaType;
 import com.dla.foundation.fis.eo.entities.UserActions;
@@ -26,7 +27,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean profileAdded(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileAdded;
 		e.tenantID = tenantId;
@@ -38,6 +39,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileAdded_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -45,7 +47,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean profileDeleted(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
-			UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileDeleted;
@@ -58,6 +60,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileDeleted_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -66,7 +69,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean profileUpdatePreferredRegion(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
-			UUID preferredregionId) throws DispatcherException {
+			UUID preferredregionId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileUpdatePreferredRegion;
 		e.tenantID = tenantId;
@@ -79,6 +82,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.preferredRegionID = preferredregionId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdatePreferredRegion_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -87,7 +91,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean profileUpdatePreferredLocale(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
-			UUID preferredLocaleId) throws DispatcherException {
+			UUID preferredLocaleId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileUpdatePreferredLocale;
 		e.tenantID = tenantId;
@@ -100,6 +104,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.preferredLocaleID = preferredLocaleId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdatePreferredLocale_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -108,7 +113,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean profileUpdateNewSocialMediaAccountLinkage(UUID tenantId,
 			UUID sessionId, UUID accountId, long timestamp, UUID profileId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
-			SocialMediaType socialMediaType, String gigyaAuthToken)
+			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileUpdateNewSocialMediaAccountLinkage;
@@ -123,6 +128,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.deviceId = deviceId;
 		e.socialMediaType = socialMediaType;
 		e.gigyaAuthToken = gigyaAuthToken;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdateNewSocialMediaAccountLinkage_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -131,7 +137,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean profileUpdateSocialMediaAccountDelete(UUID tenantId,
 			UUID sessionId, UUID accountId, long timestamp, UUID profileId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
-			SocialMediaType socialMediaType, String gigyaAuthToken)
+			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.profileUpdateSocialMediaAccountDelete;
@@ -146,6 +152,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.deviceId = deviceId;
 		e.socialMediaType = socialMediaType;
 		e.gigyaAuthToken = gigyaAuthToken;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdateSocialMediaAccountDelete_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -153,7 +160,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean accountAdd(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.accountAdd;
 		e.tenantID = tenantId;
@@ -164,6 +171,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.accountAdd_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -171,7 +179,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean accountDelete(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.accountDelete;
 		e.tenantID = tenantId;
@@ -182,6 +190,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.accountDelete_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -189,7 +198,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean accountInfoUpdate(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.accountInfoUpdate;
 		e.tenantID = tenantId;
@@ -200,6 +209,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.accountInfoUpdate_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -207,7 +217,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userLogin(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userLogin;
 		e.tenantID = tenantId;
@@ -219,6 +229,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userLogin_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -226,7 +237,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userLogout(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userLogout;
 		e.tenantID = tenantId;
@@ -238,6 +249,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userLogout_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -245,7 +257,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean addSession(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, Map<String, String> avp,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.addSession;
@@ -259,6 +271,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.addSession_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -267,7 +280,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userSearch(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, SearchType searchType,
 			String searchString, Map<String, String> filters, UUID regionId,
-			UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userSearch;
@@ -283,6 +296,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userSearch_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -292,7 +306,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 			UUID accountId, long timestamp, UUID profileId,
 			SearchType searchType, String searchString, int resultPageNumber,
 			UUID itemId, int rankOfItemId, UserActions action, UUID regionId,
-			UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userSearchResultClick;
@@ -311,6 +325,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userSearchResultClick_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -318,7 +333,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemPreview(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemPreview;
@@ -332,6 +347,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPreview_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -339,7 +355,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemMoreInfo(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemMoreInfo;
@@ -353,6 +369,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemMoreInfo_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -360,7 +377,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemShare(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID itemId, UUID regionId,
-			UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemShare;
@@ -374,6 +391,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemShare_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -381,7 +399,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemRate(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID itemId, int rateScore,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemRate;
@@ -396,6 +414,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRate_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -403,7 +422,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemAddToWatchList(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemAddToWatchList;
@@ -417,6 +436,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemAddToWatchList_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -424,7 +444,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemDeleteFromWatchlist(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemDeleteFromWatchlist;
@@ -438,6 +458,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemDeleteFromWatchlist_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -445,7 +466,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemPlayStart(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemPlayStart;
@@ -459,6 +480,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStart_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -467,7 +489,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayPercentage(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = EventType.userItemPlayPercentage;
 		e.tenantID = tenantId;
@@ -481,6 +503,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPercentage_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -489,7 +512,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayStop(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayStop);
 		e.tenantID = tenantId;
@@ -503,6 +526,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStop_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -511,7 +535,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayPause(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayPause);
 		e.tenantID = tenantId;
@@ -525,6 +549,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPause_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -533,7 +558,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayResume(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayResume);
 		e.tenantID = tenantId;
@@ -547,6 +572,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayResume_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -555,7 +581,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemRent(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID itemId,
 			long rentStartTimestamp, long rentEndTimestamp, UUID regionId,
-			UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemRent);
@@ -571,6 +597,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRent_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -579,7 +606,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPurchase(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			long purchaseStartTimestamp, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPurchase);
 		e.tenantID = tenantId;
@@ -593,6 +620,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPurchase_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -600,7 +628,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean userItemImpression(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemImpression);
@@ -614,6 +642,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemImpression_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -621,7 +650,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	@Override
 	public boolean accountInfoUpdate(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, Map<String, String> avp,
-			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId)
+			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.accountInfoUpdate);
@@ -634,6 +663,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.accountInfoUpdate_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -642,7 +672,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPreview(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPreview);
@@ -657,6 +687,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPreview_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -665,7 +696,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemMoreInfo(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemMoreInfo);
@@ -680,6 +711,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemMoreInfo_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -688,7 +720,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemShare(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemShare);
@@ -703,6 +735,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemShare_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -711,7 +744,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemRate(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID itemId, int rateScore,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemRate);
@@ -727,6 +760,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRate_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -735,7 +769,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayStart(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayStart);
@@ -750,6 +784,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStart_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -758,7 +793,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayPercentage(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, ImpressionSource impressionSource,
-			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId)
+			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayPercentage);
@@ -774,6 +809,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPercentage_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -782,7 +818,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayStop(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, ImpressionSource impressionSource,
-			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId)
+			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayStop);
@@ -798,6 +834,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStop_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -806,7 +843,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayPause(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, ImpressionSource impressionSource,
-			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId)
+			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayPause);
@@ -822,6 +859,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPause_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -830,7 +868,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPlayResume(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, ImpressionSource impressionSource,
-			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId)
+			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPlayResume);
@@ -846,6 +884,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayResume_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -855,7 +894,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 			long timestamp, UUID profileId, UUID itemId,
 			long rentStartTimestamp, long rentEndTimestamp,
 			ImpressionSource impressionSource, DeviceType deviceType,
-			UUID regionId, UUID localeId, UUID deviceId)
+			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemRent);
@@ -872,6 +911,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRent_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -880,7 +920,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemAddToWatchList(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemAddToWatchList);
 		e.tenantID = tenantId;
@@ -894,6 +934,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemAddToWatchList_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -902,7 +943,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemPurchase(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			long purchaseStartTimestamp, ImpressionSource impressionSource,
-			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId)
+			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemPurchase);
@@ -918,6 +959,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPurchase_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}
@@ -926,7 +968,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 	public boolean userItemImpression(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
-			DeviceType deviceType, UUID deviceId) throws DispatcherException {
+			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
 		FISEvent e = new FISEvent();
 		e.type = (EventType.userItemImpression);
 		e.tenantID = tenantId;
@@ -940,6 +982,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISEvent> {
 		e.localeID = localeId;
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
+		e.networkType = networkType;
 		enqueueAsync(e, RabbitMQDispatcherConstants.userItemImpression_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
 		return true;
 	}

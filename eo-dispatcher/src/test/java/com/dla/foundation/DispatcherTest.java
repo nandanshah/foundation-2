@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import com.dla.foundation.fis.eo.dispatcher.EOConfig;
 import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcher;
@@ -35,11 +36,12 @@ public class DispatcherTest {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
 			try {
 				boolean success = rmqC.accountAdd(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), System.currentTimeMillis(), UUID.randomUUID(), UUID.randomUUID(), DeviceType.ANDROID_PHONE, UUID.randomUUID());
 				assertEquals(true, success);
 			} catch (DispatcherException e) {
-
+				fail(e.getMessage());
 			}
 		}
 	}
