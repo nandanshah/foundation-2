@@ -11,4 +11,9 @@
 	<artifactId>trend-recommendation</artifactId>
 	<name>trend-recommendation</name>
 	<packaging>jar</packaging>
+
+	<properties>
+		<main.basedir>${project.parent.parent.basedir}</main.basedir>
+	</properties>
+
 </project>

@@ -36,8 +36,8 @@ public class DayScoreTest {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/dayScorePropTest");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/dayScorePropTest.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");

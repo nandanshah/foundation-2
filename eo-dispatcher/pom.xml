@@ -37,8 +37,8 @@
 			<version>${rabbitmq-client-version}</version>
 			<scope>compile</scope>
 		</dependency>
-
 	</dependencies>
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -54,4 +54,5 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 </project>

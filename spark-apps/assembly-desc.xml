@@ -1,11 +1,12 @@
 <assembly>
 	<id>bin</id>
-	<!-- Generates a zip package containing the needed files -->
+
+	<!-- Generates a tarball package containing the needed files -->
 	<formats>
 		<format>tar.gz</format>
 	</formats>
 
-	<!-- Adds dependencies to zip package under lib directory -->
+	<!-- Adds dependencies to tarball package under lib directory -->
 	<dependencySets>
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>
@@ -16,10 +17,15 @@
 
 	<fileSets>
 		<fileSet>
-			<directory>${basedir}/src/main/resources</directory>
+			<directory>${project.build.directory}/classes</directory>
 			<outputDirectory>conf</outputDirectory>
 			<includes>
-				<include>*</include>
+				<include>*.properties</include>
+				<include>*.conf</include>
+				<include>*.json</include>
+				<include>*.txt</include>
+				<include>*.props</include>
+				<include>*.prop</include>
 			</includes>
 		</fileSet>
 		<fileSet>

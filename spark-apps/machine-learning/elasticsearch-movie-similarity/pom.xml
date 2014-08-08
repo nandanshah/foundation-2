@@ -13,6 +13,10 @@
 	<name>elasticsearch-movie-similarity</name>
 	<packaging>jar</packaging>
 
+	<properties>
+		<main.basedir>${project.parent.parent.basedir}</main.basedir>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>

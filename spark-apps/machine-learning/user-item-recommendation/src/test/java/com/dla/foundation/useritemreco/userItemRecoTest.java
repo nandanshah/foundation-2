@@ -36,8 +36,8 @@ public class userItemRecoTest {
 		assertNotNull(cassandra);
 		assertNotNull(userItemRecoDriver);
 		userItemRecoDriver.runUserItemRecoDriver("src/test/resources/appProp",
-				"src/test/resources/scoreSummaryProp",
-				"src/test/resources/userItemSummaryProp");
+				"src/test/resources/scoreSummaryProp.txt",
+				"src/test/resources/userItemSummaryProp.txt");
 		ResultSet userItemResult = cassandra.getRows("useritemrecotest",
 				"useritemrecommendation");
 		for (Row row : userItemResult) {

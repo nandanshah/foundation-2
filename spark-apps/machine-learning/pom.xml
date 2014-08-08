@@ -14,6 +14,10 @@
 
 	<name>machine-learning</name>
 
+	<properties>
+		<main.basedir>${project.parent.basedir}</main.basedir>
+	</properties>
+
 	<modules>
 		<module>user-item-recommendation</module>
 		<module>trend-recommendation</module>

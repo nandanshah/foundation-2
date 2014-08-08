@@ -45,7 +45,7 @@ public class QueueListenerConfigHandler implements Serializable {
 	}
 
 	public QueueListenerConfigHandler() throws IOException {
-		String content = new String(Files.readAllBytes(Paths.get("src/main/resources/QueueListenerConfig.json")));
+		String content = new String(Files.readAllBytes(Paths.get("src/main/resources/local/QueueListenerConfig.json")));
 		JSONObject configJson = new JSONObject(content);
 		rabbitmq_server_host = configJson.getString(QueueConfigKeys.rabbitmq_server_host.getValue());
 		rabbitmq_server_port = configJson.getInt(QueueConfigKeys.rabbitmq_server_port.getValue());

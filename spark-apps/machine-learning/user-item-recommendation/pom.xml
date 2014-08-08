@@ -10,4 +10,9 @@
   <artifactId>user-item-recommendation</artifactId>
   <packaging>jar</packaging>
    <name>user-item-recommendation</name>
+
+	<properties>
+		<main.basedir>${project.parent.parent.basedir}</main.basedir>
+	</properties>
+
 </project>

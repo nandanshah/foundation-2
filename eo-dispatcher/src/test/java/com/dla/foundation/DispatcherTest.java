@@ -25,14 +25,13 @@ public class DispatcherTest {
 	public void before() {
 		rmqC = new RabbitMQDispatcher();
 		Properties props = new Properties();
-
 		try {
 			FileInputStream input = new FileInputStream("src/test/resources/RabbitMQ.properties");
 			props.load(input);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		try {
 			rmqC.init(new EOConfig(props.getProperty("rabbitmq_server_host"),Integer.parseInt(props.getProperty("rabbitmq_server_port"))));
 		} catch (IOException e) {
