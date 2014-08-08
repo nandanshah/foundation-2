@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.spark.SparkFiles;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,6 +20,9 @@ public class QueueListenerConfigHandler implements Serializable {
 	private String exchange_name;
 	private String exchange_type;
 	private List<QueueConfig> qConfigs = new ArrayList<QueueConfig>();
+	private String PROPERTIES_FILE_NAME = "QueueListenerConfig.json";
+	private String PROPERTIES_FILE_VAR = "queueConfigFilePath";
+	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 
 	public static enum queue_type { async, sync };
 
@@ -45,7 +49,10 @@ public class QueueListenerConfigHandler implements Serializable {
 	}
 
 	public QueueListenerConfigHandler() throws IOException {
-		String content = new String(Files.readAllBytes(Paths.get("src/main/resources/local/QueueListenerConfig.json")));
+		if(propertiesFilePath == null)
+			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
+		
+		String content = new String(Files.readAllBytes(Paths.get(propertiesFilePath)));
 		JSONObject configJson = new JSONObject(content);
 		rabbitmq_server_host = configJson.getString(QueueConfigKeys.rabbitmq_server_host.getValue());
 		rabbitmq_server_port = configJson.getInt(QueueConfigKeys.rabbitmq_server_port.getValue());
@@ -90,7 +97,7 @@ public class QueueListenerConfigHandler implements Serializable {
 	public class QueueConfig implements Serializable {
 
 		private static final long serialVersionUID = -6915586104891552313L;
-		
+
 		private String rabbitMQServer;
 		private int rabbitMQPort;
 		private String exchangeName;
