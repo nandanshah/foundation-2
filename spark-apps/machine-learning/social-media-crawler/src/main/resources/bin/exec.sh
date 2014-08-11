@@ -29,5 +29,5 @@ done
 JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
-echo -e "Submitting Spark Application, data-sync-consumer, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --class com.dla.foundation.services.queue.main.DataSyncApp --master $SPARK_CLUSTER $SH_DIR/../lib/data-sync-consumer-1.0.0.jar submit --deploy-mode client --files $SH_DIR/../conf/QueueListenerConfig.json,$SH_DIR/../conf/CassandraUpdater.properties,$SH_DIR/../conf/PIO_props.properties --jars $JAR_LIST
+echo -e "Submitting Spark Application, social-media-crawler, to Spark Cluster $SPARK_CLUSTER"
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.crawler.CrawlerDriver $SH_DIR/../lib/social-media-crawler-1.0.0.jar $SH_DIR/../conf/crawler.properties --jars $JAR_LIST
