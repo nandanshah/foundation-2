@@ -34,8 +34,8 @@ public class UserEvtSummaryTest {
 		assertNotNull(userEventSummaryDriver);
 		userEventSummaryDriver
 				.runUserEvtSummaryDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/userSumPropTest");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/userSumPropTest.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest3",
 				"dailyeventsummaryperuseritem");

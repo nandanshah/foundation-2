@@ -5,12 +5,16 @@
 	<parent>
 		<groupId>com.dla.foundation.intelligence</groupId>
 		<artifactId>machine-learning</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 
 	<artifactId>social-media-crawler</artifactId>
 	<name>social-media-crawler</name>
 	<packaging>jar</packaging>
+
+	<properties>
+		<main.basedir>${project.parent.parent.basedir}</main.basedir>
+	</properties>
 
 	<repositories>
 		<repository>

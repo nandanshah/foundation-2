@@ -3,6 +3,7 @@ package com.dla.foundation.services.queue.updater;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.DependencyLocator;
 import com.dla.foundation.data.FoundationDataService;
@@ -21,17 +22,10 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 public class CassandraUpdater implements Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-
-	private final String DEFAULT_PROPERTIES_FILE_PATH = "src/main/resources/CassandraUpdater.properties";
-	private final String PROPERTIES_FILE_VAR = "cupropertiesfile";
-	String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR,DEFAULT_PROPERTIES_FILE_PATH);
-	PropertiesHandler phandler;
-	private String nodeIpList;	
-	private String dataKeyspace;
-	private String entityPackagePrefix;
-
 	private static FoundationDataService dataService = null;
-
+	private String PROPERTIES_FILE_NAME = "CassandraUpdater.properties";
+	private String PROPERTIES_FILE_VAR = "cupropertiesfile";
+	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private CassandraContext dataContext;
 
 	public CassandraUpdater(DependencyLocator dependencyLocator) {
@@ -39,13 +33,20 @@ public class CassandraUpdater implements Updater {
 	}
 
 	public CassandraUpdater() {
+		if(propertiesFilePath == null)
+			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
+
+		String entityPackagePrefix = null;
+		String nodeIpList = null;
+		String dataKeyspace = null;
+
 		try {
-			phandler = new PropertiesHandler(propertiesFilePath);
-			nodeIpList = phandler.getValue("nodeIpList");
+			PropertiesHandler phandler = new PropertiesHandler(propertiesFilePath);
+			nodeIpList = phandler.getValue("nodeIpList");	
 			dataKeyspace = phandler.getValue("dataKeyspace");
-			entityPackagePrefix =  phandler.getValue("entityPackagePrefix");
+			entityPackagePrefix = phandler.getValue("entityPackagePrefix");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 		
 		String[] nodeIps = nodeIpList.split(",");

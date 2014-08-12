@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
+import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
@@ -20,13 +21,12 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 public class PIOUpdater implements Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-
 	private Client client;
-	private final String DEFAULT_PROPERTIES_FILE_PATH = "src/main/resources/PIO_props.properties";
-	private final String PROPERTIES_FILE_VAR = "piopropertiesfile";
+	private String PROPERTIES_FILE_NAME = "PIO_props.properties";
+	private String PROPERTIES_FILE_VAR = "piopropertiesfile";
+	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private final int DEFAULT_API_PORT_NUM = 8000;
 
-	private String propertiesFilePath;
 	private PropertiesHandler phandler;
 	private String hostname;
 	private int port;
@@ -34,24 +34,25 @@ public class PIOUpdater implements Updater {
 	private String appKey;
 
 	public PIOUpdater() {
-		propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR,DEFAULT_PROPERTIES_FILE_PATH);
+		
+		if(propertiesFilePath == null)
+			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 		
 		try {
 			phandler = new PropertiesHandler(propertiesFilePath);
 			hostname = phandler.getValue("hostname");
+			try {
+				port = (Integer.parseInt(phandler.getValue("port")) != -1) ? Integer.parseInt(phandler.getValue("port")) : DEFAULT_API_PORT_NUM;
+			} catch (NumberFormatException e) {
+				port = DEFAULT_API_PORT_NUM;
+				logger.error(e.getMessage(), e);
+			}
+			appURL = "http://" + hostname + ":" + port;
 			appKey = phandler.getValue("appkey");
+			client = new Client(appKey, appURL);
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			logger.error(e1.getMessage(), e1);
 		}
-		try {
-			port = (Integer.parseInt(phandler.getValue("port")) != -1) ? Integer.parseInt(phandler.getValue("port")) : DEFAULT_API_PORT_NUM;
-		} catch (NumberFormatException | IOException e) {
-			port = DEFAULT_API_PORT_NUM;
-			logger.error(e.getMessage(), e);
-		}
-
-		appURL = "http://" + hostname + ":" + port;
-		client = new Client(appKey, appURL);
 	}
 
 	@Override

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.dla.foundation</groupId>
 		<artifactId>foundation-intelligence-system</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 
 	<artifactId>featured-and-promoted</artifactId>
@@ -18,6 +18,7 @@
 	<properties>
 		<cassandra-version>2.0.4</cassandra-version>
 		<hadoop-version>1.0.4</hadoop-version>
+		<main.basedir>${project.parent.basedir}</main.basedir>
 	</properties>
 
 	<dependencies>

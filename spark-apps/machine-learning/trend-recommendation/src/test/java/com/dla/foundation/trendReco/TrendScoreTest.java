@@ -32,8 +32,8 @@ public class TrendScoreTest {
 		assertNotNull(trendScoreDriver);
 		trendScoreDriver
 				.runTrendScoreDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/trendScorePropTest");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/trendScorePropTest.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra
 				.getRows("sampletrendrecotest2", "trend");

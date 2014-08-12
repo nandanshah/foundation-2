@@ -6,287 +6,148 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
 public class FISEvent implements Serializable {
 
-	private static final long serialVersionUID = -1170682511448219134L;
-
-	private EventType type;
-	private UUID tenantID;
-	private UUID sessionID;
-	private UUID accountID;
-	private long timestamp;
-	private UUID profileID;
-	private UUID regionID;
-	private UUID preferredRegionID;
-	private UUID localeID;
-	private UUID deviceId;
-	private UUID preferredLocaleID;
-	private SocialMediaType socialMediaType;
-	private String gigyaAuthToken;
-	private UUID itemID;
-	private ImpressionSource impressionSource;
-	private DeviceType deviceType;
-	private NetworkType networkType;
-	private double playPercentage;
-	private long purchaseTimestamp;
-	private int rateScore;
-	private long rentStartTimestamp;
-	private long rentEndTimestamp;
-	private SearchType searchType;
-	private String searchQuery;
-	private Map<String, String> avp;
-	private Map<String, String> filters;
-	private int resultPageNumber;
-	private int rankOfItemId;
-	private UserActions action;
-	private long purchaseStartTimestamp;
-		
-	public FISEvent() {
-		
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -170887874513556821L;
 	
-	public EventType getType() {
-		return type;
-	}
+	// Properties used by Foundation intelligence system.
+	public EventType type;
+	public UUID tenantID;
+	public UUID sessionID;
+	public UUID accountID;
+	public long timestamp;
+	public UUID profileID;
+	public UUID regionID;
+	public UUID preferredRegionID;
+	public UUID localeID;
+	public UUID deviceId;
+	public UUID preferredLocaleID;
+	public SocialMediaType socialMediaType;
+	public String gigyaAuthToken;
+	public UUID itemID;
+	public ImpressionSource impressionSource;
+	public DeviceType deviceType;
+	public NetworkType networkType;//
+	public double playPercentage;
+	public long purchaseTimestamp;//
+	public int rateScore;
+	public long rentStartTimestamp;
+	public long rentEndTimestamp;
+	public SearchType searchType;
+	public String searchQuery;
+	public Map<String, String> avp;
+	public Map<String, String> filters;
+	public int resultPageNumber;
+	public int rankOfItemId;
+	public UserActions action;
+	public long purchaseStartTimestamp;
+	
+	// Basic Required Properties
+	public String analyticsVersion; // Version. **REQUIRED**	
+	public String visitorProfileId; // Profile ID. **REQUIRED**
+	public String hitType; // Hit type. **REQUIRED**
+	public String hitDateTime; // Event date/time stamp. **REQUIRED**
 
-	public void setType(EventType type) {
-		this.type = type;
-	}
+	// Visitor
+	public String visitorDeviceId; // Device ID.
 
-	public UUID getTenantID() {
-		return tenantID;
-	}
+	// Session
+	public String sessionControl; // A value of 'start' forces a new session to start with this hit and 'end' forces the current session to end with this hit. All other values are ignored.
 
-	public void setTenantID(UUID tenantID) {
-		this.tenantID = tenantID;
-	}
+	// Traffic Sources
+	public String documentReferrer; // Referring URL.
+	public String campaignName; // Campaign name.
+	public String campaignSource; // Campaign source.
+	public String campaignMedium; // Campaign medium.
+	public String campaignKeyword; // Campaign keyword.
+	public String campaignContent; // Campaign content.
+	public String campaignId; // Campaign ID.
+	public String adWordsId; // AdWords ID.
+	public String displayAdsId; // Display Ads ID.
 
-	public UUID getSessionID() {
-		return sessionID;
-	}
+	// System Info
+	public String screenResolution; // Screen Resolution. (ex. 800x600)
+	public String viewportSize; // Viewable area of the browser / device. (ex. 123x456)
+	public String documentEncoding; // Character set used to encode the page / document. (ex. UTF-8)
+	public String screenColorDepth; // Screen color depth. (ex. 24-bits)
+	public String languageCode; // System language code. (ex. en-us)
+	public Boolean javaEnabled; // Is Java enabled?
+	public String region;
+	public String tennant;
+	public String geoCoordinates; // Latitude-Longitude coordinates
+	public String ipAddress;
+	public String foundationSessionId;
 
-	public void setSessionID(UUID sessionID) {
-		this.sessionID = sessionID;
-	}
+	// Hit Data
+	public Boolean isNonInteractionHit; // Should a hit be considered non-interactive?
 
-	public UUID getAccountID() {
-		return accountID;
-	}
+	// Content Information
+	public String documentLocation; // Full URL (document location) of the page on which content resides.
+	public String documentHostName; // Document hostname.
+	public String documentPath; // Path portion of the page URL. Should begin with '/'.
+	public String documentTitle; // Title of the page/document.
+	public String contentDescription; // If not specified, this will default to the unique URL of the page by either using the documentLocation parameter as-is or assembling it from documentHostName and documentPath. App tracking makes use of this for the 'Screen Name' of the appview hit.
+	public String linkId; // ID of a clicked DOM element.
 
-	public void setAccountID(UUID accountID) {
-		this.accountID = accountID;
-	}
+	// App Tracking
+	public String appName; // App name.
+	public String appVersion; // App version.
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+	// Event Tracking		
+	public String customEventCategory; // Event Category.
+	public String customEventAction; // Event Action.
+	public String customEventLabel; // Event label.
+	public String customEventValue; // Event value.
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+	// E-Commerce Tracking
+	public String transactionId; // Transaction ID.
+	public String transactionCurrency;	// Transaction Currency code.
+	public String transactionAffiliation; // Transaction affiliation.
+	public BigDecimal transactionRevenue; // Transaction revenue.
+	public BigDecimal transactionShipping; // Transaction shipping.
+	public BigDecimal transactionTax; // Transaction tax.
+	public String itemName; // Item name. Required.
+	public BigDecimal itemPrice; // Item price.
+	public BigDecimal itemQuantity; // Item quantity.
+	public String itemCode; // Item code / SKU.
+	public String itemVariation; // Item variation / category.
 
-	public UUID getProfileID() {
-		return profileID;
-	}
+	// Social Interactions
+	public String socialAction; // Social Action.
+	public String socialNetwork; // Social Network.
+	public String socialTarget; // Target of a social interaction. This value is typically a URL but can be any text.
 
-	public void setProfileID(UUID profileID) {
-		this.profileID = profileID;
-	}
+	// Exception Interactions
+	public String exceptionDescription; // Exception description.
+	public Boolean exceptionIsFatal; // Exception is fatal?
 
-	public UUID getPreferredRegionID() {
-		return preferredRegionID;
-	}
+	// Timing Interactions
+	public String timingCategory; // Timing category.
+	public String timingVariable; // Timing variable.
+	public Integer timingTime; // Timing time in milliseconds.
+	public String timingLabel; // Timing label.
+	public Integer timingPageLoadTime; // Page load time in milliseconds.
+	public Integer timingDnsLoad; // DNS load time in milliseconds.
+	public Integer timingDownload; // Page download time in milliseconds.
+	public Integer timingRedirect; // Redirect response time in milliseconds.
+	public Integer timingTcpConnect; // TCP connect time in milliseconds.
+	public Integer timingServerResponse; // Server response time in milliseconds.
+	public Integer queueTime; // Latency time between an offline hit event and online reported time in milliseconds
 
-	public void setPreferredRegionID(UUID preferredRegionID) {
-		this.preferredRegionID = preferredRegionID;
-	}
+	// Custom Metrics
+	public String customDimension; // Custom dimension by index (ex. customDimension[1-9][0-9]*=Sports)
+	public String customMetric; // Custom metric by index (ex. customMetric[1-9][0-9]*=47)
 
-	public UUID getPreferredLocaleID() {
-		return preferredLocaleID;
-	}
-
-	public void setPreferredLocaleID(UUID preferredLocaleID) {
-		this.preferredLocaleID = preferredLocaleID;
-	}
-
-	public SocialMediaType getSocialMediaType() {
-		return socialMediaType;
-	}
-
-	public void setSocialMediaType(SocialMediaType socialMediaType) {
-		this.socialMediaType = socialMediaType;
-	}
-
-	public String getGigyaAuthToken() {
-		return gigyaAuthToken;
-	}
-
-	public void setGigyaAuthToken(String gigyaAuthToken) {
-		this.gigyaAuthToken = gigyaAuthToken;
-	}
-
-	public UUID getItemID() {
-		return itemID;
-	}
-
-	public void setItemID(UUID itemID) {
-		this.itemID = itemID;
-	}
-
-	public ImpressionSource getImpressionSource() {
-		return impressionSource;
-	}
-
-	public void setImpressionSource(ImpressionSource impressionSource) {
-		this.impressionSource = impressionSource;
-	}
-
-	public DeviceType getDeviceType() {
-		return deviceType;
-	}
-
-	public void setDeviceType(DeviceType deviceType) {
-		this.deviceType = deviceType;
-	}
-
-	public UUID getRegionID() {
-		return regionID;
-	}
-
-	public void setRegionID(UUID regionID) {
-		this.regionID = regionID;
-	}
-
-	public UUID getLocaleID() {
-		return localeID;
-	}
-
-	public void setLocaleID(UUID localeID) {
-		this.localeID = localeID;
-	}
-
-	public NetworkType getNetworkType() {
-		return networkType;
-	}
-
-	public void setNetworkType(NetworkType networkType) {
-		this.networkType = networkType;
-	}
-
-	public double getPlayPercentage() {
-		return playPercentage;
-	}
-
-	public void setPlayPercentage(double playPercentage) {
-		this.playPercentage = playPercentage;
-	}
-
-	public long getPurchaseTimestamp() {
-		return purchaseTimestamp;
-	}
-
-	public void setPurchaseTimestamp(long purchaseTimestamp) {
-		this.purchaseTimestamp = purchaseTimestamp;
-	}
-
-	public int getRateScore() {
-		return rateScore;
-	}
-
-	public long getRentStartTimestamp() {
-		return rentStartTimestamp;
-	}
-
-	public UUID getDeviceId() {
-		return deviceId;
-	}
-
-	public void setDeviceId(UUID deviceId) {
-		this.deviceId = deviceId;
-	}
-
-	public Map<String, String> getAvp() {
-		return avp;
-	}
-
-	public void setAvp(Map<String, String> avp) {
-		this.avp = avp;
-	}
-
-	public Map<String, String> getFilters() {
-		return filters;
-	}
-
-	public void setFilters(Map<String, String> filters) {
-		this.filters = filters;
-	}
-
-	public int getResultPageNumber() {
-		return resultPageNumber;
-	}
-
-	public void setResultPageNumber(int resultPageNumber) {
-		this.resultPageNumber = resultPageNumber;
-	}
-
-	public int getRankOfItemId() {
-		return rankOfItemId;
-	}
-
-	public void setRankOfItemId(int rankOfItemId) {
-		this.rankOfItemId = rankOfItemId;
-	}
-
-	public UserActions getAction() {
-		return action;
-	}
-
-	public void setAction(UserActions action) {
-		this.action = action;
-	}
-
-	public long getPurchaseStartTimestamp() {
-		return purchaseStartTimestamp;
-	}
-
-	public void setPurchaseStartTimestamp(long purchaseStartTimestamp) {
-		this.purchaseStartTimestamp = purchaseStartTimestamp;
-	}
-
-	public void setRateScore(int rateScore) {
-		this.rateScore = rateScore;
-	}
-
-	public void setRentStartTimestamp(long rentStartTimestamp) {
-		this.rentStartTimestamp = rentStartTimestamp;
-	}
-
-	public long getRentEndTimestamp() {
-		return rentEndTimestamp;
-	}
-
-	public void setRentEndTimestamp(long rentEndTimestamp) {
-		this.rentEndTimestamp = rentEndTimestamp;
-	}
-
-	public SearchType getSearchType() {
-		return searchType;
-	}
-
-	public void setSearchType(SearchType searchType) {
-		this.searchType = searchType;
-	}
-
-	public String getSearchQuery() {
-		return searchQuery;
-	}
-
-	public void setSearchQuery(String searchQuery) {
-		this.searchQuery = searchQuery;
-	}
+	// Content Experiments
+	public String experimentId; // Experiment ID.
+	public String experimentVariant; // Experiment variant;
 
 	//getBytes() will allow event orchestration layer broadcaster to serialize analytics events
 	public byte[] getBytes() {

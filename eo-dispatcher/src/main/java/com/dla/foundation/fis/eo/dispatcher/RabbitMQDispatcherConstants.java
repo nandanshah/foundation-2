@@ -6,7 +6,7 @@ package com.dla.foundation.fis.eo.dispatcher;
  * 
  * Holds default values of configuration properties used by RabbitMQ Producer
  */
-public class RabbitMQConnectorConstants {
+public class RabbitMQDispatcherConstants {
 	
 	/* RabbitMQ Server properties */
 	public static final String RABBITMQ_HOST = "localhost";

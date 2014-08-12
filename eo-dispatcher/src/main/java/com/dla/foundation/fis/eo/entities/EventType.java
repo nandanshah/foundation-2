@@ -22,11 +22,11 @@ public enum EventType {
 
 	private String eventType;
 
-	private EventType(String deviceType) {
-		this.eventType = deviceType;
+	private EventType(String eventType) {
+		this.eventType = eventType;
 	}
 
-	public String getDeviceType() {
+	public String getEventType() {
 		return eventType;
 	}
 }

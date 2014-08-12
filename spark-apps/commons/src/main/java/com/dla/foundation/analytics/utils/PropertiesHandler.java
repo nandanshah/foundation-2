@@ -13,12 +13,22 @@ import java.util.Properties;
 public class PropertiesHandler {
 
 	public static final Properties props = new Properties();
-	private final String fileName;
+	private String PROPERTIES_FILE_VAR = "fisproperties";
+	private String fisPropFilePath = System.getProperty(PROPERTIES_FILE_VAR);
+
+	public PropertiesHandler() throws IOException {
+		try {
+			FileInputStream input = new FileInputStream(fisPropFilePath);
+			props.load(input);
+		} catch (IOException e) {
+			throw e;
+		}
+	}
 
 	public PropertiesHandler(String pFileName) throws IOException {
-		fileName = pFileName;
+		fisPropFilePath = pFileName;
 		try {
-			FileInputStream input = new FileInputStream(fileName);
+			FileInputStream input = new FileInputStream(fisPropFilePath);
 			props.load(input);
 		} catch (IOException e) {
 			throw e;
@@ -29,7 +39,7 @@ public class PropertiesHandler {
 		String value = props.getProperty(key);
 		if (value == null)
 			throw new IOException("Property '" + key
-					+ "' is not present in property file : " + fileName);
+					+ "' is not present in property file : " + fisPropFilePath);
 		return value.trim();
 	}
 
@@ -40,4 +50,35 @@ public class PropertiesHandler {
 		return defaultValue;
 	}
 
+	/**
+	 * Get property value of property 'propKey' from FIS' 
+	 * common properties file.
+	 * 
+	 * @param propKey The property key for which value is to be read 
+	 * @return Property value with key 'propKey'
+	 * @throws IOException If property with key propKey is not found. 
+	 */
+	public String getValue(CommonPropKeys propKey) throws IOException {
+		String value = props.getProperty(propKey.getValue());
+		if (value == null)
+			throw new IOException("Property '" + propKey.getValue()
+					+ "' is not present in property file : " + fisPropFilePath);
+		return value.trim();
+	}
+
+	/**
+	 * Get property value of property 'propKey' from FIS' 
+	 * common properties file. If property is not found in the
+	 * file, defaultValue is returned.
+	 * 
+	 * @param propKey The property key for which value is to be read 
+	 * @param defaultValue The default property value if not present in file
+	 * @return Property value with key 'propKey', defaultValue if not found
+	 */
+	public String getValue(CommonPropKeys cpe, String defaultValue) {
+		String value = props.getProperty(cpe.getValue());
+		if (null != value && 0 != "".compareTo(value))
+			return value.trim();
+		return defaultValue;
+	}
 }

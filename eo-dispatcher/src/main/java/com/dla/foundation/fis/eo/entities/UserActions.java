@@ -1,7 +1,7 @@
 package com.dla.foundation.fis.eo.entities;
 
 public enum UserActions {
-	
+
 	ITEM_PREVIEW("item_preview"),
 	ITEM_MORE_INFO("item_more_info"),
 	ITEM_SHARE("item_share"),
@@ -14,7 +14,7 @@ public enum UserActions {
 	ITEM_REMOVE_FROM_WATCHLIST("item_remove_from_watchlist"),
 	ITEM_RENT("item_rent"),
 	ITEM_PURCHASE("item_purchase");
-	
+
 	private String userActions;
 
 	private UserActions(String userActions) {
@@ -24,6 +24,4 @@ public enum UserActions {
 	public String getUserActions() {
 		return userActions;
 	}
-
-	
 }

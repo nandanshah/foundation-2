@@ -1,13 +1,13 @@
-package com.dla.foundation.fis.eo.entities;
+package com.dla.foundation.fis.eo.dispatcher;
 
-import com.dla.foundation.fis.eo.dispatcher.RabbitMQConnectorConstants;
+import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcherConstants;
 
 public class EOConfig {
 
-	public String rmqHost = RabbitMQConnectorConstants.RABBITMQ_HOST;
-	public int rmqPort = RabbitMQConnectorConstants.RABBITMQ_PORT;
-	public String EXCHANGE_NAME = RabbitMQConnectorConstants.EXCHANGE_NAME;
-	public String EXCHANGE_TYPE = RabbitMQConnectorConstants.EXCHANGE_TYPE;
+	public String rmqHost = RabbitMQDispatcherConstants.RABBITMQ_HOST;
+	public int rmqPort = RabbitMQDispatcherConstants.RABBITMQ_PORT;
+	public String EXCHANGE_NAME = RabbitMQDispatcherConstants.EXCHANGE_NAME;
+	public String EXCHANGE_TYPE = RabbitMQDispatcherConstants.EXCHANGE_TYPE;
 	
 	public EOConfig() {
 		
