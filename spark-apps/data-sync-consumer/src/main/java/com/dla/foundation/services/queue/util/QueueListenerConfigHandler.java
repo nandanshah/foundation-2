@@ -11,6 +11,9 @@ import org.apache.spark.SparkFiles;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.services.queue.updater.Updater;
+
 public class QueueListenerConfigHandler implements Serializable {
 
 	private static final long serialVersionUID = -4419336790877201871L;
@@ -30,7 +33,7 @@ public class QueueListenerConfigHandler implements Serializable {
 		rabbitmq_server_host("rabbitmq_server_host"), rabbitmq_server_port("rabbitmq_server_port"), 
 		exchange_name("exchange_name"), exchange_type("exchange_type"),	queue_config("queue_config"), 
 		queue_name("queue_name"), queue_type("queue_type"), queue_updater("queue_updater"), 
-		queue_bind_key("queue_bind_key");
+		updater_filters("updater_filters"), queue_bind_key("queue_bind_key");
 
 		private String value;
 
@@ -51,7 +54,7 @@ public class QueueListenerConfigHandler implements Serializable {
 	public QueueListenerConfigHandler() throws IOException {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
-		
+
 		String content = new String(Files.readAllBytes(Paths.get(propertiesFilePath)));
 		JSONObject configJson = new JSONObject(content);
 		rabbitmq_server_host = configJson.getString(QueueConfigKeys.rabbitmq_server_host.getValue());
@@ -67,10 +70,26 @@ public class QueueListenerConfigHandler implements Serializable {
 			String exch_name = oneQ.has(QueueConfigKeys.exchange_name.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_name.getValue()) : exchange_name;
 			String exch_type = oneQ.has(QueueConfigKeys.exchange_type.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_type.getValue()) : exchange_type;
 
+			UpdaterConfig uc = new UpdaterConfig();
+
+			if(oneQ.has(QueueConfigKeys.updater_filters.getValue())) {
+				String[] filters = oneQ.getString(QueueConfigKeys.updater_filters.getValue()).split(",");
+				for (String filter : filters) {
+					Class<? extends Updater> filterClass = null;
+					try {
+						filterClass = (Class<Updater>) Class.forName(filter);
+						Filter f = (Filter) filterClass.newInstance();
+						uc.filters.add(f);
+					} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
 			qConfigs.add(new QueueConfig(server, port, exch_name, exch_type, oneQ.getString(QueueConfigKeys.queue_name.getValue()), 
 					queue_type.valueOf(oneQ.getString(QueueConfigKeys.queue_type.getValue())), 
 					oneQ.getString(QueueConfigKeys.queue_updater.getValue()), 
-					oneQ.getString(QueueConfigKeys.queue_bind_key.getValue())));
+					oneQ.getString(QueueConfigKeys.queue_bind_key.getValue()),uc));
 		}
 	}
 
@@ -106,10 +125,11 @@ public class QueueListenerConfigHandler implements Serializable {
 		private queue_type type;
 		private String updater;
 		private String bind_key;
+		private UpdaterConfig updaterConf;
 
 		public QueueConfig(String rabbitMQServer, int rabbitMQPort,
 				String exchangeName, String exchangeType, String name,
-				queue_type type, String updater, String bind_key) {
+				queue_type type, String updater, String bind_key, UpdaterConfig updaterConf) {
 			this.rabbitMQServer = rabbitMQServer;
 			this.rabbitMQPort = rabbitMQPort;
 			this.exchangeName = exchangeName;
@@ -118,6 +138,7 @@ public class QueueListenerConfigHandler implements Serializable {
 			this.type = type;
 			this.updater = updater;
 			this.bind_key = bind_key;
+			this.updaterConf = updaterConf;
 		}
 
 		public String getRabbitMQServer() {
@@ -167,6 +188,12 @@ public class QueueListenerConfigHandler implements Serializable {
 		}
 		public void setBind_key(String bind_key) {
 			this.bind_key = bind_key;
-		}	
+		}
+		public UpdaterConfig getUpdaterConf() {
+			return updaterConf;
+		}
+		public void setUpdaterConf(UpdaterConfig updaterConf) {
+			this.updaterConf = updaterConf;
+		}
 	}
 }

@@ -1,16 +1,18 @@
 package com.dla.foundation.services.queue.updater;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.DependencyLocator;
+import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.FoundationDataService;
 import com.dla.foundation.data.FoundationDataServiceImpl;
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.data.persistence.cassandra.CassandraContext;
-import com.dla.foundation.analytics.utils.PropertiesHandler;
+import com.dla.foundation.services.queue.filter.Filter;
 
 /**
  * Cassandra Specific updater.
@@ -19,7 +21,7 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
  * @author tsudake.psl@dlavideo.com
  *
  */
-public class CassandraUpdater implements Updater {
+public class CassandraUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private static FoundationDataService dataService = null;
@@ -48,7 +50,7 @@ public class CassandraUpdater implements Updater {
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 		}
-		
+
 		String[] nodeIps = nodeIpList.split(",");
 		dataContext = CassandraContext.create(entityPackagePrefix, dataKeyspace, nodeIps);
 		CassandraUpdater.dataService= new FoundationDataServiceImpl(dataContext);
@@ -56,17 +58,20 @@ public class CassandraUpdater implements Updater {
 	}
 
 	@Override
-	public void close() {
-
+	protected void filterEvent(AnalyticsCollectionEvent event,
+			ArrayList<Filter> filters) {
+		for (Filter filter : filters) {
+			filter.doFilter(event);
+		}
 	}
 
 	/**
 	 * Write even to Cassandra and return the appropriate event object returned 
+	 * 
 	 * by underlying Cassandra Writer
 	 */
 	@Override
-	public AnalyticsCollectionEvent updateSyncEvent(
-			AnalyticsCollectionEvent event) {
+	protected AnalyticsCollectionEvent doUpdateSyncEvent(AnalyticsCollectionEvent event) {
 		AnalyticsCollectionEvent ret = null;
 		try {
 			ret =  dataService.insertOrUpdateCollectionEvent(event);
@@ -78,14 +83,20 @@ public class CassandraUpdater implements Updater {
 
 	/**
 	 * Write even to Cassandra. 
+	 * 
 	 * This method does not return any acknowledgment or message to caller unlike updateSyncEvent method
 	 */
 	@Override
-	public void updateAsyncEvent(AnalyticsCollectionEvent event) {
+	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
 		try {
 			dataService.insertOrUpdateCollectionEvent(event);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void close() {
+
 	}
 }

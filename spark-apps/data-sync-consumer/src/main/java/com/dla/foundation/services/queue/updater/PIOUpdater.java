@@ -3,12 +3,14 @@ package com.dla.foundation.services.queue.updater;
 import io.prediction.Client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.services.queue.filter.Filter;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 
 /**
@@ -18,7 +20,7 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
  * @author tsudake.psl@dlavideo.com
  *
  */
-public class PIOUpdater implements Updater {
+public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private Client client;
@@ -54,15 +56,16 @@ public class PIOUpdater implements Updater {
 			logger.error(e1.getMessage(), e1);
 		}
 	}
-
+	
 	@Override
-	public void close() {
-		client.close();
-		logger.info("PredictionIO Client closed");
+	protected void filterEvent(AnalyticsCollectionEvent event,
+			ArrayList<Filter> filters) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
-	public AnalyticsCollectionEvent updateSyncEvent(
+	protected AnalyticsCollectionEvent doUpdateSyncEvent(
 			AnalyticsCollectionEvent event) {
 		try {
 			client.createUser(event.visitorProfileId);
@@ -75,7 +78,7 @@ public class PIOUpdater implements Updater {
 	}
 
 	@Override
-	public void updateAsyncEvent(AnalyticsCollectionEvent event) {
+	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
 		try {
 			client.createUser(event.visitorProfileId);
 			client.createItem(event.customEventValue, new String[]{"movie"});
@@ -83,5 +86,11 @@ public class PIOUpdater implements Updater {
 		} catch (ExecutionException | InterruptedException | IOException e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public void close() {
+		client.close();
+		logger.info("PredictionIO Client closed");
 	}
 }

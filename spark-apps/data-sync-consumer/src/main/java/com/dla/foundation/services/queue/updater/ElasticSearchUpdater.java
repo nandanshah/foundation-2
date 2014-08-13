@@ -1,6 +1,7 @@
 package com.dla.foundation.services.queue.updater;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
@@ -10,8 +11,9 @@ import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
 import com.dla.foundation.data.persistence.elasticsearch.ESServiceImpl;
+import com.dla.foundation.services.queue.filter.Filter;
 
-public class ElasticSearchUpdater implements Updater {
+public class ElasticSearchUpdater extends Updater {
 
 	private static ESService es_service=null;
 	private static BulkEventsProcessing bulk_events=null;
@@ -46,12 +48,14 @@ public class ElasticSearchUpdater implements Updater {
 	}
 
 	@Override
-	public void close() {
-
+	protected void filterEvent(AnalyticsCollectionEvent event,
+			ArrayList<Filter> filters) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public AnalyticsCollectionEvent updateSyncEvent(AnalyticsCollectionEvent event) {
+	protected AnalyticsCollectionEvent doUpdateSyncEvent(
+			AnalyticsCollectionEvent event) {
 		try{
 			if(event.customEventLabel.contains("Added"))
 				es_service.addItem(event);
@@ -67,9 +71,12 @@ public class ElasticSearchUpdater implements Updater {
 	}
 
 	@Override
-	public void updateAsyncEvent(AnalyticsCollectionEvent event) {
+	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
 		bulk_events.getBulkEvent(event, es_service);
 	}
+	
+	@Override
+	public void close() {
 
-
+	}
 }

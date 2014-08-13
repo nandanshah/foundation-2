@@ -35,7 +35,8 @@ public class RMQQueueReceiver extends Receiver<AnalyticsCollectionEvent> impleme
 	public void onStart() {
 		Updater updater = null;
 		for (QueueConfig oneQConfig : qConfig.getqConfigs()) {
-			Class<? extends Updater> updaterClass = null;
+			updater = null;
+			Class<Updater> updaterClass = null;
 			try {
 				updaterClass = (Class<Updater>) Class.forName(oneQConfig.getUpdater());
 				updater = updaterClass.newInstance();
@@ -43,17 +44,20 @@ public class RMQQueueReceiver extends Receiver<AnalyticsCollectionEvent> impleme
 				try {
 					Method instanceMthd = updaterClass.getMethod("getInstance", null);
 					updater = (Updater) instanceMthd.invoke(null, null);
-
-					if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.sync)
-						new Thread(new SyncQueueConsumer(oneQConfig,updater)).start();
-					else if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.async)
-						new Thread(new AsyncQueueConsumer(oneQConfig,updater)).start();
 				} catch (NoSuchMethodException | SecurityException | IllegalAccessException 
 						| IllegalArgumentException | InvocationTargetException e1) {
 					e1.printStackTrace();
 				}
 			} catch (ClassNotFoundException | InstantiationException e) {
 				e.printStackTrace();
+			}
+
+			if(updater!=null) {
+				updater.conf = oneQConfig.getUpdaterConf();
+				if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.sync)
+					new Thread(new SyncQueueConsumer(oneQConfig,updater)).start();
+				else if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.async)
+					new Thread(new AsyncQueueConsumer(oneQConfig,updater)).start();
 			}
 		}
 	}
