@@ -19,6 +19,11 @@ import com.dla.foundation.connector.persistence.elasticsearch.ElasticSearchResul
 import com.dla.foundation.connector.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/*
+ * This class contains rest calls code logic to get/put/post data to ES
+ * @author neha_jain
+ * 
+ */
 public class ElasticSearchRepo {
 
 	final private String hostUrl;
@@ -58,6 +63,30 @@ public class ElasticSearchRepo {
 
 	}
 	
+	public boolean deleteESIndexIfExists(String indexName, String urlHost) {
+		boolean deleted=false;
+		try {
+			URL url =new URL(urlHost + indexName);
+			logger.info("Creating " + indexName + " index in ES:" + url+ "\n");
+			
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setRequestMethod("PUT");
+			httpConnection.setRequestProperty("Content-Type", "application/json");
+			if(httpConnection.getResponseCode() ==400)
+			{   deleted= true;
+				logger.info("Index exists so deleting");
+				deleteItem(url.toString());
+				logger.info("Index deleted "+indexName);
+			} else if(httpConnection.getResponseCode() ==200)
+				logger.info("Index created " +indexName);
+			
+		}  catch (IOException e) {
+			System.out.println("Error while creating index:");
+			e.printStackTrace();
+		}
+		return deleted;
+	}
+
 	public boolean createESIndex(String indexName, String urlHost) {
 		boolean exists=false;
 		try {
@@ -67,24 +96,17 @@ public class ElasticSearchRepo {
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 			httpConnection.setRequestMethod("PUT");
 			httpConnection.setRequestProperty("Content-Type", "application/json");
-			if(httpConnection.getResponseCode() ==400)
-			{   exists= true;
-				logger.info("Index exists so deleting");
-				deleteItem(url.toString());
-				logger.info("Index deleted "+indexName);
-			} else if(httpConnection.getResponseCode() ==200)
+			if(httpConnection.getResponseCode() ==200){
 				logger.info("Index created " +indexName);
+				exists=true;
+			}
 			
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-
 		} catch (IOException e) {
 			System.out.println("Error while creating index:");
 			e.printStackTrace();
 		}
 		return exists;
 	}
-
 	
 	public ElasticSearchResult deleteItem(String urlString)  throws IOException {
 		URL url = new URL(urlString);
@@ -93,7 +115,6 @@ public class ElasticSearchRepo {
 
 		conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("DELETE");
-		//		conn.setDoOutput(true);
 		ElasticSearchResult esResult;
 		ObjectMapper mapper = new ObjectMapper();
 		try (InputStream inputStream = conn.getInputStream()) {

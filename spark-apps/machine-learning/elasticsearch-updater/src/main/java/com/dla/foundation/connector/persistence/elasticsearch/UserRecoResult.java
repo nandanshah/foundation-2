@@ -1,6 +1,6 @@
 package com.dla.foundation.connector.persistence.elasticsearch;
 
-import com.dla.foundation.connector.model.UserRecommendation.* ;
+import com.dla.foundation.connector.model.UserRecommendation;
 
 
 public class UserRecoResult {
@@ -11,7 +11,7 @@ public class UserRecoResult {
 	public long _version;
 	public boolean found;
 	
-	public com.dla.foundation.connector.model.UserRecommendation _source;
+	public UserRecommendation _source;
 
 	@Override
 	public String toString() {
