@@ -3,8 +3,10 @@ package com.dla.foundation.analytics.utils;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
+import com.datastax.driver.core.querybuilder.Select.Where;
 
 public class CassandraContext {
 	private Cluster cluster;
@@ -66,6 +68,26 @@ public class CassandraContext {
 	 */
 	public ResultSet getRows(String keyspace, String table) {
 		Select query = QueryBuilder.select().all().from(keyspace, table);
+		return session.execute(query);
+	}
+
+	/**
+	 * This method will get all rows for given keyspace and tablename by
+	 * filtering over specified sparkAppName
+	 * 
+	 * @param keyspace
+	 *            - a casandra keyspace
+	 * @param table
+	 *            - table name/column family
+	 * @param sparkAppName
+	 *            - sparkappname reading dynamic properties
+	 * @return resultset
+	 */
+	public ResultSet getRows(String keyspace, String table, String sparkAppCF,
+			String sparkAppName) {
+		Clause clause = QueryBuilder.eq(sparkAppCF, sparkAppName);
+
+		Where query = QueryBuilder.select().from(keyspace, table).where(clause);
 		return session.execute(query);
 	}
 }
