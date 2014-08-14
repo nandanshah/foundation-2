@@ -139,6 +139,13 @@ public class Event implements Serializable {
 	//public String QoS;
 	
 	public Map<String,String> addlParams = new HashMap<>();
+	
+	//Custom fields added by FIS Team
+	public SearchType searchType;
+	public String searchQuery;
+	public int resultPageNumber;
+	public int rankOfItemId;
+	public UserActions action;
 
 	//getBytes() will allow event orchestration layer broadcaster to serialize analytics events
 	public byte[] getBytes() {
