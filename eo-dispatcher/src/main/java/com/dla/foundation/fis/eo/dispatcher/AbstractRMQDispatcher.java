@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-
 import com.dla.foundation.fis.eo.entities.UserEvent;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 import com.dla.foundation.fis.eo.exception.NullMessageDispatcherException;
@@ -42,6 +41,12 @@ public abstract class AbstractRMQDispatcher<E extends UserEvent> implements EODi
 	public void init(EOConfig eoConfig) throws IOException {
 		this.conf = eoConfig;
 		init();
+		try {
+			new EventRouteProvider();
+		} catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void init() throws IOException {
