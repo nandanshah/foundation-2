@@ -96,7 +96,7 @@ public class DayScoreDriver implements Serializable {
 
 	}
 	
-	public void runDayScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String dailyEventSumPropFilePath) {
+	public void runDayScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String dailyEventSumPropFilePath) throws Exception {
 		try {
 			
 			PropertiesHandler dailyEventSumProp = new PropertiesHandler(
@@ -113,7 +113,7 @@ public class DayScoreDriver implements Serializable {
 					+ DailyEventSummaryPerItem.EVENT_AGGREGATE.getColumn()
 					+ " =?," + DailyEventSummaryPerItem.DAY_SCORE.getColumn()
 					+ "=?," + DailyEventSummaryPerItem.DATE.getColumn() + "=?,"
-					+ DailyEventSummaryPerItem.FLAG.getColumn() + "=?";
+					+ DailyEventSummaryPerItem.EVENTREQUIERD.getColumn() + "=?";
 
 			logger.info("initializing dayscore service");
 			// initializing dayscore service
@@ -171,13 +171,15 @@ public class DayScoreDriver implements Serializable {
 		} catch (ParseException e) {
 			logger.error("Please provide proper input date in the format "
 					+ DATE_FORMAT + "\n " + e);
+			throw new Exception("Please provide proper input date in the format "+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
+			throw new Exception(e.getMessage());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-
+			throw new Exception(e.getMessage());
 		}
 	}
 	

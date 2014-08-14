@@ -102,7 +102,7 @@ public class UserEventSummaryDriver implements Serializable {
 	}
 	
 	public void runUserEvtSummaryDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,
-			String userSumPropFilePath) {
+			String userSumPropFilePath) throws Exception {
 		try {
 			
 			PropertiesHandler userSumProp = new PropertiesHandler(
@@ -118,7 +118,7 @@ public class UserEventSummaryDriver implements Serializable {
 					+ "=?,"
 					+ DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()
 					+ "=?," + DailyEventSummaryPerUserItem.DATE.getColumn()
-					+ "=?," + DailyEventSummaryPerUserItem.FLAG.getColumn()
+					+ "=?," + DailyEventSummaryPerUserItem.EVENTREQUIRED.getColumn()
 					+ "=?";
 
 			Map<String, EventType> requiredEventType = TrendRecommendationUtil
@@ -183,12 +183,16 @@ public class UserEventSummaryDriver implements Serializable {
 		} catch (ParseException e) {
 			logger.error("Please provide proper input date in the format "
 					+ DATE_FORMAT + "\n " + e);
+			throw new Exception("Please provide proper input date in the format "
+					+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
+			throw new Exception(e.getMessage());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
+			throw new Exception(e.getMessage());
 
 		}
 

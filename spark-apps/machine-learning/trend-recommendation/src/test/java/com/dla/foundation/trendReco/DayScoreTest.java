@@ -10,7 +10,7 @@ import java.text.ParseException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Ignore;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -31,13 +31,13 @@ public class DayScoreTest {
 		executeCommands();
 	}
 	
-	@Test
+	@Ignore
 	public void dayScoreCalTest() {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(
-						"src/test/resources/appPropTest.txt",
-						"src/test/resources/dayScorePropTest.txt");
+						"src/test/resources/appPropTest",
+						"src/test/resources/dayScorePropTest_Ind");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");
@@ -60,7 +60,7 @@ public class DayScoreTest {
 	
 	@After
 	public void afterClass() throws InterruptedException {
-		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest1;");
+		//cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest1;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

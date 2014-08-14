@@ -207,7 +207,6 @@ public class UserEvtSummaryService implements Serializable {
 						recordEventType = requiredEvent.get(keys[5]);
 						
 						thresholdFlag = checkForThreshold(recordEventType);
-						System.err.println("ddddddddddddddd"+thresholdFlag);
 						if (thresholdFlag) {
 							count = processingDataWithThreshold(records,
 									recordEventType);

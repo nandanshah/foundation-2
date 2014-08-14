@@ -1,7 +1,7 @@
 input_keyspace=trendreco
-input_columnfamily=usereventsummary
+input_columnfamily=userevent
 page_row_size=3
-event_required=3,WATCH,60,watchperc#10|1,Like,40
+event_required=WATCH,60,watchperc#10|Like,40
 input_date=2014-06-29
 output_keyspace=trendreco
 output_columnfamily=dailyeventsummaryperuseritem

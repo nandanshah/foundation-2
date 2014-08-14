@@ -14,15 +14,15 @@ public class EventType implements Serializable {
 	private int weight;
 
 	
-	public EventType(String eventid, String eventType, int weight) {
-		this(eventid, eventType, null, weight);
+	public EventType(String eventType, int weight) {
+		this(eventType, null, weight);
 	}
 
 	
-	public EventType(String eventType, String eventName,
+	public EventType(String eventType,
 			Map<String, Integer> threshold, int weight) {
 		super();
-		this.eventName = eventName;
+		
 		this.eventType = eventType;
 		this.threshold = threshold;
 		this.weight = weight;

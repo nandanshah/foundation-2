@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -44,6 +45,7 @@ public class TrendRecoPostprocessing implements Serializable {
 	 */
 	private static final long serialVersionUID = -6629019652932514108L;
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
+	private static final Integer EVENTREQUIRED = 1;
 	private static final String TRENDING = "trending";
 
 	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processingForDayScore(
@@ -57,21 +59,15 @@ public class TrendRecoPostprocessing implements Serializable {
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
 					TimestampType timestampType;
-					Map<UUID, Integer> eventTypeAggregate;
+					Map<String, Integer> eventTypeAggregate;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							DayScore eventWithDayScore) throws Exception {
 						timestampType = TimestampType.instance;
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
-						eventTypeAggregate = new HashMap<UUID, Integer>();
+						eventTypeAggregate = new HashMap<String, Integer>();
 						otherColumns = new ArrayList<ByteBuffer>();
-						for (Entry<String, Integer> eventType : eventWithDayScore
-								.getEventTypeAggregate().entrySet()) {
-							eventTypeAggregate.put(UUIDType.instance
-									.compose(UUIDType.instance
-											.fromString(eventType.getKey())),
-									eventType.getValue());
-						}
+						
 						primaryKey.put(DailyEventSummaryPerItem.PERIOD
 								.getColumn(), ByteBufferUtil.bytes(UUIDs
 								.startOf(eventWithDayScore.getTimestamp())));
@@ -80,11 +76,11 @@ public class TrendRecoPostprocessing implements Serializable {
 								.fromString(eventWithDayScore.getTenantId()));
 						primaryKey.put(DailyEventSummaryPerItem.REGION
 								.getColumn(), UUIDType.instance
-								.fromString(eventWithDayScore.getTenantId()));
+								.fromString(eventWithDayScore.getRegionId()));
 						primaryKey.put(DailyEventSummaryPerItem.ITEM
 								.getColumn(), UUIDType.instance
-								.fromString(eventWithDayScore.getTenantId()));
-						otherColumns.add(MapType.getInstance(UUIDType.instance,
+								.fromString(eventWithDayScore.getItemId()));
+						otherColumns.add(MapType.getInstance(UTF8Type.instance,					
 								Int32Type.instance).decompose(
 								eventTypeAggregate));
 						otherColumns.add(ByteBufferUtil.bytes(eventWithDayScore
@@ -112,8 +108,13 @@ public class TrendRecoPostprocessing implements Serializable {
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
 
+					TimestampType timestampType;													// TimestampType for date
+					
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							TrendScore itemTrendScore) throws Exception {
+						
+						timestampType = TimestampType.instance;
+						
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
 						primaryKey.put(Trend.ID.getColumn(), ByteBufferUtil
@@ -134,6 +135,12 @@ public class TrendRecoPostprocessing implements Serializable {
 						otherColumns.add(ByteBufferUtil.bytes(itemTrendScore
 								.getNormalizedScore()));
 						otherColumns.add(ByteBufferUtil.bytes(TRENDING));
+						otherColumns.add(timestampType.decompose(new Date(itemTrendScore
+										.getTimestamp())));								// Date - getTimeStamp - itemTrendScore
+						otherColumns.add(ByteBufferUtil
+								.bytes(EVENTREQUIRED));											// FLAG = 1 - change name
+										
+						
 						return new Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>>(
 								primaryKey, otherColumns);
 
@@ -153,24 +160,22 @@ public class TrendRecoPostprocessing implements Serializable {
 					private static final long serialVersionUID = 8819507645398525927L;
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
-					Map<UUID, Integer> eventTypeAggregate;
+					//Map<String, Integer> eventTypeAggregate;
 
 					TimestampType timestampType;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							UserSummary userSummary) throws Exception {
-						eventTypeAggregate = new HashMap<UUID, Integer>();
+						//eventTypeAggregate = new HashMap<String, Integer>();
 						timestampType = TimestampType.instance;
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
-						for (Entry<String, Integer> eventType : userSummary
+						/*for (Entry<String, Integer> eventType : userSummary						// Need to remove 
 								.getEventTypeAggregate().entrySet()) {
-							eventTypeAggregate.put(UUIDType.instance
-									.compose(UUIDType.instance
-											.fromString(eventType.getKey())),
+							eventTypeAggregate.put(eventType.getKey(),
 									eventType.getValue());
 						}
-						primaryKey.put(DailyEventSummaryPerUserItem.PERIOD
+						*/primaryKey.put(DailyEventSummaryPerUserItem.PERIOD
 								.getColumn(), ByteBufferUtil.bytes(UUIDs
 								.startOf(userSummary.getTimestamp())));
 						primaryKey.put(DailyEventSummaryPerUserItem.TENANT
@@ -182,12 +187,13 @@ public class TrendRecoPostprocessing implements Serializable {
 						primaryKey.put(DailyEventSummaryPerUserItem.ITEM
 								.getColumn(), UUIDType.instance
 								.fromString(userSummary.getItemId()));
-						primaryKey.put(DailyEventSummaryPerUserItem.USER
+						primaryKey.put(DailyEventSummaryPerUserItem.PROFILE
 								.getColumn(), UUIDType.instance
 								.fromString(userSummary.getUserId()));
-						otherColumns.add(MapType.getInstance(UUIDType.instance,
+						otherColumns.add(MapType.getInstance(UTF8Type.instance,
 								Int32Type.instance).decompose(
-								eventTypeAggregate));
+										userSummary
+										.getEventTypeAggregate()));
 						otherColumns.add(ByteBufferUtil.bytes(userSummary
 								.getDayScore()));
 						otherColumns.add(timestampType.decompose(new Date(

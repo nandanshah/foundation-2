@@ -19,7 +19,7 @@ import com.dla.foundation.trendReco.model.EventType;
 public class TrendRecommendationUtil implements Serializable {
 
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
-	private static final String FLAG = "flag";
+	private static final String EVENTREQUIRED = "eventrequired";
 	private static final String DATE = "date";
 
 	/**
@@ -80,16 +80,16 @@ public class TrendRecommendationUtil implements Serializable {
 				.getFormattedDate(startDate.getTime());
 		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
 				.addDays(startDate, 1).getTime());
-		return FLAG + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
 				+ startTimestamp + " and " + DATE + "< " + endTimestamp;
 	}
 
 	public static String getWhereClause(Date startDate, Date endDate) {
 		long startTimestamp = TrendRecommendationUtil
 				.getFormattedDate(startDate.getTime());
-		long endTimestamp = TrendRecommendationUtil.getFormattedDate(endDate
+		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils.addDays(endDate, 1)
 				.getTime());
-		return FLAG + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
 				+ startTimestamp + " and " + DATE + "< " + endTimestamp;
 	}
 
@@ -99,7 +99,7 @@ public class TrendRecommendationUtil implements Serializable {
 		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
 				.addDays(startDate, (-1) * historyPeriod).getTime());
 
-		return FLAG + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
 				+ endTimestamp + " and " + DATE + "<= " + startTimestamp;
 	}
 
@@ -111,16 +111,17 @@ public class TrendRecommendationUtil implements Serializable {
 		Map<String, Integer> threshold;
 		String[] events = value.split("\\|");
 		requiredEvent = new HashedMap();
+		
 		for (String event : events) {
 			String[] record = event.split(",");
 
-			if (record.length == 4) {
+			if (record.length == 3) {
 				threshold = new HashedMap();
-				String[] values = record[3].split("#");
+				String[] values = record[2].split("#");
 				threshold.put(values[0], Integer.parseInt(values[1]));
-				eventType = new EventType(record[0].trim(),record[1].trim(), threshold,Integer.parseInt(record[2]));
+				eventType = new EventType(record[0].trim().toLowerCase(), threshold,Integer.parseInt(record[1]));
 			} else {
-				eventType = new EventType(record[0].trim(),record[1].trim(),Integer.parseInt(record[2].trim()));
+				eventType = new EventType(record[0].trim().toLowerCase(),Integer.parseInt(record[1].trim()));
 			}
 
 			requiredEvent.put(record[0].toLowerCase(), eventType);

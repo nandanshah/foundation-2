@@ -1,7 +1,7 @@
 input_keyspace=sampletrendrecotest3
-input_columnfamily=usereventsummary
+input_columnfamily=userevent
 page_row_size=3
-event_required=C979CA35-B58D-434B-B2D6-EA0316BCC9A3,WATCH,60,watchperc#10|C979CA35-B58D-434B-B2D6-EA0316BCC9A1,Like,40
+event_required=WATCH,60,watchperc#10|Like,40
 input_date=2014-06-29
 output_keyspace=sampletrendrecotest3
 output_columnfamily=dailyeventsummaryperuseritem
