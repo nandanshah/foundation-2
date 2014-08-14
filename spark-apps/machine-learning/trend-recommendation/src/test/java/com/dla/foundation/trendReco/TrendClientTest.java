@@ -33,8 +33,8 @@ public class TrendClientTest {
 	public void userEvtSummaryCalTest() throws Exception {
 		assertNotNull(trendRecoClient);
 		
-			trendRecoClient.runTrendRecommendation("src/test/resources/appPropTest","src/test/resources/userSumPropTest",
-					"src/test/resources/dayScorePropTest","src/test/resources/trendScorePropTest");
+			trendRecoClient.runTrendRecommendation("src/test/resources/appPropTest.txt","src/test/resources/userSumPropTest.txt",
+					"src/test/resources/dayScorePropTest.txt","src/test/resources/trendScorePropTest.txt");
 		
 		
 		assertNotNull(cassandra);
@@ -70,7 +70,7 @@ public class TrendClientTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		//cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest4;");
+		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest4;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

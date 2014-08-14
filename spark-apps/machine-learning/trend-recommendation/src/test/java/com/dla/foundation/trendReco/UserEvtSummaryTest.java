@@ -34,8 +34,8 @@ public class UserEvtSummaryTest {
 		assertNotNull(userEventSummaryDriver);
 		userEventSummaryDriver
 				.runUserEvtSummaryDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/userSumPropTest_Ind");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/userSumPropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest3",
 				"dailyeventsummaryperuseritem");
@@ -57,7 +57,7 @@ public class UserEvtSummaryTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		//cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest3;");
+		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest3;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

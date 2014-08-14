@@ -36,8 +36,8 @@ public class DayScoreTest {
 		assertNotNull(dayScoreDriver);
 		dayScoreDriver
 				.runDayScoreDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/dayScorePropTest_Ind");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/dayScorePropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");
@@ -60,7 +60,7 @@ public class DayScoreTest {
 	
 	@After
 	public void afterClass() throws InterruptedException {
-		//cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest1;");
+		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest1;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

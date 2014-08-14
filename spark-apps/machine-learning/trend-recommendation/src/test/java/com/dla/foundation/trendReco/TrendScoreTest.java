@@ -32,8 +32,8 @@ public class TrendScoreTest {
 		assertNotNull(trendScoreDriver);
 		trendScoreDriver
 				.runTrendScoreDriver(
-						"src/test/resources/appPropTest",
-						"src/test/resources/trendScorePropTest_Ind");
+						"src/test/resources/appPropTest.txt",
+						"src/test/resources/trendScorePropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra
 				.getRows("sampletrendrecotest2", "trend");
@@ -43,7 +43,7 @@ public class TrendScoreTest {
 					&& 0==row.getUUID("itemid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc122")) {
 
 				assertEquals(1.6, row.getDouble("trendscore"), 0.1);
-				assertEquals(1, row.getDouble("normalizedscore"), 0);
+				assertEquals(1, row.getDouble("normalizedTrendscore"), 0);
 				assertEquals("trending", row.getString("trendscorereason").toLowerCase());
 			}
 
@@ -53,7 +53,7 @@ public class TrendScoreTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		//cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest2;");
+		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest2;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}
