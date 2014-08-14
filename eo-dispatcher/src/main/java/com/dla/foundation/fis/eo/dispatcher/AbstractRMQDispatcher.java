@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.fis.eo.entities.DispatcherDataEvent;
+import com.dla.foundation.fis.eo.entities.Event;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 import com.dla.foundation.fis.eo.exception.NullMessageDispatcherException;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -23,7 +23,7 @@ import com.rabbitmq.client.ShutdownSignalException;
  * @author shishir_shivhare
  *
  */
-public abstract class AbstractRMQDispatcher<E extends DispatcherDataEvent> implements EODispatcher {
+public abstract class AbstractRMQDispatcher<E extends Event> implements EODispatcher {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 
@@ -42,6 +42,12 @@ public abstract class AbstractRMQDispatcher<E extends DispatcherDataEvent> imple
 	public void init(EOConfig eoConfig) throws IOException {
 		this.conf = eoConfig;
 		init();
+		try {
+			new EventRouteProvider();
+		} catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void init() throws IOException {
@@ -100,7 +106,7 @@ public abstract class AbstractRMQDispatcher<E extends DispatcherDataEvent> imple
 				while (true) {
 					QueueingConsumer.Delivery delivery = syncConsumer.nextDelivery();
 					if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-						ret =  (E) DispatcherDataEvent.fromBytes(delivery.getBody());
+						ret =  (E) Event.fromBytes(delivery.getBody());
 						break;
 					}
 				}
