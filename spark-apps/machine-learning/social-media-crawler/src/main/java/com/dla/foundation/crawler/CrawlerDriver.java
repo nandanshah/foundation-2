@@ -18,6 +18,8 @@ import com.dla.foundation.crawler.util.SparkCrawlerUtils.GigyaConfig;
 public class CrawlerDriver {
 
 	public static final long DEF_INITIAL_THREASHOLDTIME = 9999999999999L;
+	public static final String appName = "social-media-crawler";
+	public static final String LAST_CRAWLER_RUN_KEY = "lastcrawlerruntime";
 
 	private static Logger logger = Logger.getLogger(CrawlerDriver.class);
 
@@ -39,7 +41,7 @@ public class CrawlerDriver {
 
 		PropertiesHandler phandler = null;
 		try {
-			phandler = new PropertiesHandler(propertiesFilePath);
+			phandler = new PropertiesHandler(propertiesFilePath, appName);
 		} catch (IOException e) {
 			logger.fatal("Error getting properties file", e);
 			throw e;
@@ -47,8 +49,6 @@ public class CrawlerDriver {
 
 		// Initializing values from properties file
 		String master = phandler.getValue(CrawlerPropKeys.sparkMaster
-				.getValue());
-		String appName = phandler.getValue(CrawlerPropKeys.sparkApName
 				.getValue());
 
 		CassandraConfig cassandraConf = SparkCrawlerUtils
@@ -58,6 +58,13 @@ public class CrawlerDriver {
 
 		CrawlerConfig crawlerConf = SparkCrawlerUtils
 				.initCrawlerConfig(phandler);
+		
+		if(outDatedThresholdTime == DEF_INITIAL_THREASHOLDTIME){
+			String lastruntime = phandler.getValue(LAST_CRAWLER_RUN_KEY);
+			if(lastruntime != null)
+				outDatedThresholdTime = Long.parseLong(lastruntime);
+		}
+		
 
 		logger.info("Starting Crawler with input properties file: "
 				+ propertiesFilePath + " with outdatedTimeThreshold: "
@@ -67,7 +74,9 @@ public class CrawlerDriver {
 
 		crawler.runSocialMediaCrawler(master, appName, crawlerConf,
 				cassandraConf, gigyaConf, outDatedThresholdTime);
-
+		
+		phandler.writeToCassandra(LAST_CRAWLER_RUN_KEY, String.valueOf(System.currentTimeMillis()));
+		
 		logger.info("Social Media Crawler run complete");
 	}
 

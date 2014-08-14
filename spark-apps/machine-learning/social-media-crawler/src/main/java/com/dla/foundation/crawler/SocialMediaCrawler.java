@@ -36,23 +36,23 @@ public class SocialMediaCrawler {
 			CrawlerConfig crawlerConf, CassandraConfig cassandraConf,
 			GigyaConfig gigyaConf, long outDatedThresholdTime) {
 
-		String socialProfileOuputQuery = "UPDATE " + crawlerConf.keySpace + "."
+		String socialProfileOuputQuery = "UPDATE " + crawlerConf.fisKeyspace + "."
 				+ crawlerConf.socialProfileCF + " SET " + SocialProfile.name
 				+ "=?," + SocialProfile.username + "=?,"
 				+ SocialProfile.location + "=?," + SocialProfile.gender + "=?,"
 				+ SocialProfile.country + "=?," + SocialProfile.timezone + "=?";
 
-		String friendsInfoQuery = "UPDATE  " + crawlerConf.keySpace + "."
+		String friendsInfoQuery = "UPDATE  " + crawlerConf.fisKeyspace + "."
 				+ crawlerConf.friendsCF + " SET " + FriendsInfo.relation + "=?";
 
-		String lastModifedUpdateQuery = "UPDATE " + crawlerConf.keySpace + "."
-				+ crawlerConf.profileCF + " SET " + crawlerConf.lastModifiedKey
+		String lastModifedUpdateQuery = "UPDATE " + crawlerConf.analyticsKeyspace + "."
+				+ crawlerConf.profileCF + " SET " + crawlerConf.lastCrawlerRunTimeKey
 				+ "=?";
 
 		// Where clause query to get users for which last modified date is less
 		// than outDatedThresholdTime
-		String whereClause = Profile.dummyflag + " = " + DEF_DUMMYFLAG_VALUE
-				+ " AND " + Profile.lastmodified + " < "
+		String whereClause = Profile.isSocialCrawlRequired + " = " + DEF_DUMMYFLAG_VALUE
+				+ " AND " + Profile.lastcrawlerruntime + " < "
 				+ outDatedThresholdTime;
 
 		String relation = DEF_RELATION;
@@ -85,7 +85,7 @@ public class SocialMediaCrawler {
 
 		// Reading profile table from Cassandra
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileRDD = cassandraCon
-				.read(conf, sparkContext, crawlerConf.keySpace,
+				.read(conf, sparkContext, crawlerConf.analyticsKeyspace,
 						crawlerConf.profileCF, inputCQLPageRowSize, whereClause);
 
 		// Getting dla and social id from columnfamily (Cassandra)
@@ -119,7 +119,7 @@ public class SocialMediaCrawler {
 				.filter(formattedSocialProfile);
 
 		// Writing social data to Cassandra
-		cassandraCon.write(conf, crawlerConf.keySpace,
+		cassandraCon.write(conf, crawlerConf.fisKeyspace,
 				crawlerConf.socialProfileCF, socialProfileOuputQuery,
 				filteredSocialProfile);
 
@@ -133,7 +133,7 @@ public class SocialMediaCrawler {
 						crawlerConf, friendsInfo, inputCQLPageRowSize, relation);
 
 		// Writing friendsinfo to Cassandra
-		cassandraCon.write(conf, crawlerConf.keySpace, crawlerConf.friendsCF,
+		cassandraCon.write(conf, crawlerConf.fisKeyspace, crawlerConf.friendsCF,
 				friendsInfoQuery, filteredFriendsInfo);
 
 		// Writing updated timestamp to profile table after successful social
@@ -148,7 +148,7 @@ public class SocialMediaCrawler {
 				.prepareForProfileUpdate(socialProfile, newLastModified);
 
 		// Updating last modified of profile table in cassandra
-		cassandraCon.write(conf, crawlerConf.keySpace, crawlerConf.profileCF,
+		cassandraCon.write(conf, crawlerConf.analyticsKeyspace, crawlerConf.profileCF,
 				lastModifedUpdateQuery, updatedProfile);
 	}
 

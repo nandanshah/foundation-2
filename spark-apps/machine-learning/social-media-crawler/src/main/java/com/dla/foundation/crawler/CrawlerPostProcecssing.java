@@ -90,7 +90,7 @@ public class CrawlerPostProcecssing implements Serializable {
 		Configuration conf = new Configuration();
 		// Reading profile table from Cassandra
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileRDD = cassandraCon
-				.read(conf, sparkContext, crawlerConf.keySpace,
+				.read(conf, sparkContext, crawlerConf.analyticsKeyspace,
 						crawlerConf.profileCF, inputCQLPageRowSize);
 
 		// Getting dla and social id from profile columnfamily
@@ -107,8 +107,7 @@ public class CrawlerPostProcecssing implements Serializable {
 				.join(transformedFriendsInfo);
 
 		// Format data in the Cassandra format
-		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraFormattedFrdInfo = formatDataForCassandra(
-				joinedSet, crawlerConf.frdsIdKeySep);
+		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraFormattedFrdInfo = formatDataForCassandra(joinedSet);
 
 		// Removing null records
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> filteredFrdsInfo = SparkCrawlerUtils
@@ -159,8 +158,7 @@ public class CrawlerPostProcecssing implements Serializable {
 	 * @return
 	 */
 	private static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> formatDataForCassandra(
-			JavaPairRDD<String, Tuple2<String, Tuple2<String, String>>> joinedSet,
-			final String seperator) {
+			JavaPairRDD<String, Tuple2<String, Tuple2<String, String>>> joinedSet) {
 
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraformatFrdlist = joinedSet
 				.mapToPair(new PairFunction<Tuple2<String, Tuple2<String, Tuple2<String, String>>>, Map<String, ByteBuffer>, List<ByteBuffer>>() {
@@ -184,10 +182,10 @@ public class CrawlerPostProcecssing implements Serializable {
 						String userid = userFrdTup._1;
 						String relation = userFrdTup._2;
 
-						String key = userid + seperator + frdUserId;
-
-						keys.put(FriendsInfo.userfrdpair.getValue(),
-								ByteBufferUtil.bytes(key));
+						keys.put(FriendsInfo.profileid.getValue(),
+								ByteBufferUtil.bytes(userid));
+						keys.put(FriendsInfo.friendid.getValue(),
+								ByteBufferUtil.bytes(frdUserId));
 
 						list.add(ByteBufferUtil.bytes(relation));
 
