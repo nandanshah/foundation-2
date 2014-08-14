@@ -1,8 +1,5 @@
 package com.dla.foundation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -11,9 +8,13 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import com.dla.foundation.fis.eo.dispatcher.EOConfig;
 import com.dla.foundation.fis.eo.dispatcher.RabbitMQDispatcher;
-import com.dla.foundation.fis.eo.entities.Event;
+import com.dla.foundation.fis.eo.entities.DeviceType;
+import com.dla.foundation.fis.eo.entities.NetworkType;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 
 public class DispatcherTest {
@@ -30,7 +31,7 @@ public class DispatcherTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		try {
 			rmqC.init(new EOConfig(props.getProperty("rabbitmq_server_host"),Integer.parseInt(props.getProperty("rabbitmq_server_port"))));
 		} catch (IOException e) {
@@ -47,15 +48,11 @@ public class DispatcherTest {
 				e.printStackTrace();
 			}
 
-			Event e = new Event();
-			e.hitType = "profileAdded";
-			e.accountId = UUID.randomUUID().toString();
-
 			try {
-				boolean success = rmqC.dispatchAsync(e);
+				boolean success = rmqC.accountAdd(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), System.currentTimeMillis(), UUID.randomUUID(), UUID.randomUUID(), DeviceType.ANDROID_PHONE, UUID.randomUUID(), NetworkType.N_4GLTE);
 				assertEquals(true, success);
-			} catch (DispatcherException e1) {
-				fail(e1.getMessage());
+			} catch (DispatcherException e) {
+				fail(e.getMessage());
 			}
 		}
 	}
