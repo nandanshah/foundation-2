@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.fis.eo.entities.DispatcherDataEvent;
+import com.dla.foundation.fis.eo.entities.UserEvent;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 import com.dla.foundation.fis.eo.exception.NullMessageDispatcherException;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -23,7 +23,7 @@ import com.rabbitmq.client.ShutdownSignalException;
  * @author shishir_shivhare
  *
  */
-public abstract class AbstractRMQDispatcher<E extends DispatcherDataEvent> implements EODispatcher {
+public abstract class AbstractRMQDispatcher<E extends UserEvent> implements EODispatcher {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 
@@ -100,7 +100,7 @@ public abstract class AbstractRMQDispatcher<E extends DispatcherDataEvent> imple
 				while (true) {
 					QueueingConsumer.Delivery delivery = syncConsumer.nextDelivery();
 					if (delivery.getProperties().getCorrelationId().equals(corrId)) {
-						ret =  (E) DispatcherDataEvent.fromBytes(delivery.getBody());
+						ret =  (E) UserEvent.fromBytes(delivery.getBody());
 						break;
 					}
 				}

@@ -22,7 +22,7 @@ public class DispatcherTest {
 	private RabbitMQDispatcher rmqC;
 
 	@Before
-	public void before() {
+	public void before() throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		rmqC = new RabbitMQDispatcher();
 		Properties props = new Properties();
 		try {

@@ -15,12 +15,14 @@ import java.util.UUID;
  * @author tsudake.psl@dlavideo.com
  *
  */
-public class DispatcherDataEvent implements Serializable {
+public class UserEvent implements Serializable {
 
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1243857175534534977L;
+	private static final long serialVersionUID = -3491500224917042664L;
+	
 	// Properties used by Foundation intelligence system.
 	public EventType type;
 	public UUID tenantID;
@@ -52,7 +54,7 @@ public class DispatcherDataEvent implements Serializable {
 	public int rankOfItemId;
 	public UserActions action;
 	public long purchaseStartTimestamp;
-	
+
 	//getBytes() will allow event orchestration layer broadcaster to serialize analytics events
 	public byte[] getBytes() {
 		byte[] bytes;
@@ -70,11 +72,11 @@ public class DispatcherDataEvent implements Serializable {
 	}
 
 	//fromBytes() will allow event orchestration layer consumer to instantiate event object from raw bytes
-	public static DispatcherDataEvent fromBytes(byte[] body) {
-		DispatcherDataEvent obj = null;
+	public static UserEvent fromBytes(byte[] body) {
+		UserEvent obj = null;
 		try (ByteArrayInputStream bis = new ByteArrayInputStream(body)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-				obj = (DispatcherDataEvent) ois.readObject();
+				obj = (UserEvent) ois.readObject();
 			}
 		}
 		catch (Exception e) {
