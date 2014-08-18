@@ -183,9 +183,9 @@ public class CrawlerPostProcecssing implements Serializable {
 						String relation = userFrdTup._2;
 
 						keys.put(FriendsInfo.profileid.getValue(),
-								ByteBufferUtil.bytes(userid));
+								UUIDType.instance.fromString(userid));
 						keys.put(FriendsInfo.friendid.getValue(),
-								ByteBufferUtil.bytes(frdUserId));
+								UUIDType.instance.fromString(frdUserId));
 
 						list.add(ByteBufferUtil.bytes(relation));
 
