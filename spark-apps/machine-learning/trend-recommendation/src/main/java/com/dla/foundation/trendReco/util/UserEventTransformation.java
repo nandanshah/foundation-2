@@ -140,12 +140,10 @@ public class UserEventTransformation implements Serializable {
 						userEvent.setDate(new Date(TrendRecommendationUtil
 								.getFormattedDate(TimestampType.instance.compose(column.getValue()).getTime())));
 				} else if (column.getKey()
-						.compareToIgnoreCase(UserEventSummary.ATTRIBUTE_VALUE_PAIR.getColumn()) == 0) {
-					MapType<String, String> mapType = MapType.getInstance(
-							UTF8Type.instance, UTF8Type.instance);
+						.compareToIgnoreCase(UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
+					
 					if (null != column.getValue())
-						userEvent.setAvp(mapType.compose(column.getValue()));
-
+						userEvent.setPlayPercentage(ByteBufferUtil.toDouble(column.getValue()));
 				}
 
 			}

@@ -76,6 +76,8 @@ public class UserEvtSummaryService implements Serializable {
 		logger.info("User Event Summary Service: Calculating daily count on the basis of user");
 		JavaPairRDD<String, Map<String, Integer>> groupedUserEventRDDByEvent = calculateDailyEventCountbyUser(groupedUserEventRDD);
 		
+		
+		
 		// It will group by key which is trendid#regionid#itemid#date#user.
 		// Below
 		// function calculates event count by date & Item. It will return
@@ -90,6 +92,7 @@ public class UserEvtSummaryService implements Serializable {
 		JavaRDD<UserSummary> userSummaryRDD = combineAllEventOfRecord(groupedEventCountRDD);
 
 		return userSummaryRDD;
+		
 
 	}
 
@@ -236,41 +239,36 @@ public class UserEvtSummaryService implements Serializable {
 	private int processingDataWithThreshold(
 			Tuple2<String, Iterable<UserEvent>> records,
 			EventType eventTypeWithThreshold) {
-		String thresholdKey = null;
-		int thresholdValue = 0;
+		double thresholdValue = 0;
 		int count = 0;
 		UserEvent maxThresholdUserEvent = null;
 		userEventIterator = records._2.iterator();
-
-		for (Entry<String, Integer> threshold : eventTypeWithThreshold
-				.getThreshold().entrySet()) {
-			thresholdKey = threshold.getKey();
-			thresholdValue = threshold.getValue();
-		}
+		
+		thresholdValue = eventTypeWithThreshold.getThreshold();
+		
 		while (userEventIterator.hasNext()) {
 			userEvent = userEventIterator.next();
-			if (null != userEvent.getAvp()) {
-				if (userEvent.getAvp().containsKey(thresholdKey)) {
-					maxThresholdUserEvent = userEvent;
-					break;
-				}
+			
+			if (-1 != userEvent.getPlayPercentage()) {
+				maxThresholdUserEvent = userEvent;
 			}
 		}
 		while (userEventIterator.hasNext()) {
 			userEvent = userEventIterator.next();
-			if (null != userEvent.getAvp()) {
-				if (userEvent.getAvp().containsKey(thresholdKey)) {
-					if (Integer.parseInt(maxThresholdUserEvent.getAvp().get(
-							thresholdKey)) < Integer.parseInt(userEvent
-							.getAvp().get(thresholdKey))) {
+						
+			if (-1 != userEvent.getPlayPercentage()) {
+				
+					if (maxThresholdUserEvent.getPlayPercentage() < userEvent.getPlayPercentage()) {
 						maxThresholdUserEvent = userEvent;
 					}
-				}
+				
 			}
+			
+			
 		}
+		
 		if (null != maxThresholdUserEvent) {
-			if (thresholdValue < Integer.parseInt(maxThresholdUserEvent
-					.getAvp().get(thresholdKey))) {
+			if (thresholdValue < maxThresholdUserEvent.getPlayPercentage()) {
 				count = 1;
 			}
 		}
@@ -295,7 +293,7 @@ public class UserEvtSummaryService implements Serializable {
 	}
 
 	private boolean checkForThreshold(EventType event) {
-		if (null != event && null != event.getThreshold()) {
+		if (null != event && -1 != event.getThreshold()) {
 			return true;
 		} else {
 			return false;

@@ -108,18 +108,16 @@ public class TrendRecommendationUtil implements Serializable {
 			throws NumberFormatException {
 		Map<String, EventType> requiredEvent = new HashedMap();
 		EventType eventType;
-		Map<String, Integer> threshold;
+		
 		String[] events = value.split("\\|");
 		requiredEvent = new HashedMap();
 		
 		for (String event : events) {
 			String[] record = event.split(",");
-
 			if (record.length == 3) {
-				threshold = new HashedMap();
+				
 				String[] values = record[2].split("#");
-				threshold.put(values[0], Integer.parseInt(values[1]));
-				eventType = new EventType(record[0].trim().toLowerCase(), threshold,Integer.parseInt(record[1]));
+				eventType = new EventType(record[0].trim().toLowerCase(), Integer.parseInt(values[1]),Integer.parseInt(record[1]));
 			} else {
 				eventType = new EventType(record[0].trim().toLowerCase(),Integer.parseInt(record[1].trim()));
 			}

@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -27,7 +28,7 @@ public class TrendScoreTest {
 		executeCommands();
 	}
 
-	@Ignore
+	@Test
 	public void TrendScoreCalTest() {
 		assertNotNull(trendScoreDriver);
 		trendScoreDriver

@@ -11,6 +11,7 @@ import java.text.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -29,7 +30,7 @@ public class UserEvtSummaryTest {
 		executeCommands();
 	}
 
-	@Ignore
+	@Test
 	public void userEvtSummaryCalTest() {
 		assertNotNull(userEventSummaryDriver);
 		userEventSummaryDriver
