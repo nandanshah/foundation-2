@@ -16,10 +16,16 @@ import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 
 import com.dla.foundation.connector.model.ESEntity;
-import com.dla.foundation.connector.model.UserRecoSummary;
 import com.dla.foundation.connector.model.UserRecommendation;
 import com.dla.foundation.connector.persistence.elasticsearch.ESWriter;
+import com.dla.foundation.connector.util.UserRecoSummary;
 
+/*
+ * This class converts the Cassandra records to a form needed by ES. Create a object with 
+ * all column values and send it to ES
+ * 
+ * @author neha_jain
+ */
 public class UserRecoTransformation implements Serializable, CassandraESTransformer {
 
 	/**
@@ -115,11 +121,42 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue()){
 						userReco.setDate(TimestampType.instance.compose(column.getValue()));
+						
+						/*SimpleDateFormat formatter = new SimpleDateFormat("EEEE, dd/MM/yyyy/hh:mm:ss");
+						String dateInString= new SimpleDateFormat("MM/dd/yyyy").format(TimestampType.instance.compose(column.getValue()));
+						Date parsedDate = formatter.parse(dateInString);		
+				*/	}
+				}
+				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TRENDREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setTrendreason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
-				
-
+				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.FPREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setFpreason(ByteBufferUtil.string(column.getValue()));
+								
+					}
+				}
+				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setSocialreason(ByteBufferUtil.string(column.getValue()));
+								
+					}
+				}
+				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.RECOBYFOUNDATIONREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setRecoByfoundationreason(ByteBufferUtil.string(column.getValue()));
+								
+					}
+				}
+				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.POULARITYREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setPopularityreason(ByteBufferUtil.string(column.getValue()));
+								
+					}
+				}
 			}
 		}
 		return userReco;
