@@ -49,6 +49,7 @@ public class RecommendationFetcherDriver implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig cassandraConfig, PIOConfig pioConfig,
 			String sparkAppMaster) {
+		
 		logger.info("Forming update query for " + cassandraConfig.fisKeySpace
 				+ "." + cassandraConfig.recommendationColFamily);
 		final String recommendationUpdateQuery = "UPDATE "
@@ -67,8 +68,8 @@ public class RecommendationFetcherDriver implements Serializable {
 		JavaSparkContext sparkContext = sparkPIOConnector
 				.initilizeSparkContext(sparkAppMaster,
 						RecoFetcherConstants.APPNAME);
-
 		logger.info("Initialized java spark context successfully");
+
 		logger.info("Reading records from " + cassandraConfig.profileColFamily);
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileCassandraRDD = cassandraSparkConnector
 				.read(new Configuration(), sparkContext,
@@ -90,11 +91,47 @@ public class RecommendationFetcherDriver implements Serializable {
 		logger.info("Converting profile data read from Cassandra to profilePairRDD");
 		JavaPairRDD<String, String> profilePairRDD = sparkPIOConnector
 				.toProfilePairRDD(profileCassandraRDD);
-
 		logger.info("Converting account data read from Cassandra to accountPairRDD");
 		JavaPairRDD<String, String> accountPairRDDAllTenant = sparkPIOConnector
 				.toAccountPairRDD(accountCassandraRDD);
 
+		JavaRDD<UserProfile> userProfileRDD = getUserProfile(profilePairRDD,
+				accountPairRDDAllTenant);
+
+		// Get recommendation for Users read from Cassandra using PIO
+		JavaPairRDD<UserProfile, List<String>> userRecommendationsRDD = getRecommendations(
+				userProfileRDD, pioConfig);
+		JavaPairRDD<UserProfile, String> userPerRecoRDD = sparkPIOConnector
+				.toUserProfilePerRecoRDD(userRecommendationsRDD);
+
+		// Converts Primary Keys to Map<String, ByteBuffer> and Other values to
+		// List<ByteBuffer>
+		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraRDD = sparkPIOConnector
+				.formatRecommendationsForCassandraWrite(userPerRecoRDD);
+		logger.info("Writting user recommendations to Cassandra");
+		cassandraSparkConnector.write(new Configuration(),
+				cassandraConfig.fisKeySpace,
+				cassandraConfig.recommendationColFamily,
+				recommendationUpdateQuery, cassandraRDD);
+
+		sparkContext.stop();
+	}
+
+	/***
+	 * 
+	 * @param profilePairRDD
+	 *            : A PairRDD containing id,regionid and accountid from Profile
+	 *            CF.
+	 * @param accountPairRDDAllTenant
+	 *            : A PairRDD containing accountid and tenantID from Account CF.
+	 * @return : A RDD containing userProfile:Record comprised of
+	 *         TenantID,RegionID,ProfileID.
+	 */
+
+	private JavaRDD<UserProfile> getUserProfile(
+			JavaPairRDD<String, String> profilePairRDD,
+			JavaPairRDD<String, String> accountPairRDDAllTenant) {
+		SparkPIOConnector sparkPIOConnector = new SparkPIOConnector();
 		JavaPairRDD<String, String> accountPairRDD = sparkPIOConnector
 				.getAccountRecordsforTenant(accountPairRDDAllTenant,
 						RecommendationFetcher.TENANT_ID);
@@ -106,32 +143,13 @@ public class RecommendationFetcherDriver implements Serializable {
 		logger.info("Creating userProfile for each user");
 		JavaRDD<UserProfile> userProfileRDD = sparkPIOConnector
 				.getUserProfile(profileWithTenantRDD);
+		return userProfileRDD;
 
-		// Get recommendation for Users read from Cassandra from PIO
-		JavaPairRDD<UserProfile, List<String>> userRecommendationsRDD = getRecommendations(
-				userProfileRDD, pioConfig);
-		JavaPairRDD<UserProfile, String> userPerRecoRDD = sparkPIOConnector
-				.toUserProfilePerRecoRDD(userRecommendationsRDD);
-
-		// Converts Primary Keys to Map<String, ByteBuffer> and Other values to
-		// List<ByteBuffer>
-		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraRDD = sparkPIOConnector
-				.formatRecommendationsForCassandraWrite(userPerRecoRDD);
-		String Updatequery = "UPDATE fis.pio1 SET tenantid = ? , regionid = ? , lastrecofetched = ? , recobyfoundationscore = ? , recobyfoundationreason = ? , eventrequired = ? ";
-
-		logger.info("Writting user recommendations to Cassandra");
-
-		cassandraSparkConnector.write(new Configuration(),
-				cassandraConfig.fisKeySpace,
-				cassandraConfig.recommendationColFamily,
-				recommendationUpdateQuery, cassandraRDD);
-
-		sparkContext.stop();
 	}
 
 	/**
 	 * 
-	 * This method returns recommendations for provided list of users from PIO..
+	 * This method returns recommendations for provided list of UserProfile from PIO..
 	 * 
 	 * @param userProfileRDD
 	 *            List of users for whom recommendation will be fetched.

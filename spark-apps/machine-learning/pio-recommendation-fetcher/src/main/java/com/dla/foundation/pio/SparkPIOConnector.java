@@ -30,7 +30,6 @@ import com.dla.foundation.pio.util.ColumnCollection;
 import com.dla.foundation.pio.util.RecoFetcherConstants;
 import com.esotericsoftware.minlog.Log;
 
-
 public class SparkPIOConnector implements Serializable {
 
 	private static final long serialVersionUID = 8073585091774712586L;
@@ -61,12 +60,12 @@ public class SparkPIOConnector implements Serializable {
 	}
 
 	/**
-	 * Get ALL recommendations for provided list of users from PIO with
+	 * Get ALL recommendations for provided list of UserProfile from PIO with
 	 * SparkContext. (This method will return empty list of recommendation for
 	 * users - PIO not able to return results.)
 	 * 
 	 * @param userProfileRDD
-	 *            list of Users for whom recommendations too be fetched.
+	 *            RDD of UserProfile for whom recommendations to be fetched.
 	 * @param strAppKey
 	 *            AppKey that Client will use to communicate with API.
 	 * @param strAppURL
@@ -76,7 +75,7 @@ public class SparkPIOConnector implements Serializable {
 	 * @param intNumRecPerUser
 	 *            Maximum number of recommendations to be fetch per user.
 	 * @return JavaPairRDD<String, List<String>> Key-Value pair where Key is
-	 *         UserID and value is List of Recommendations.
+	 *         UserProfile and value is List of Recommendations.
 	 */
 
 	public JavaPairRDD<UserProfile, List<String>> getRecommendations(
@@ -182,19 +181,17 @@ public class SparkPIOConnector implements Serializable {
 				.mapToPair(new PairFunction<Tuple2<UserProfile, String>, Map<String, ByteBuffer>, List<ByteBuffer>>() {
 
 					private static final long serialVersionUID = 8894826755888085258L;
-					
-					
+
 					@Override
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							Tuple2<UserProfile, String> recommendation)
 							throws Exception {
-						Map<String, ByteBuffer>keys = new LinkedHashMap<String, ByteBuffer>();;
+						Map<String, ByteBuffer> keys = new LinkedHashMap<String, ByteBuffer>();
+						;
 						List<ByteBuffer> values = new ArrayList<ByteBuffer>();
-						
-						
+
 						UserProfile userProfile = recommendation._1();
 						String itemid = recommendation._2();
-						Log.warn("Current ID is " + userProfile.userID);
 						keys.put(ColumnCollection.PROFILE_ID, UUIDType.instance
 								.fromString(userProfile.userID));
 						keys.put(ColumnCollection.ITEM_ID,
@@ -251,7 +248,7 @@ public class SparkPIOConnector implements Serializable {
 
 						Map<String, ByteBuffer> valueMap = dataFromCassandra
 								._2();
-												
+
 						ByteBuffer regionID = valueMap
 								.get(ColumnCollection.HOME_REGION_ID);
 
@@ -363,6 +360,16 @@ public class SparkPIOConnector implements Serializable {
 					}
 				});
 	}
+
+	/**
+	 * This method will assign a userProfile for each Recommended ItemID.
+	 * 
+	 * @param userRecommendationsRDD
+	 *            : A PairRDD where key is UserProfile and Value is list of
+	 *            Recommendations.
+	 * @return : PairRDD where Key will be UserProfile and Value will be ItemID
+	 *         recommended for that UserProfile.
+	 */
 
 	public JavaPairRDD<UserProfile, String> toUserProfilePerRecoRDD(
 			JavaPairRDD<UserProfile, List<String>> userRecommendationsRDD) {
