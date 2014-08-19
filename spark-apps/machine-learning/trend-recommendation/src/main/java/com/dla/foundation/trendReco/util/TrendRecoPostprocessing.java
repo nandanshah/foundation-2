@@ -65,7 +65,7 @@ public class TrendRecoPostprocessing implements Serializable {
 							DayScore eventWithDayScore) throws Exception {
 						timestampType = TimestampType.instance;
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
-						eventTypeAggregate = new HashMap<String, Integer>();
+						eventTypeAggregate = eventWithDayScore.getEventTypeAggregate();
 						otherColumns = new ArrayList<ByteBuffer>();
 						
 						primaryKey.put(DailyEventSummaryPerItem.PERIOD
