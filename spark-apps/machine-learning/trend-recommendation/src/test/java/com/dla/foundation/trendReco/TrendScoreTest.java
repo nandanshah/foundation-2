@@ -44,7 +44,7 @@ public class TrendScoreTest {
 					&& 0==row.getUUID("itemid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc122")) {
 
 				assertEquals(1.6, row.getDouble("trendscore"), 0.1);
-				assertEquals(1, row.getDouble("normalizedTrendscore"), 0);
+				assertEquals(1, row.getDouble("normalizedtrendscore"), 0);
 				assertEquals("trending", row.getString("trendscorereason").toLowerCase());
 			}
 

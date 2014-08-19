@@ -251,6 +251,7 @@ public class UserEvtSummaryService implements Serializable {
 			
 			if (-1 != userEvent.getPlayPercentage()) {
 				maxThresholdUserEvent = userEvent;
+				break;
 			}
 		}
 		while (userEventIterator.hasNext()) {
