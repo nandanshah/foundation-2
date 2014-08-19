@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.fis.eo.entities.FISUserEvent;
 import com.dla.foundation.services.queue.updater.Updater;
 import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -25,7 +26,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 public class SyncQueueConsumer implements Runnable {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-	
+
 	private ConnectionFactory factory;
 	private Connection connection;
 	private Channel syncChannel;
@@ -69,9 +70,10 @@ public class SyncQueueConsumer implements Runnable {
 				replyProps = new BasicProperties.Builder().correlationId(props.getCorrelationId()).build();
 
 				byte[] obj = delivery.getBody();
-				AnalyticsCollectionEvent fe = AnalyticsCollectionEvent.fromBytes(obj);
+				FISUserEvent fe = FISUserEvent.fromBytes(obj);
+				UserEvent ue = UserEvent.copy(fe);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
-				fe = updater.updateSyncEvent(fe);
+				ue = updater.updateSyncEvent(ue);
 				//Push reply message to reply queue defined by producer.
 				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.getBytes());
 				syncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);

@@ -10,7 +10,7 @@ import com.dla.foundation.DependencyLocator;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.FoundationDataService;
 import com.dla.foundation.data.FoundationDataServiceImpl;
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.cassandra.CassandraContext;
 import com.dla.foundation.services.queue.filter.Filter;
 
@@ -58,7 +58,7 @@ public class CassandraUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(AnalyticsCollectionEvent event,
+	protected void filterEvent(UserEvent event,
 			ArrayList<Filter> filters) {
 		for (Filter filter : filters) {
 			filter.doFilter(event);
@@ -71,10 +71,10 @@ public class CassandraUpdater extends Updater {
 	 * by underlying Cassandra Writer
 	 */
 	@Override
-	protected AnalyticsCollectionEvent doUpdateSyncEvent(AnalyticsCollectionEvent event) {
-		AnalyticsCollectionEvent ret = null;
+	protected UserEvent doUpdateSyncEvent(UserEvent event) {
+		UserEvent ret = null;
 		try {
-			ret =  dataService.insertOrUpdateCollectionEvent(event);
+			ret =  dataService.insertOrUpdateUserEvent(event);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -87,9 +87,9 @@ public class CassandraUpdater extends Updater {
 	 * This method does not return any acknowledgment or message to caller unlike updateSyncEvent method
 	 */
 	@Override
-	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
+	protected void doUpdateAsyncEvent(UserEvent event) {
 		try {
-			dataService.insertOrUpdateCollectionEvent(event);
+			dataService.insertOrUpdateUserEvent(event);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

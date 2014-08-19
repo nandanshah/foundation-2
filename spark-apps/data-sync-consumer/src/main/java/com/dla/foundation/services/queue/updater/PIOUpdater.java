@@ -9,9 +9,9 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.services.queue.filter.Filter;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
+import com.dla.foundation.data.entities.analytics.UserEvent;
 
 /**
  * PredictionIO Specific updater.
@@ -36,10 +36,10 @@ public class PIOUpdater extends Updater {
 	private String appKey;
 
 	public PIOUpdater() {
-		
+
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
-		
+
 		try {
 			phandler = new PropertiesHandler(propertiesFilePath);
 			hostname = phandler.getValue("hostname");
@@ -56,38 +56,38 @@ public class PIOUpdater extends Updater {
 			logger.error(e1.getMessage(), e1);
 		}
 	}
-	
+
 	@Override
-	protected void filterEvent(AnalyticsCollectionEvent event,
+	protected void filterEvent(UserEvent event,
 			ArrayList<Filter> filters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	protected AnalyticsCollectionEvent doUpdateSyncEvent(
-			AnalyticsCollectionEvent event) {
-		try {
-			client.createUser(event.visitorProfileId);
-			client.createItem(event.customEventValue, new String[]{"movie"});
-			client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
-		} catch (ExecutionException | InterruptedException | IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+	protected UserEvent doUpdateSyncEvent(
+			UserEvent event) {
+		//		try {
+		//			client.createUser(event.visitorProfileId);
+		//			client.createItem(event.customEventValue, new String[]{"movie"});
+		//			client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
+		//		} catch (ExecutionException | InterruptedException | IOException e) {
+		//			logger.error(e.getMessage(), e);
+		//		}
 		return null;
 	}
 
 	@Override
-	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
-		try {
-			client.createUser(event.visitorProfileId);
-			client.createItem(event.customEventValue, new String[]{"movie"});
-			client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
-		} catch (ExecutionException | InterruptedException | IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+	protected void doUpdateAsyncEvent(UserEvent event) {
+		//		try {
+		//			client.createUser(event.visitorProfileId);
+		//			client.createItem(event.customEventValue, new String[]{"movie"});
+		//			client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
+		//		} catch (ExecutionException | InterruptedException | IOException e) {
+		//			logger.error(e.getMessage(), e);
+		//		}
 	}
-	
+
 	@Override
 	public void close() {
 		client.close();

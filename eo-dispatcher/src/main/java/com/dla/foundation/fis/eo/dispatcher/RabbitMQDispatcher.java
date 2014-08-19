@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.dla.foundation.fis.eo.entities.DeviceType;
 import com.dla.foundation.fis.eo.entities.EventType;
-import com.dla.foundation.fis.eo.entities.UserEvent;
+import com.dla.foundation.fis.eo.entities.FISUserEvent;
 import com.dla.foundation.fis.eo.entities.ImpressionSource;
 import com.dla.foundation.fis.eo.entities.NetworkType;
 import com.dla.foundation.fis.eo.entities.SearchType;
@@ -20,7 +20,7 @@ import com.dla.foundation.fis.eo.exception.DispatcherException;
  * @author shishir_shivhare
  *
  */
-public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
+public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISUserEvent> {
 
 	private EventRouteProvider erp;
 	
@@ -33,7 +33,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean profileAdded(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileAdded;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -58,7 +58,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileDeleted;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -82,7 +82,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
 			UUID preferredregionId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdatePreferredRegion;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -107,7 +107,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
 			UUID preferredLocaleId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdatePreferredLocale;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -133,7 +133,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
 			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdateNewSocialMediaAccountLinkage;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -160,7 +160,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
 			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdateSocialMediaAccountDelete;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -185,7 +185,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean accountAdd(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountAdd;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -207,7 +207,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean accountDelete(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountDelete;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -229,7 +229,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean accountInfoUpdate(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountInfoUpdate;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -251,7 +251,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean userLogin(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userLogin;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -274,7 +274,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 	public boolean userLogout(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userLogout;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -298,7 +298,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			long timestamp, UUID profileId, Map<String, String> avp,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.addSession;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -324,7 +324,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			String searchString, Map<String, String> filters, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userSearch;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -353,7 +353,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID itemId, int rankOfItemId, UserActions action, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userSearchResultClick;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -383,7 +383,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPreview;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -408,7 +408,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemMoreInfo;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -433,7 +433,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			long timestamp, UUID profileId, UUID itemId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemShare;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -458,7 +458,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			long timestamp, UUID profileId, UUID itemId, int rateScore,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemRate;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -484,7 +484,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemAddToWatchList;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -509,7 +509,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemDeleteFromWatchlist;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -534,7 +534,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPlayStart;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -559,7 +559,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPlayPercentage;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -585,7 +585,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStop);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -611,7 +611,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPause);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -637,7 +637,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayResume);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -664,7 +664,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			long rentStartTimestamp, long rentEndTimestamp, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRent);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -691,7 +691,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			long purchaseStartTimestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPurchase);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -717,7 +717,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemImpression);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -742,7 +742,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, Map<String, String> avp,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.accountInfoUpdate);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -767,7 +767,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPreview);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -794,7 +794,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemMoreInfo);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -821,7 +821,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemShare);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -848,7 +848,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRate);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -876,7 +876,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStart);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -903,7 +903,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPercentage);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -931,7 +931,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStop);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -959,7 +959,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPause);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -987,7 +987,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayResume);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -1016,7 +1016,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRent);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -1044,7 +1044,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemAddToWatchList);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -1071,7 +1071,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			long purchaseStartTimestamp, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPurchase);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -1098,7 +1098,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<UserEvent> {
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		UserEvent e = new UserEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemImpression);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;

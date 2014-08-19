@@ -26,7 +26,7 @@ public class DataSyncApp {
 			System.out.println("Expected argumets: [local | standalone <master> <spark_home> <jar_list_csv> | submit] ");
 			System.exit(1);
 		}
-		
+
 		String mode = args[0];
 		String master = "local";
 		String sparkHome = null;

@@ -2,7 +2,7 @@ package com.dla.foundation.services.queue.updater;
 
 import java.util.ArrayList;
 
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.services.queue.filter.Filter;
 import com.dla.foundation.services.queue.util.UpdaterConfig;
 
@@ -22,7 +22,7 @@ public abstract class Updater {
 	 * 
 	 * @param event Event to be written to endpoint
 	 */
-	final public AnalyticsCollectionEvent updateSyncEvent(AnalyticsCollectionEvent event) {
+	final public UserEvent updateSyncEvent(UserEvent event) {
 		filterEvent(event, conf.filters);
 		return doUpdateSyncEvent(event);
 	}
@@ -32,7 +32,7 @@ public abstract class Updater {
 	 * 
 	 * @param event Event to be written to endpoint
 	 */
-	final public void updateAsyncEvent(AnalyticsCollectionEvent event) {
+	final public void updateAsyncEvent(UserEvent event) {
 		filterEvent(event, conf.filters);
 		doUpdateAsyncEvent(event);
 	}
@@ -42,9 +42,9 @@ public abstract class Updater {
 	 */
 	abstract void close();
 
-	protected abstract void filterEvent(AnalyticsCollectionEvent event, ArrayList<Filter> filters);
+	protected abstract void filterEvent(UserEvent event, ArrayList<Filter> filters);
 
-	protected abstract AnalyticsCollectionEvent doUpdateSyncEvent(AnalyticsCollectionEvent event);
+	protected abstract UserEvent doUpdateSyncEvent(UserEvent event);
 
-	protected abstract void doUpdateAsyncEvent(AnalyticsCollectionEvent event);
+	protected abstract void doUpdateAsyncEvent(UserEvent event);
 }

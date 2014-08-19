@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
 import com.dla.foundation.data.persistence.elasticsearch.ESServiceImpl;
@@ -17,7 +17,7 @@ public class ElasticSearchUpdater extends Updater {
 
 	private static ESService es_service=null;
 	private static BulkEventsProcessing bulk_events=null;
-	
+
 	private static ElasticSearchUpdater instance;
 
 	private final String PROPERTIES_FILE_NAME = "ElasticSearch.properties";
@@ -39,7 +39,7 @@ public class ElasticSearchUpdater extends Updater {
 			logger.error("IOException in updater");
 		}
 	}
-	
+
 	public static ElasticSearchUpdater getInstance() {
 		if(instance==null) {
 			instance = new ElasticSearchUpdater();
@@ -48,33 +48,33 @@ public class ElasticSearchUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(AnalyticsCollectionEvent event,
+	protected void filterEvent(UserEvent event,
 			ArrayList<Filter> filters) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	protected AnalyticsCollectionEvent doUpdateSyncEvent(
-			AnalyticsCollectionEvent event) {
-		try{
-			if(event.customEventLabel.contains("Added"))
-				es_service.addItem(event);
-			if(event.customEventLabel.contains("Updated"))
-				es_service.updateItem(event);
-			if(event.customEventLabel.contains("Deleted"))
-				es_service.deleteItem(event);
-		}
-		catch(IOException e){
-			logger.error("IOException in ES update sync events");
-		}
+	protected UserEvent doUpdateSyncEvent(
+			UserEvent event) {
+		//		try{
+		//			if(event.customEventLabel.contains("Added"))
+		//				es_service.addItem(event);
+		//			if(event.customEventLabel.contains("Updated"))
+		//				es_service.updateItem(event);
+		//			if(event.customEventLabel.contains("Deleted"))
+		//				es_service.deleteItem(event);
+		//		}
+		//		catch(IOException e){
+		//			logger.error("IOException in ES update sync events");
+		//		}
 		return event;
 	}
 
 	@Override
-	protected void doUpdateAsyncEvent(AnalyticsCollectionEvent event) {
-		bulk_events.getBulkEvent(event, es_service);
+	protected void doUpdateAsyncEvent(UserEvent event) {
+		//		bulk_events.getBulkEvent(event, es_service);
 	}
-	
+
 	@Override
 	public void close() {
 

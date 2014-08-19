@@ -1,9 +1,9 @@
 package com.dla.foundation.services.queue.filter;
 
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+import com.dla.foundation.data.entities.analytics.UserEvent;
 
 public interface Filter {
-	
-	void doFilter(AnalyticsCollectionEvent e);
-	
+
+	void doFilter(UserEvent e);
+
 }

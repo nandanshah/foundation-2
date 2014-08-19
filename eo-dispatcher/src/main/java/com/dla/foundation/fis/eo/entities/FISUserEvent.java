@@ -15,7 +15,7 @@ import java.util.UUID;
  * @author tsudake.psl@dlavideo.com
  *
  */
-public class UserEvent implements Serializable {
+public class FISUserEvent implements Serializable {
 
 	
 	/**
@@ -72,11 +72,11 @@ public class UserEvent implements Serializable {
 	}
 
 	//fromBytes() will allow event orchestration layer consumer to instantiate event object from raw bytes
-	public static UserEvent fromBytes(byte[] body) {
-		UserEvent obj = null;
+	public static FISUserEvent fromBytes(byte[] body) {
+		FISUserEvent obj = null;
 		try (ByteArrayInputStream bis = new ByteArrayInputStream(body)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-				obj = (UserEvent) ois.readObject();
+				obj = (FISUserEvent) ois.readObject();
 			}
 		}
 		catch (Exception e) {

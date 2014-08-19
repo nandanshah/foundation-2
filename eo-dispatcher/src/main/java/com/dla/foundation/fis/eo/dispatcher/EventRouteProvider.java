@@ -25,7 +25,7 @@ public class EventRouteProvider {
 			List<String> tmp = new ArrayList<String>();
 			for (String route : allRoutes) {
 				if(route.startsWith(eventType)) {
-					tmp.add(route);
+					tmp.add(route.trim());
 				}
 			}
 			routeMap.put(eventType, tmp);
