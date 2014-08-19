@@ -9,14 +9,20 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 2898274449817898426L;
-	public String userid;
-	public String parentItemId;
-	public double socialScore;
-	public double trendScore;
-	public double popularScore;
-	public double fpScore;
-	public double newScore;
-	public double recoByFoundation;
+	private String userid;
+	private String parentItemId;
+	private double socialScore;
+	private double trendScore;
+	private double popularScore;
+	private double fpScore;
+	private double newScore;
+	private double recoByFoundation;
+	private String trendreason;
+	private String socialreason;
+	private String popularityreason;
+	private String fpreason;
+	private String recoByfoundationreason;
+	private String newreason;
 	
 	public String getUserid() {
 		return userid;
@@ -67,13 +73,47 @@ public class UserRecommendation extends ESEntity implements Serializable{
 		this.recoByFoundation = recoByFoundation;
 	}
 
+	public String getTrendreason() {
+		return trendreason;
+	}
+	public void setTrendreason(String trendreason) {
+		this.trendreason = trendreason;
+	}
+	public String getSocialreason() {
+		return socialreason;
+	}
+	public void setSocialreason(String socialreason) {
+		this.socialreason = socialreason;
+	}
+	public String getPopularityreason() {
+		return popularityreason;
+	}
+	public void setPopularityreason(String popularityreason) {
+		this.popularityreason = popularityreason;
+	}
+	public String getFpreason() {
+		return fpreason;
+	}
+	public void setFpreason(String fpreason) {
+		this.fpreason = fpreason;
+	}
+	public String getRecoByfoundationreason() {
+		return recoByfoundationreason;
+	}
+	public void setRecoByfoundationreason(String recoByfoundationreason) {
+		this.recoByfoundationreason = recoByfoundationreason;
+	}
 	@Override
 	public String toString() {
-		return "UserRecommendation [userid=" + userid + ", socialScore="
-				+ socialScore + ", trendScore=" + trendScore
-				+ ", popularScore=" + popularScore + ", fpScore=" + fpScore
-				+ ", newScore=" + newScore + ", recoByFoundation="
-				+ recoByFoundation + "]";
+		return "UserRecommendation [userid=" + userid + ", parentItemId="
+				+ parentItemId + ", socialScore=" + socialScore
+				+ ", trendScore=" + trendScore + ", popularScore="
+				+ popularScore + ", fpScore=" + fpScore + ", newScore="
+				+ newScore + ", recoByFoundation=" + recoByFoundation
+				+ ", trendreason=" + trendreason + ", socialreason="
+				+ socialreason + ", popularityreason=" + popularityreason
+				+ ", fpreason=" + fpreason + ", recoByfoundationreason="
+				+ recoByfoundationreason + "]";
 	}
 	
 }

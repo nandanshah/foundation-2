@@ -38,18 +38,13 @@ public class ConnectorTest {
 		reader = new CassandraEntityReader();
 		reader.runUserRecoDriver("src/test/resources/appTest.properties", "src/test/resources/userRecoTest.properties", "src/test/resources/elasticSearchTest.properties");	
 		
-		boolean exists= repository.createESIndex("d979ca35-b58d-434b-b2d6-ea0316bcc9b6", esHost);
+		boolean exists= repository.createESIndex("d979ca35-b58d-434b-b2d6-ea0316bcc9b7", esHost);
 		assertEquals(exists, true);
 		
 		UserRecommendation ur= repository.getUserRecoItem("d979ca35-b58d-434b-b2d6-ea0316bcc9a6", "user_reco_1", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9-c979ca35-b58d-434b-b2d6-ea0316bcc9a8", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
 		assertNotNull(ur);
 		assertEquals(ur.getParentItemId(), "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
 		
-		
-		/*UserRecommendation ur= repository.getUserRecoItem("d979ca35-b58d-434b-b2d6-ea0316bcc9a6", "user_reco_1", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9-06/30/2014-c979ca35-b58d-434b-b2d6-ea0316bcc9a8", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
-		assertNotNull(ur);
-		assertEquals(ur.getParentItemId(), "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");*/
-	
 	}
 	
 	private void executeCommands() {

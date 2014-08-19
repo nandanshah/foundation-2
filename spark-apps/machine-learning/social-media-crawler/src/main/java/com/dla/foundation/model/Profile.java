@@ -2,7 +2,7 @@ package com.dla.foundation.model;
 
 public enum Profile {
 
-	id("id"), socialauth("socialauth"), lastmodified("lastmodified"), dummyflag("dummyflag");
+	id("id"), socialauthtoken("socialauthtoken"), lastcrawlerruntime("lastcrawlerruntime"), isSocialCrawlRequired("isSocialCrawlRequired");
 
 	private String value;
 

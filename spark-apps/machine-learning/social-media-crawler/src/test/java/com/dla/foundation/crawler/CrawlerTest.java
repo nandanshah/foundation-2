@@ -38,7 +38,7 @@ public class CrawlerTest {
 			throw e;
 		}
 
-		keySpace = phandler.getValue(CrawlerPropKeys.keySpace.getValue());
+		keySpace = phandler.getValue(CrawlerPropKeys.fisKeyspace.getValue());
 
 		socialProfileCF = phandler
 				.getValue(CrawlerPropKeys.socialProfileColumnFamily.getValue());
