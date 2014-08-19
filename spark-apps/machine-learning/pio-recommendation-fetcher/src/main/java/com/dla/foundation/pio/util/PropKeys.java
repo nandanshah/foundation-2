@@ -14,14 +14,16 @@ public enum PropKeys {
 	RECOMMEND_CF("recommendCF"), // Target Recommendation Table
 	INPUT_PARTITIONER("inputPartitioner"), // Cassandra Input Partitioner
 	OUTPUT_PARTITIONER("outputPartitioner"),// Cassandra Output Partitioner
-	RECOMMEND_USERIDKEY("recommendUserKey"),  //Target Recommendation Table's column name that will hold Userids 
+	RECOMMEND_USERIDKEY("recommendKey"),  //Target Recommendation Table's column name that will hold Userids 
 	RECOMMEND_REC_COL("recommendRecCol"), //Target Recommendation Table's column name that will hold Recommendations.
 	RECOMMEND_TIMESTAMP_COL("recommendTimeStampCol"),//Target Recommendation Table's column name that will hold Timestamp, when last time recommendations were fetched.
 	CASSANDRA_IP("cassandraIP"),// Cassandra IPs 
 	PROFILE_USERIDKEY("profileUserKey"),// Source Cassandra profile Table's column name which holds userid. 
 	PROFILE_CF("profileCF"),// Source Cassandra profile Table.
 	CASSANDRA_DBHOST("cassandraDBHost"), // Cassandra Database host.
-	PAGE_ROW_SIZE("pageRowSize"); // Page Row Size.
+	PAGE_ROW_SIZE("pageRowSize"), // Page Row Size.
+	ACCOUNT_CF("accountCF"),
+	ACCOUNT_KEY("accountKey");
 
 	private String value;
 

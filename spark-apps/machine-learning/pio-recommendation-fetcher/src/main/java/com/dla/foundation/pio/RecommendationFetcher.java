@@ -3,22 +3,24 @@ package com.dla.foundation.pio;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.pio.util.CassandraConfig;
 import com.dla.foundation.pio.util.PIOConfig;
 import com.dla.foundation.pio.util.PropKeys;
+import com.dla.foundation.pio.util.RecoFetcherConstants;
 
 public class RecommendationFetcher implements Serializable {
-	
+
 	private static final long serialVersionUID = 648420875123997020L;
-	public static final String DEFAULT_API_PORT_NUM = "8000";
-	private static final String DEFAULT_CASSANDRA_PORT_NUM = "9160";
-	private static Logger logger = Logger.getLogger(RecommendationFetcher.class.getName());
-	
+	public static String TENANT_ID;
+	private static final String CONFIG_DELIM = ",";
+
+	private static Logger logger = Logger.getLogger(RecommendationFetcher.class
+			.getName());
 
 	/**
 	 * This method is initial method for PIO Recommendation Fetcher. It
@@ -28,90 +30,92 @@ public class RecommendationFetcher implements Serializable {
 	 * @param propertyHandler
 	 *            : instance of PropertyHandler which helps to retrieve values
 	 *            for different properties.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 
 	public void runRecommendationFetcher(PropertiesHandler propertyHandler) {
-		
-		//Calculating PIO appURL
+
+		// Calculating PIO appURL
 		String port;
 		try {
-			port = propertyHandler.getValue(PropKeys.PIOPort.getValue()) != null ? propertyHandler.getValue(PropKeys.PIOPort.getValue())
-					: DEFAULT_API_PORT_NUM;
-		
-		final String appURL = "http://" +  propertyHandler.getValue(PropKeys.HOSTNAME.getValue()) + ":" + port;
+			port = propertyHandler.getValue(CommonPropKeys.pio_port.getValue()) != null ? propertyHandler
+					.getValue(CommonPropKeys.pio_port.getValue())
+					: RecoFetcherConstants.DEFAULT_API_PORT_NUM;
 
-		// Instantiates PIOConfig Class : This class holds config properties
-		// needed to make call to predictionIO (PIO).
-		PIOConfig pioConfig = new PIOConfig(propertyHandler.getValue(PropKeys.APPKEY.getValue()),
-				appURL,propertyHandler.getValue(PropKeys.ENGINE.getValue()),
-				Integer.parseInt(propertyHandler.getValue(PropKeys.NUM_REC_PER_USER.getValue())));
-		logger.info("");
+			final String appURL = "http://"
+					+ propertyHandler.getValue(CommonPropKeys.pio_host
+							.getValue()) + ":" + port;
 
+			// Instantiates PIOConfig Class : This class holds config properties
+			// needed to make call to predictionIO (PIO).
+			String[] engineConfig = propertyHandler.getValue(TENANT_ID).split(
+					CONFIG_DELIM);
+			String appKey = engineConfig[0];
+			String engineName = engineConfig[1];
 
-		
-		// Forms Cassandra update query : This query will be used for inserting
-		// fetched recommendation to Cassandra table.
-				final String recommendationUpdateQuery = "UPDATE "
-				+ propertyHandler.getValue(PropKeys.KEYSPACE.getValue()) + "."
-				+ propertyHandler.getValue(PropKeys.RECOMMEND_CF.getValue()) + " SET "
-				+ propertyHandler.getValue(PropKeys.RECOMMEND_REC_COL.getValue()) + "=?,"
-				+ propertyHandler.getValue(PropKeys.RECOMMEND_TIMESTAMP_COL.getValue()) + "=?";
-				
-		
+			PIOConfig pioConfig = new PIOConfig(appKey, appURL, engineName,
+					Integer.parseInt(propertyHandler
+							.getValue(PropKeys.NUM_REC_PER_USER.getValue())));
 
-		RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
-		Configuration conf = new Configuration();
+			RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
 
-		
-				CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-				 getCassnadraIPArray(propertyHandler.getValue(PropKeys.CASSANDRA_IP.getValue())),								
-				propertyHandler.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-				propertyHandler.getValue(PropKeys.CASSANDRA_PORT.getValue()),
-				getCassnadraIPArray(propertyHandler.getValue(PropKeys.CASSANDRA_IP.getValue())),									
-				propertyHandler.getValue(PropKeys.OUTPUT_PARTITIONER.getValue()));
-				
-				
-		// Instantiates CassandraConfig : This class holds parameters that are
-		// used for reading and writing data from Cassandra.
-		
-		CassandraConfig cassandraPIOConfig = new CassandraConfig(
-				propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-				propertyHandler.getValue(PropKeys.PROFILE_CF.getValue()),
-				propertyHandler.getValue(PropKeys.PAGE_ROW_SIZE.getValue()),
-				propertyHandler.getValue(PropKeys.PROFILE_USERIDKEY.getValue()),
-				recommendationUpdateQuery, propertyHandler.getValue(PropKeys.KEYSPACE.getValue()),
-				propertyHandler.getValue(PropKeys.RECOMMEND_CF.getValue()),
-				propertyHandler.getValue(PropKeys.RECOMMEND_USERIDKEY.getValue()));
-		
-		
+			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
+					getCassnadraIPArray(propertyHandler.getValue(CommonPropKeys.cs_hostList
+							.getValue())),
+					RecoFetcherConstants.INPUT_PARTITIONER,
+					propertyHandler.getValue(CommonPropKeys.cs_rpcPort
+							.getValue()),
+					getCassnadraIPArray(propertyHandler
+							.getValue(CommonPropKeys.cs_hostList.getValue())),
+					RecoFetcherConstants.OUTPUT_PARTITIONER);
 
-		recFetcherDriver.fetchRecommendations(cassandraSparkConnector, conf,
-				cassandraPIOConfig, pioConfig,
-				propertyHandler.getValue(PropKeys.SPARK_MASTER.getValue()),
-				propertyHandler.getValue(PropKeys.SPARK_APPNAME.getValue()));
+			// Instantiates CassandraConfig : This class holds parameters that
+			// are
+			// used for reading and writing data from Cassandra.
+
+			CassandraConfig cassandraConfig = new CassandraConfig(
+					propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
+							.getValue()),
+					propertyHandler.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()),
+					propertyHandler.getValue(CommonPropKeys.cs_profileCF
+							.getValue()),
+					propertyHandler.getValue(CommonPropKeys.cs_accountCF
+							.getValue()),
+					propertyHandler.getValue(PropKeys.RECOMMEND_CF.getValue()),
+					propertyHandler.getValue(CommonPropKeys.cs_pageRowSize
+							.getValue()));
+
+			recFetcherDriver.fetchRecommendations(cassandraSparkConnector,
+					cassandraConfig, pioConfig, propertyHandler
+							.getValue(CommonPropKeys.spark_host.getValue()));
 		} catch (IOException e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 
 	}
-	
-	
-	private String [] getCassnadraIPArray(String strCassnadraIP){
+
+	private String[] getCassnadraIPArray(String strCassnadraIP) {
 		return strCassnadraIP.split(",");
 	}
 
 	public static void main(String[] args) throws IOException {
-		String propertiesFilePath= "";
+		String propertiesFilePath = "";
+
 		RecommendationFetcher recommndationFetcher = new RecommendationFetcher();
-		if (args.length > 0) {
+		if (args.length ==2) {
 			propertiesFilePath = args[0];
-			PropertiesHandler propertyHandler = new PropertiesHandler(propertiesFilePath);
+			TENANT_ID = args[1];
+			System.out.println("TENANT ID " + TENANT_ID);
+			System.out.println(propertiesFilePath);
+			PropertiesHandler propertyHandler = new PropertiesHandler(
+					propertiesFilePath, RecoFetcherConstants.APPNAME);
 			recommndationFetcher.runRecommendationFetcher(propertyHandler);
 		} else {
-			System.err.println(" USAGE: RecommendationFetcher propertiesfile");
+			System.err
+					.println(" USAGE: RecommendationFetcher propertiesfile tenantID");
 		}
-		
+
 	}
 
 }
