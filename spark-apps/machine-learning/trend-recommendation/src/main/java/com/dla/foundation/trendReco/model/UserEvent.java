@@ -2,7 +2,6 @@ package com.dla.foundation.trendReco.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
 
 public class UserEvent implements Serializable {
 
@@ -17,7 +16,14 @@ public class UserEvent implements Serializable {
 	private Date date;
 	private String tenantId;
 	private String regionId;
-	Map<String, String> avp;
+	private double playPercentage=-1;
+	public double getPlayPercentage() {
+		return playPercentage;
+	}
+
+	public void setPlayPercentage(double playPercentage) {
+		this.playPercentage = playPercentage;
+	}
 
 	public String getMovieid() {
 		return movieId;
@@ -65,15 +71,6 @@ public class UserEvent implements Serializable {
 
 	public void setRegionId(String regionId) {
 		this.regionId = regionId;
-	}
-
-	public Map<String, String> getAvp() {
-		return avp;
-	}
-
-	public void setAvp(Map<String, String> avp) {
-
-		this.avp = avp;
 	}
 
 }

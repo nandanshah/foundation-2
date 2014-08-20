@@ -10,6 +10,7 @@ import java.text.ParseException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -40,7 +41,7 @@ public class UserEvtSummaryTest {
 		userEventSummaryDriver
 				.runUserEvtSummaryDriver(
 						"src/test/resources/appPropTest.txt",
-						"src/test/resources/userSumPropTest.txt");
+						"src/test/resources/userSumPropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest3",
 				"dailyeventsummaryperuseritem");
@@ -53,7 +54,6 @@ public class UserEvtSummaryTest {
 					assertEquals(0.6, row.getDouble("dayscore"), 0);
 				}
 			} catch (ParseException e) {
-
 				e.printStackTrace();
 			}
 

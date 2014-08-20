@@ -10,7 +10,6 @@ import java.text.ParseException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -18,41 +17,36 @@ import com.datastax.driver.core.Row;
 import com.dla.foundation.analytics.utils.CassandraContext;
 import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 
-
-
-public class DayScoreTest {
-	private DayScoreDriver dayScoreDriver;
+public class TrendClientTest {
+	private TrendRecoClient trendRecoClient;
 	private CassandraContext cassandra;
-	
+
 	@Before
-	public void beforeClass() throws InterruptedException, IOException {
-		dayScoreDriver = new DayScoreDriver();
-		
-		String current_dir = "file://" + System.getProperty("user.dir");
-		cassandra = new CassandraContext(current_dir
-				+ "/../../commons/src/test/resources/cassandra.yaml");
-		
+	public void beforeClass() throws InterruptedException {
+		trendRecoClient = new TrendRecoClient();
+		cassandra = new CassandraContext();
 		cassandra.connect();
 		executeCommands();
 	}
-	
+
 	@Test
-	public void dayScoreCalTest() {
-		assertNotNull(dayScoreDriver);
-		dayScoreDriver
-				.runDayScoreDriver(
-						"src/test/resources/appPropTest.txt",
-						"src/test/resources/dayScorePropTest_Ind.txt");
+	public void userEvtSummaryCalTest() throws Exception {
+		assertNotNull(trendRecoClient);
+		
+			trendRecoClient.runTrendRecommendation("src/test/resources/appPropTest.txt","src/test/resources/userSumPropTest.txt",
+					"src/test/resources/dayScorePropTest.txt","src/test/resources/trendScorePropTest.txt");
+		
+		
 		assertNotNull(cassandra);
-		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
-				"dailyeventsummary");
+		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest4",
+				"dailyeventsummaryperuseritem");
+		double sum = 0;
 		for (Row row : dayScoreResult) {
 			try {
 				if (row.getDate("date").getTime() == TrendRecommendationUtil
 						.getFormattedDate(TrendRecommendationUtil.getDate(
-								"2014-06-30", "yyyy-MM-dd").getTime())) {
-
-					assertEquals(3.4, row.getDouble("dayscore"), 0);
+								"2014-06-29", "yyyy-MM-dd").getTime())) {
+					sum = sum + row.getDouble("dayscore");
 				}
 			} catch (ParseException e) {
 
@@ -60,20 +54,32 @@ public class DayScoreTest {
 			}
 
 		}
+		assertEquals(2.0, sum, 0);
 
+		ResultSet trendScoreResult = cassandra.getRows("sampletrendrecotest4",
+				"trend");
+		
+		for (Row row : trendScoreResult) {
+			
+				if (row.getUUID("id").toString() == "366e8400-fef2-11e3-8080-808080808080") {
+
+					assertEquals(0.5, row.getDouble("trendscore"), 0);
+				}
+		}
 	}
-	
+
 	@After
 	public void afterClass() throws InterruptedException {
-		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest1;");
+		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest4;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}
+
 	private void executeCommands() {
 		try {
 			BufferedReader in = new BufferedReader(
 					new FileReader(
-							"src/test/resources/dayScoreCom.txt"));
+							"src/test/resources/trendSchemaCom.txt"));
 			String command;
 			while ((command = in.readLine()) != null) {
 				cassandra.executeCommand(command.trim());
