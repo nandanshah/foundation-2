@@ -32,7 +32,9 @@ public class ESMovieSimilarityTest {
 
 	public void createMockCassandra() throws InterruptedException, IOException {
 
-		cassandraInstance = new CassandraContext();
+		String current_dir = "file://" + System.getProperty("user.dir");
+		cassandraInstance = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandraInstance.connect();
 		cassandraInstance
 				.executeCommand("CREATE KEYSPACE IF NOT EXISTS "

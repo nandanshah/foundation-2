@@ -79,7 +79,7 @@ public class PropertiesHandler {
 		try {
 			FileInputStream input = new FileInputStream(fileName);
 			propsInFile.load(input);
-			csContext = new CassandraContext();
+			csContext = new CassandraContext(null);
 			connectToCassandra();
 			readFromCassandra();
 		} catch (IOException e) {

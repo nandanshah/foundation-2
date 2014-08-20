@@ -40,7 +40,9 @@ public class RecommendationFetcherTest {
 		propertyHandler = new PropertiesHandler(System.getProperty(FILE_VAR,
 				DEFAULT_PROPERTIES_FILE_PATH));
 
-		cassandraContext = new CassandraContext();
+		String current_dir = "file://" + System.getProperty("user.dir");
+		cassandraContext = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandraContext.connect();
 
 		

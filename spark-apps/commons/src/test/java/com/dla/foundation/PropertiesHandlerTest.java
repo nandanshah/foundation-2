@@ -20,28 +20,43 @@ public class PropertiesHandlerTest {
 
 	@Before
 	public void before() throws InterruptedException, IOException {
-		
+
 		try {
-			handler = new PropertiesHandler("src/main/resources/local/common.properties");
+			handler = new PropertiesHandler(
+					"src/test/resources/common.properties");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		csContext = new CassandraContext();
+
+		String current_dir = "file://" + System.getProperty("user.dir");
+		csContext = new CassandraContext(current_dir
+				+ "/src/test/resources/cassandra.yaml");
+
 		csContext.connect();
 
-		csContext.executeCommand("CREATE KEYSPACE IF NOT EXISTS " + handler.getValue(CommonPropKeys.cs_fisKeyspace) 
-				+ " WITH replication={'class':'SimpleStrategy','replication_factor':1};");
-		csContext.executeCommand("USE " + handler.getValue(CommonPropKeys.cs_fisKeyspace));
-		csContext.executeCommand("CREATE TABLE IF NOT EXISTS " + handler.getValue(CommonPropKeys.cs_sparkAppPropCF) + "(" + handler.getValue(CommonPropKeys.cs_sparkAppPropCol) + " text, properties map<text,text>, primary key (" + handler.getValue(CommonPropKeys.cs_sparkAppPropCol) + "));");
-		csContext.executeCommand("INSERT INTO " + handler.getValue(CommonPropKeys.cs_fisKeyspace) + "." + handler.getValue(CommonPropKeys.cs_sparkAppPropCF) + " (" + handler.getValue(CommonPropKeys.cs_sparkAppPropCol) + ", properties) VALUES ('gs', {'host':'localhost'});");
-		
+		csContext
+				.executeCommand("CREATE KEYSPACE IF NOT EXISTS "
+						+ handler.getValue(CommonPropKeys.cs_fisKeyspace)
+						+ " WITH replication={'class':'SimpleStrategy','replication_factor':1};");
+		csContext.executeCommand("USE "
+				+ handler.getValue(CommonPropKeys.cs_fisKeyspace));
+		csContext.executeCommand("CREATE TABLE IF NOT EXISTS "
+				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCF) + "("
+				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol)
+				+ " text, properties map<text,text>, primary key ("
+				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol) + "));");
+		csContext.executeCommand("INSERT INTO "
+				+ handler.getValue(CommonPropKeys.cs_fisKeyspace) + "."
+				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCF) + " ("
+				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol)
+				+ ", properties) VALUES ('gs', {'host':'localhost'});");
+
 		try {
-			pHandler = new PropertiesHandler("src/main/resources/local/common.properties", "gs");
+			pHandler = new PropertiesHandler(
+					"src/main/resources/local/common.properties", "gs");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 
 	}
 
@@ -58,8 +73,10 @@ public class PropertiesHandlerTest {
 
 	@Test
 	public void readFromCSTest() {
-		ResultSet rs = csContext.getRows("fis", "sparkappprop", "sparkappname","gs");
-		String hostValue = rs.one().getMap("properties", String.class, String.class).get("host");
+		ResultSet rs = csContext.getRows("fis", "sparkappprop", "sparkappname",
+				"gs");
+		String hostValue = rs.one()
+				.getMap("properties", String.class, String.class).get("host");
 
 		try {
 			assertEquals(hostValue, pHandler.getValue("host"));
@@ -73,7 +90,8 @@ public class PropertiesHandlerTest {
 
 		String cs_entityPackagePrefix = "com.dla.foundation";
 		try {
-			assertEquals(cs_entityPackagePrefix, pHandler.getValue("cs_entityPackagePrefix"));
+			assertEquals(cs_entityPackagePrefix,
+					pHandler.getValue("cs_entityPackagePrefix"));
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

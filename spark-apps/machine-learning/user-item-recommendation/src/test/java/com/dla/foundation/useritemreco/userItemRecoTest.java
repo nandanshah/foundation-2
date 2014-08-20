@@ -23,9 +23,14 @@ public class userItemRecoTest {
 	private UserItemRecoDriver userItemRecoDriver;
 
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException, IOException {
 		userItemRecoDriver = new UserItemRecoDriver();
-		cassandra = new CassandraContext();
+		
+		
+		String current_dir = "file://" + System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
+		
 		cassandra.connect();
 		executeCommands();
 
