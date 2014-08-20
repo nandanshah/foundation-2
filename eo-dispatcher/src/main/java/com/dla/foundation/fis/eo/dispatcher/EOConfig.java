@@ -20,6 +20,14 @@ public class EOConfig {
 		this.rmqHost = rmqHost;
 		this.rmqPort = rmqPort;
 	}
+	
+	public EOConfig(String rmqHost, int rmqPort, String username, String password) {
+		super();
+		this.rmqHost = rmqHost;
+		this.rmqPort = rmqPort;
+		this.username = username;
+		this.password = password;
+	}
 
 	public EOConfig(String rmqHost, int rmqPort, String eXCHANGE_NAME,
 			String eXCHANGE_TYPE, String username, String password) {
