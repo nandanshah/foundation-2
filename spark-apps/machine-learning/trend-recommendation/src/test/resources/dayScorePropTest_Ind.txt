@@ -1,0 +1,10 @@
+input_keyspace=sampletrendrecotest1
+input_columnfamily=dailyeventsummaryperuseritem
+page_row_size=3
+input_date=2014-06-30
+output_keyspace=sampletrendrecotest1
+output_columnfamily=dailyeventsummary
+recalculation_start_date=2014-06-29
+recalculation_end_date=
+recalculation_period=5
+incremental_flag=true

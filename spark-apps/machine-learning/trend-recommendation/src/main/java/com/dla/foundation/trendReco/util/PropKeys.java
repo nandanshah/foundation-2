@@ -12,7 +12,7 @@ public enum PropKeys {
 			"recalculation_start_date"), RECAL_END_DATE(
 			"recalculation_end_date"), RECAL_PERIOD("recalculation_period"), INCREMENTAL_FLAG(
 			"incremental_flag"), ZSCORE_PERIOD("zscore_period"), CURRENT_TREND_DATE(
-			"current_trend_date"), FLAG("flag"), DATE("date"), FULL_QUALIFIED_CLASSNAME(
+			"current_trend_date"), FLAG1("flag"), DATE("date"), FULL_QUALIFIED_CLASSNAME(
 			"fully_qualified_classname");
 
 	private String value;

@@ -10,6 +10,7 @@ import java.text.ParseException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -37,7 +38,7 @@ public class DayScoreTest {
 		dayScoreDriver
 				.runDayScoreDriver(
 						"src/test/resources/appPropTest.txt",
-						"src/test/resources/dayScorePropTest.txt");
+						"src/test/resources/dayScorePropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");
