@@ -79,13 +79,14 @@ public class SparkCrawlerUtils {
 						Map<String, ByteBuffer> keys = tuple._1();
 
 						if (keys != null) {
-							profileId =  UUIDType.instance.compose(keys
-									.get(profileIdKey)).toString();
+							profileId = UUIDType.instance.compose(
+									keys.get(profileIdKey)).toString();
 
 							socialID = ByteBufferUtil.string(tuple._2
 									.get(socialIdKey));
 
-							return new Tuple2<String, String>(profileId, socialID);
+							return new Tuple2<String, String>(profileId,
+									socialID);
 						} else {
 							return new Tuple2<String, String>(null, null);
 						}
@@ -125,14 +126,16 @@ public class SparkCrawlerUtils {
 						Map<String, ByteBuffer> keys = tuple._1();
 
 						if (keys != null) {
-							ByteBuffer buff = keys.get(profileIdKey); 
+							ByteBuffer buff = keys.get(profileIdKey);
 							if (buff != null)
-								profileId = UUIDType.instance.compose(buff).toString();
+								profileId = UUIDType.instance.compose(buff)
+										.toString();
 
 							socialID = ByteBufferUtil.string(tuple._2
 									.get(socialIdKey));
 
-							return new Tuple2<String, String>(socialID, profileId);
+							return new Tuple2<String, String>(socialID,
+									profileId);
 						} else {
 							return new Tuple2<String, String>(null, null);
 						}
@@ -148,28 +151,30 @@ public class SparkCrawlerUtils {
 	 * 
 	 */
 	public static class CrawlerConfig {
-		public final String lastModifiedKey;
-		public final String keySpace;
+		public final String lastCrawlerRunTimeKey;
+		public final String fisKeyspace, analyticsKeyspace;
 		public final String profileIdKey, socialIdKey;
-		public final String profileCF, socialProfileCF, friendsCF,
-				frdsIdKeySep;
+		public final String profileCF, socialProfileCF, friendsCF;
 
 		public CrawlerConfig() {
 			this(null, null, null, null, null, null, null, null);
 		}
 
-		public CrawlerConfig(String keySpace, String profileIdKey,
+		public CrawlerConfig(String lastCrawlerRunTimeKey, String fisKeyspace,
+				String analyticsKeyspace, String profileIdKey,
 				String socialIdKey, String profileCF, String socialProfileCF,
-				String friendsCF, String lastModifiedKey, String frdsIdKeySep) {
-			this.keySpace = keySpace;
+				String friendsCF) {
+			super();
+			this.lastCrawlerRunTimeKey = lastCrawlerRunTimeKey;
+			this.fisKeyspace = fisKeyspace;
+			this.analyticsKeyspace = analyticsKeyspace;
 			this.profileIdKey = profileIdKey;
 			this.socialIdKey = socialIdKey;
 			this.profileCF = profileCF;
 			this.socialProfileCF = socialProfileCF;
 			this.friendsCF = friendsCF;
-			this.lastModifiedKey = lastModifiedKey;
-			this.frdsIdKeySep = frdsIdKeySep;
 		}
+
 	}
 
 	/**
@@ -226,8 +231,10 @@ public class SparkCrawlerUtils {
 
 	public static CrawlerConfig initCrawlerConfig(PropertiesHandler phandler)
 			throws IOException {
-		String keySpace = phandler
-				.getValue(CrawlerPropKeys.keySpace.getValue());
+		String fisKeyspace = phandler.getValue(CrawlerPropKeys.fisKeyspace
+				.getValue());
+		String analyticsKeyspace = phandler
+				.getValue(CrawlerPropKeys.analyticsKeyspace.getValue());
 		String profileIdKey = phandler.getValue(CrawlerPropKeys.profileIdKey
 				.getValue());
 		String socialIdKey = phandler.getValue(CrawlerPropKeys.socialIdKey
@@ -238,14 +245,12 @@ public class SparkCrawlerUtils {
 				.getValue(CrawlerPropKeys.socialProfileColumnFamily.getValue());
 		String friendsCF = phandler
 				.getValue(CrawlerPropKeys.friendsColumnFamily.getValue());
-		String lastModifiedKey = phandler
-				.getValue(CrawlerPropKeys.lastModifiedKey.getValue());
-		String frdsIdKeySep = phandler.getValue(CrawlerPropKeys.frdsIdKeySep
-				.getValue());
+		String lastCrawlerRunTimeKey = phandler
+				.getValue(CrawlerPropKeys.lastCrawlerRunTimeKey.getValue());
 
-		return new CrawlerConfig(keySpace, profileIdKey, socialIdKey,
-				profileCF, socialProfileCF, friendsCF, lastModifiedKey,
-				frdsIdKeySep);
+		return new CrawlerConfig(lastCrawlerRunTimeKey, fisKeyspace,
+				analyticsKeyspace, profileIdKey, socialIdKey, profileCF,
+				socialProfileCF, friendsCF);
 	}
 
 	public static GigyaConfig initGigyaConfig(PropertiesHandler phandler)

@@ -4,16 +4,17 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 
+/*
+ * This class will be invoked when running app in delete mode. It will delete 'user_reco' type 
+ * from all indexes in ES
+ * @author neha_jain
+ */
 public class DeleteESType {
 	
 	private static String esHost, userRecoType ;
 	PropertiesHandler phandler= null;
 	ElasticSearchRepo repository=null;
 	final private Logger logger = Logger.getLogger(DeleteESType.class);
-	
-	public DeleteESType(){
-		
-	}
 	
 	private void init(String propertiesFilePath){
 		try {

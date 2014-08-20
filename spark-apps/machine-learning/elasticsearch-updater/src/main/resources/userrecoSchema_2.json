@@ -1,10 +1,9 @@
-
-           {
+{
                "user_reco_2":
                {
                    "_parent":
                    {
-                       "type": "movie"
+                       "type": "mediaitem"
                    },
                    "_routing":
                    {
@@ -12,36 +11,81 @@
                    },
                    "properties":
                    {
-                       "dlaRecoScore":
+                       "SocialScore":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "double", "index" : "no"
                        },
-                       "editorRecoScore":
+						"SocialScoreReason":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "string", "index" : "no"
                        },
-                       "otherTypeScore":
+                       "TrendScore":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "double", "index" : "no"
                        },
-                       "popularScore":
+						"TrendScoreReason":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "string", "index" : "no"
                        },
-                       "socialScore":
+                       "PopularityScore":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "double", "index" : "no"
                        },
-                       "trendScore":
+						"PopularityScoreReason":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "string", "index" : "no"
                        },
-                       "userid":
+                       "FPScore":
+                       {
+                           "type": "double", "index" : "no"
+                       },
+						"FPScoreReason":
+                       {
+                           "type": "string", "index" : "no"
+                       },
+                       "NewReleaseScore":
+                       {
+                           "type": "double", "index" : "no"
+                       },
+						"NewReleaseScoreReason":
+                       {
+                           "type": "string", "index" : "no"
+                       },
+                       "RecoByFoundation":
+                       {
+                           "type": "double", "index" : "no"
+                       },
+						"RecoByFoundationReason":
+                       {
+                           "type": "string", "index" : "no"
+                       },
+                       "UserId":
                        {
                            "type": "string", "index" : "not_analyzed"
-                       }
+                       },
+                       "MediaItemId":
+                       {
+                           "type": "string", "index" : "not_analyzed"
+                       },
+						"RegionId":
+                       {
+                           "type": "double", "index" : "not_analyzed"
+                       },
+						"LocaleId":
+                       {
+                           "type": "double", "index" : "not_analyzed"
+                       },
+						"Enabled":
+                       {
+                           "type": "integer", "index" : "not_analyzed"
+                       },
+						"Tx":
+						{
+                          "properties" : {
+                                 "Seek" : {"type" : "double", "index" : "no"},
+                                 "RentEndDate" : {"type" : "string", "index" : "no"}
+						 }
+						}		 
                    }
                }
            }
-       
-    

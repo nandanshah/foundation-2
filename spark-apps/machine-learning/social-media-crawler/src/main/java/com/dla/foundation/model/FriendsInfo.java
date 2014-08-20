@@ -1,7 +1,7 @@
 package com.dla.foundation.model;
 
 public enum FriendsInfo {
-	userfrdpair("userfrdpair"), relation("relation ");
+	profileid("profileid"), friendid("friendid"), relation("relation ");
 
 	private String value;
 

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -33,7 +34,7 @@ public class TrendScoreTest {
 		trendScoreDriver
 				.runTrendScoreDriver(
 						"src/test/resources/appPropTest.txt",
-						"src/test/resources/trendScorePropTest.txt");
+						"src/test/resources/trendScorePropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra
 				.getRows("sampletrendrecotest2", "trend");
@@ -43,7 +44,7 @@ public class TrendScoreTest {
 					&& 0==row.getUUID("itemid").toString().compareTo("c979ca35-b58d-434b-b2d6-ea0316bcc122")) {
 
 				assertEquals(1.6, row.getDouble("trendscore"), 0.1);
-				assertEquals(1, row.getDouble("normalizedscore"), 0);
+				assertEquals(1, row.getDouble("normalizedtrendscore"), 0);
 				assertEquals("trending", row.getString("trendscorereason").toLowerCase());
 			}
 

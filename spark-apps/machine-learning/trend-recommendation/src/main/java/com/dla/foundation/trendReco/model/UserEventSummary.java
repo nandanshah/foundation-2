@@ -2,10 +2,9 @@ package com.dla.foundation.trendReco.model;
 
 public enum UserEventSummary {
 
-	TENANT("tenantid"), REGION("regionid"), ITEM("movieid"), EVENT_TYPE(
-			"eventtype"), TIMESTAMP("timestamp"), AVP("avp"), USER("userid"), FLAG(
-			"flag"), DATE("date");
-
+	TENANT("tenantid"), REGION("regionid"), ITEM("itemid"), EVENT_TYPE(
+			"eventtype"), TIMESTAMP("timestamp"), PLAY_PERCENTAGE("playpercentage"), PROFILE("profileid"), EVENTREQUIRED(
+			"eventrequired"), DATE("date");
 	private String column;
 
 	private UserEventSummary(String s) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.MapType;
+import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
@@ -53,9 +54,8 @@ public class UserEventTransformation implements Serializable {
 						userEvent = getUserEvent(record);
 						if (null != userEvent) {
 
-							date = TrendRecommendationUtil
-									.getFormattedDate(userEvent.getDate()
-											.getTime());
+							date = userEvent.getDate()
+											.getTime();
 							if(null!=userEvent.getEventType()){
 								primaryKey = primaryKey.concat(userEvent
 										.getTenantId()
@@ -95,26 +95,26 @@ public class UserEventTransformation implements Serializable {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns
 					.entrySet()) {
 
-				if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.TENANT.getColumn()) == 0) {
+				if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
 						userEvent.setTenantId(UUIDType.instance.compose(column
 								.getValue()).toString());
 
-				} else if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.REGION.getColumn()) == 0) {
+				} else if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
 						userEvent.setRegionId(UUIDType.instance.compose(column
 								.getValue()).toString());
 
-				} else if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.USER.getColumn()) == 0) {
+				} else if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.PROFILE.getColumn()) == 0) {
 					if (null != column.getValue())
 						userEvent.setUserId(UUIDType.instance.compose(column
 								.getValue()).toString());
 
-				} else if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.ITEM.getColumn()) == 0) {
+				} else if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
 						userEvent.setMovieid(UUIDType.instance.compose(column
 								.getValue()).toString());
@@ -127,28 +127,23 @@ public class UserEventTransformation implements Serializable {
 		if (otherColumns != null) {
 
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
-					if (null != column.getValue()){
-						userEvent.setEventType(UUIDType.instance.compose(column
-								.getValue()).toString());
-					}else{
+				if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
+					if (null != column.getValue()) {
+						userEvent.setEventType(ByteBufferUtil.string(column.getValue()).toLowerCase());	
+					}else {
 						userEvent.setEventType(null);
 					}
-				} else if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.TIMESTAMP.getColumn()) == 0) {
+				} else if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setDate(new Date(ByteBufferUtil
-								.toLong((column.getValue())) * 1000L));
-
-				} else if (column.getKey().toLowerCase()
-						.compareTo(UserEventSummary.AVP.getColumn()) == 0) {
-
-					MapType<String, String> mapType = MapType.getInstance(
-							UTF8Type.instance, UTF8Type.instance);
+						userEvent.setDate(new Date(TrendRecommendationUtil
+								.getFormattedDate(TimestampType.instance.compose(column.getValue()).getTime())));
+				} else if (column.getKey()
+						.compareToIgnoreCase(UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
+					
 					if (null != column.getValue())
-						userEvent.setAvp(mapType.compose(column.getValue()));
-
+						userEvent.setPlayPercentage(ByteBufferUtil.toDouble(column.getValue()));
 				}
 
 			}
