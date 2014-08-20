@@ -11,10 +11,15 @@ public enum PropKeys {
 			"write_host_list"), ITEM_LEVEL_RECO_COLUMNFAMILIES(
 			"item_level_columnfamilies"), ITEM_LEVEL_CF_KEYSPACE(
 			"item_level_keyspace"), TREND("item_level_trend_columnfamily"), POPULARITY(
-			"item_level_popularity_columnfamily"), ITEM_LEVEL_CF_PAGE_ROW_SIZE(
+			"item_level_popularity_columnfamily"), FP("item_level_fnp_columnfamily"),
+			NEW_RELEASE("item_level_new_release_columnfamily"),ITEM_LEVEL_CF_PAGE_ROW_SIZE(
 			"item_level_cf_page_row_size"), SCORE_SUMMARY(
 			"item_level_score_summary_columnfamily"), ACCOUNT(
-			"account_columnfamily");
+			"account_columnfamily"), REGION_ID("item_level_region_id"), TENANT_ID(
+			"item_level_tenant_id"), PREFFRED_REGION_ID(
+			"profile_level_preferred_region_id"), SOCIAL_RECOMMENDATION(
+			"user_level_social_recommendation"), PIO_RECOMMENDATION(
+			"user_level_pio_recommendation");
 
 	private String value;
 
