@@ -1,6 +1,8 @@
 {
 	"rabbitmq_server_host" : "127.0.0.1",
 	"rabbitmq_server_port" : 5672,
+	"rabbitmq_username" : "foundation_rmq_user",
+	"rabbitmq_password" : "abc123",
 	"exchange_name" : "FOUNDATION_EXCH",
 	"exchange_type" : "topic",
 	"queue_config" : [

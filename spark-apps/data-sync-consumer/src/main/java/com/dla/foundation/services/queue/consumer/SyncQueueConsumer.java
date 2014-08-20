@@ -43,6 +43,8 @@ public class SyncQueueConsumer implements Runnable {
 		try {
 			factory.setHost(myConfig.getRabbitMQServer());
 			factory.setPort(myConfig.getRabbitMQPort());
+			factory.setUsername(myConfig.getUsername());
+			factory.setPassword(myConfig.getPassword());
 			connection = factory.newConnection();
 			syncChannel = connection.createChannel();
 			syncChannel.exchangeDeclare(myConfig.getExchangeName(), myConfig.getExchangeType());

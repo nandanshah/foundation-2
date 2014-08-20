@@ -48,6 +48,8 @@ public abstract class AbstractRMQDispatcher<E extends FISUserEvent> implements E
 		factory = new ConnectionFactory();
 		factory.setHost(conf.rmqHost);
 		factory.setPort(conf.rmqPort);
+		factory.setUsername(conf.username);
+		factory.setPassword(conf.password);
 		connection = factory.newConnection();
 		asyncChannel = connection.createChannel();
 		asyncChannel.exchangeDeclare(RabbitMQDispatcherConstants.EXCHANGE_NAME, RabbitMQDispatcherConstants.EXCHANGE_TYPE);

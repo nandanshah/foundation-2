@@ -67,13 +67,13 @@ public class PIOUpdater extends Updater {
 	@Override
 	protected UserEvent doUpdateSyncEvent(
 			UserEvent event) {
-		//		try {
-		//			client.createUser(event.visitorProfileId);
-		//			client.createItem(event.customEventValue, new String[]{"movie"});
-		//			client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
-		//		} catch (ExecutionException | InterruptedException | IOException e) {
-		//			logger.error(e.getMessage(), e);
-		//		}
+//				try {
+//					client.createUser(event.visitorProfileId);
+//					client.createItem(event.customEventValue, new String[]{"movie"});
+//					client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
+//				} catch (ExecutionException | InterruptedException | IOException e) {
+//					logger.error(e.getMessage(), e);
+//				}
 		return null;
 	}
 

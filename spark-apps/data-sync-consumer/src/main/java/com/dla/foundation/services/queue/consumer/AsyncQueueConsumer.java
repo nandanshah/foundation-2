@@ -42,6 +42,8 @@ public class AsyncQueueConsumer implements Runnable {
 		try {
 			factory.setHost(myConfig.getRabbitMQServer());
 			factory.setPort(myConfig.getRabbitMQPort());
+			factory.setUsername(myConfig.getUsername());
+			factory.setPassword(myConfig.getPassword());
 			connection = factory.newConnection();
 			asyncChannel = connection.createChannel();
 			asyncChannel.exchangeDeclare(myConfig.getExchangeName(), myConfig.getExchangeType());
