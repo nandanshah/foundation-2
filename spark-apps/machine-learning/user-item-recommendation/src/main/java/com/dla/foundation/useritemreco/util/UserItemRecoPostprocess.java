@@ -23,9 +23,11 @@ import com.dla.foundation.useritemreco.model.UserItemSummary;
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
 /**
- * This class is used to convert record in cassandra format before writing to any cassandra column family
+ * This class is used to convert record in cassandra format before writing to
+ * any cassandra column family
+ * 
  * @author shishir_shivhare
- *
+ * 
  */
 public class UserItemRecoPostprocess implements Serializable {
 
@@ -40,8 +42,8 @@ public class UserItemRecoPostprocess implements Serializable {
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraOutputRDD = scoreSummaryRDD
 				.mapToPair(new PairFunction<ItemSummary, Map<String, ByteBuffer>, List<ByteBuffer>>() {
 					/**
-			 * 
-			 */
+					 * 
+					 */
 					private static final long serialVersionUID = -2501507294271649462L;
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
@@ -74,6 +76,18 @@ public class UserItemRecoPostprocess implements Serializable {
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.POPULARITY_TYPE.getColumn())
 								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.FP_TYPE.getColumn())
+								.getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.FP_TYPE.getColumn())
+								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.NEW_RELEASE_TYPE.getColumn())
+								.getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.NEW_RELEASE_TYPE.getColumn())
+								.getScoreReason()));
 						otherColumns.add(ByteBufferUtil
 								.bytes(UserItemRecommendationUtil
 										.getFormattedDate(record.getDate()
@@ -94,8 +108,8 @@ public class UserItemRecoPostprocess implements Serializable {
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraOutputRDD = userItemScoreRDD
 				.mapToPair(new PairFunction<UserItemSummary, Map<String, ByteBuffer>, List<ByteBuffer>>() {
 					/**
-			 * 
-			 */
+					 * 
+					 */
 					private static final long serialVersionUID = 8143660714228626917L;
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
@@ -121,7 +135,7 @@ public class UserItemRecoPostprocess implements Serializable {
 								UUIDType.instance.fromString(record
 										.getItemSummary().getItemId()));
 						primaryKey.put(
-								userItemRecoCF.USER_ID.getColumn(),
+								userItemRecoCF.PROFILE.getColumn(),
 								UUIDType.instance.fromString(record.getUserId()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.TREND_TYPE.getColumn()).getScore()));
@@ -133,6 +147,28 @@ public class UserItemRecoPostprocess implements Serializable {
 								.getScore()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.POPULARITY_TYPE.getColumn())
+								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.FP_TYPE.getColumn())
+								.getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.FP_TYPE.getColumn())
+								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.NEW_RELEASE_TYPE.getColumn())
+								.getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.NEW_RELEASE_TYPE.getColumn())
+								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.SOCIAL_TYPE.getColumn()).getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.SOCIAL_TYPE.getColumn())
+								.getScoreReason()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.PIO_TYPE.getColumn()).getScore()));
+						otherColumns.add(ByteBufferUtil.bytes(scores.get(
+								ScoreType.PIO_TYPE.getColumn())
 								.getScoreReason()));
 						otherColumns.add(ByteBufferUtil
 								.bytes(UserItemRecommendationUtil

@@ -32,33 +32,78 @@ public class userItemRecoTest {
 	}
 
 	@Test
-	public void userItemRecoCalulator() {
+	public void userItemRecoCalulator() throws Exception {
 		assertNotNull(cassandra);
 		assertNotNull(userItemRecoDriver);
 		userItemRecoDriver.runUserItemRecoDriver("src/test/resources/appProp.txt",
 				"src/test/resources/scoreSummaryProp.txt",
 				"src/test/resources/userItemSummaryProp.txt");
-		ResultSet userItemResult = cassandra.getRows("useritemrecotest",
+		ResultSet userItemResult = cassandra.getRows("fis",
 				"useritemrecommendation");
 		for (Row row : userItemResult) {
 			try {
-				if (0 == row.getUUID(userItemRecoCF.REGION.getColumn())
+				if (0 == row
+						.getUUID(userItemRecoCF.REGION.getColumn())
 						.toString()
-						.compareTo("C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
+						.compareToIgnoreCase(
+								"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
 						&& 0 == row
 								.getUUID(userItemRecoCF.TENANT.getColumn())
 								.toString()
-								.compareTo(
+								.compareToIgnoreCase(
 										"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
 						&& 0 == row
 								.getUUID(userItemRecoCF.ITEM.getColumn())
 								.toString()
-								.compareTo(
+								.compareToIgnoreCase(
 										"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
 						&& 0 == row
-								.getUUID(userItemRecoCF.USER_ID.getColumn())
+								.getUUID(userItemRecoCF.PROFILE.getColumn())
 								.toString()
-								.compareTo(
+								.compareToIgnoreCase(
+										"9769e61f-238f-11b2-7f7f-7f7f7f7f7f7f")
+						&& UserItemRecommendationUtil
+								.getFormattedDate(UserItemRecommendationUtil
+										.getDate("2014-06-30", "yyyy-MM-dd")
+										.getTime()) == row.getDate(
+								userItemRecoCF.DATE.getColumn()).getTime()) {
+
+					assertEquals(0.6,
+							row.getDouble(userItemRecoCF.POPULARITY_SCORE
+									.getColumn()), 0);
+					assertEquals(0.6, row.getDouble(userItemRecoCF.TREND_SCORE
+							.getColumn()), 0);
+					assertEquals(0.6,
+							row.getDouble(userItemRecoCF.FP_SCORE
+									.getColumn()), 0);
+					assertEquals(0.6, row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
+							.getColumn()), 0);
+					assertEquals(0.6,
+							row.getDouble(userItemRecoCF.SOCIAL_SCORE
+									.getColumn()), 0);
+					assertEquals(0.6, row.getDouble(userItemRecoCF.PIO_SCORE
+							.getColumn()), 0);
+				}
+
+				if (0 == row
+						.getUUID(userItemRecoCF.REGION.getColumn())
+						.toString()
+						.compareToIgnoreCase(
+								"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
+						&& 0 == row
+								.getUUID(userItemRecoCF.TENANT.getColumn())
+								.toString()
+								.compareToIgnoreCase(
+										"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
+						&& 0 == row
+								.getUUID(userItemRecoCF.ITEM.getColumn())
+								.toString()
+								.compareToIgnoreCase(
+										"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
+						&& 0 == row
+								.getUUID(userItemRecoCF.PROFILE.getColumn())
+								.toString()
+								.compareToIgnoreCase(
 										"C979CA35-B58D-434B-B2D6-EA0316BCC9A1")
 						&& UserItemRecommendationUtil
 								.getFormattedDate(UserItemRecommendationUtil
@@ -71,6 +116,16 @@ public class userItemRecoTest {
 									.getColumn()), 0);
 					assertEquals(0.6, row.getDouble(userItemRecoCF.TREND_SCORE
 							.getColumn()), 0);
+					assertEquals(0.6,
+							row.getDouble(userItemRecoCF.FP_SCORE
+									.getColumn()), 0);
+					assertEquals(0.6, row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
+							.getColumn()), 0);
+					assertEquals(0.6,
+							row.getDouble(userItemRecoCF.SOCIAL_SCORE
+									.getColumn()), 0);
+					assertEquals(0.6, row.getDouble(userItemRecoCF.PIO_SCORE
+							.getColumn()), 0);
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -80,7 +135,7 @@ public class userItemRecoTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		cassandra.executeCommand("drop keyspace IF EXISTS useritemrecotest;");
+		cassandra.executeCommand("drop keyspace IF EXISTS fis;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

@@ -51,8 +51,7 @@ public class AccountTransformation implements Serializable {
 
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
+										.compareToIgnoreCase(
 												userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										accountId = UUIDType.instance.compose(
@@ -70,8 +69,7 @@ public class AccountTransformation implements Serializable {
 									.entrySet()) {
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
+										.compareToIgnoreCase(
 												userItemRecoCF.TENANT
 														.getColumn()) == 0) {
 									if (null != column.getValue())

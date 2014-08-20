@@ -29,7 +29,7 @@ public class ProfileTransformation implements Serializable {
 	private static final String DELIMITER = "#";
 
 	public static JavaPairRDD<String, String> getProfile(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,final Map<String,String> userItemPreferredRegion) {
 
 		JavaPairRDD<String, String> profileRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -41,7 +41,7 @@ public class ProfileTransformation implements Serializable {
 
 					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
-							throws Exception {
+									throws Exception {
 						String regionId = null;
 						String profileId = null;
 						String accountId = null;
@@ -53,8 +53,7 @@ public class ProfileTransformation implements Serializable {
 
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
+										.compareToIgnoreCase(
 												userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										profileId = UUIDType.instance.compose(
@@ -62,10 +61,9 @@ public class ProfileTransformation implements Serializable {
 
 								} else if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
+										.compareToIgnoreCase(
 												userItemRecoCF.ACCOUNT
-														.getColumn()) == 0) {
+												.getColumn()) == 0) {
 									if (null != column.getValue())
 										accountId = UUIDType.instance.compose(
 												column.getValue()).toString();
@@ -82,10 +80,8 @@ public class ProfileTransformation implements Serializable {
 									.entrySet()) {
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.PREFERRED_REGION
-														.getColumn()) == 0) {
+										.compareToIgnoreCase(
+												userItemPreferredRegion.get(PropKeys.PREFFRED_REGION_ID.getValue())) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();
