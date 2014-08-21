@@ -33,8 +33,6 @@ public class ItemSummary implements Serializable {
 		return regionId;
 	}
 
-
-
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

@@ -35,9 +35,8 @@ public class userItemRecoTest {
 	public void userItemRecoCalulator() throws Exception {
 		assertNotNull(cassandra);
 		assertNotNull(userItemRecoDriver);
-		userItemRecoDriver.runUserItemRecoDriver("src/test/resources/appProp.txt",
-				"src/test/resources/scoreSummaryProp.txt",
-				"src/test/resources/userItemSummaryProp.txt");
+		userItemRecoDriver.runUserItemRecoDriver("src/test/resources/common.properties"
+				);
 		ResultSet userItemResult = cassandra.getRows("fis",
 				"useritemrecommendation");
 		for (Row row : userItemResult) {

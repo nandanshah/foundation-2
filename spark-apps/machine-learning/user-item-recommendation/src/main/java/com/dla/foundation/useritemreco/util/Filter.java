@@ -22,7 +22,6 @@ public class Filter implements Serializable {
 		JavaPairRDD<String, String> filteredRdd = rdd
 				.filter(new Function<Tuple2<String, String>, Boolean>() {
 
-
 					private static final long serialVersionUID = -6021748217701617184L;
 
 					public Boolean call(Tuple2<String, String> record)
@@ -43,7 +42,6 @@ public class Filter implements Serializable {
 			JavaPairRDD<String, ItemSummary> scoreRDD) {
 		JavaPairRDD<String, ItemSummary> filteredScoreRDD = scoreRDD
 				.filter(new Function<Tuple2<String, ItemSummary>, Boolean>() {
-
 
 					private static final long serialVersionUID = -6160930803403593402L;
 
@@ -68,16 +66,14 @@ public class Filter implements Serializable {
 		JavaPairRDD<String, UserItemSummary> filteredScoreSummaryRDD = javaRDD
 				.filter(new Function<Tuple2<String, UserItemSummary>, Boolean>() {
 
-
 					private static final long serialVersionUID = 4834345712959347417L;
 
 					public Boolean call(Tuple2<String, UserItemSummary> record)
 							throws Exception {
 
-						if (record._1 != null && record._2!=null) {
+						if (record._1 != null && record._2 != null) {
 							UserItemSummary userItem = record._2;
-							if(userItem.getItemSummary()!=null)
-							{
+							if (userItem.getItemSummary() != null) {
 								return true;
 							}
 						}
@@ -107,8 +103,7 @@ public class Filter implements Serializable {
 						if (record != null) {
 							if (record._1 != null && record._2 != null) {
 								UserItemSummary userItem = record._2;
-								if(userItem.getItemSummary()!=null)
-								{
+								if (userItem.getItemSummary() != null) {
 									return true;
 								}
 
