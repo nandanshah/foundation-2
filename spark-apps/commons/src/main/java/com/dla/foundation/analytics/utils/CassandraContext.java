@@ -22,10 +22,19 @@ public class CassandraContext {
 	 * @param config_path
 	 * @throws IOException
 	 */
-	public CassandraContext(String config_path) throws IOException {
-		if (config_path != null && (!config_path.startsWith("file")))
-			throw new IOException("Invalid file path");
-		this.config_path = config_path;
+	public CassandraContext(String config_path) {
+		if (config_path != null) {
+			String file_sep = System.getProperty("file.separator");
+			String file_protocol = "file:///";
+
+			config_path = config_path.replace("\\", file_sep);
+			config_path = config_path.replace("/", file_sep);
+
+			if (!config_path.startsWith("file"))
+				config_path = file_protocol + config_path;
+
+			this.config_path = config_path;
+		}
 	}
 
 	/**
@@ -72,7 +81,7 @@ public class CassandraContext {
 	}
 
 	/**
-	 * This method will execute the specified commands. Befor this it should
+	 * This method will execute the specified commands. Before this it should
 	 * connect to cassandra.
 	 * 
 	 * @param command

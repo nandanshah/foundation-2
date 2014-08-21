@@ -27,7 +27,7 @@ public class UserEvtSummaryTest {
 		userEventSummaryDriver = new UserEventSummaryDriver();
 		
 		
-		String current_dir = "file://" + System.getProperty("user.dir");
+		String current_dir = System.getProperty("user.dir");
 		cassandra = new CassandraContext(current_dir
 				+ "/../../commons/src/test/resources/cassandra.yaml");
 		

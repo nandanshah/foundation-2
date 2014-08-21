@@ -24,7 +24,7 @@ public class TrendScoreTest {
 	public void beforeClass() throws InterruptedException, IOException {
 		trendScoreDriver = new TrendScoreDriver();
 		
-		String current_dir = "file://" + System.getProperty("user.dir");
+		String current_dir = System.getProperty("user.dir");
 		cassandra = new CassandraContext(current_dir
 				+ "/../../commons/src/test/resources/cassandra.yaml");
 		

@@ -28,9 +28,9 @@ public class PropertiesHandlerTest {
 			e.printStackTrace();
 		}
 
-		String current_dir = "file://" + System.getProperty("user.dir");
+		String current_dir = System.getProperty("user.dir");
 		csContext = new CassandraContext(current_dir
-				+ "/src/test/resources/cassandra.yaml");
+				+ "\\src\\test\\resources\\cassandra.yaml");
 
 		csContext.connect();
 

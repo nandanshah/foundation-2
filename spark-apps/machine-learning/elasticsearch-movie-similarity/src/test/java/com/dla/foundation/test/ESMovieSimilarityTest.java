@@ -32,7 +32,7 @@ public class ESMovieSimilarityTest {
 
 	public void createMockCassandra() throws InterruptedException, IOException {
 
-		String current_dir = "file://" + System.getProperty("user.dir");
+		String current_dir = System.getProperty("user.dir");
 		cassandraInstance = new CassandraContext(current_dir
 				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandraInstance.connect();
