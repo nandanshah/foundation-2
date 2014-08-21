@@ -22,9 +22,9 @@ import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.model.UserItemSummary;
 import com.dla.foundation.useritemreco.util.Filter;
-import com.dla.foundation.useritemreco.util.PropKeys;
-import com.dla.foundation.useritemreco.util.ScoreSummaryTransformation;
 import com.dla.foundation.useritemreco.util.RecoTransformations;
+import com.dla.foundation.useritemreco.util.ScoreSummaryTransformation;
+import com.dla.foundation.useritemreco.util.UserItemRecoProp;
 import com.dla.foundation.useritemreco.util.UserItemRecommendationUtil;
 import com.google.common.base.Optional;
 
@@ -39,7 +39,6 @@ import com.google.common.base.Optional;
  */
 public class UserItemSummaryCalc implements Serializable {
 
-
 	private static final long serialVersionUID = -3133298652347309107L;
 	private static final String DELIMITER_PROPERTY = "#";
 	private static final String NOT_AVAILABLE = "NA";
@@ -48,8 +47,8 @@ public class UserItemSummaryCalc implements Serializable {
 	private String pageRowSize;
 	private Date inputDate;
 	Map<String, String> otherAppsInfo;
-	String socialCF1;
-	String pioCF1;
+	String socialCF;
+	String pioCF;
 
 	private static final Logger logger = Logger
 			.getLogger(UserItemSummaryCalc.class);
@@ -68,8 +67,9 @@ public class UserItemSummaryCalc implements Serializable {
 	/**
 	 * 
 	 * This function is used to convert item level summary to user item level
-	 * summary by performing left outer between profile and score summary and 
-	 * also provide the functionality of performing left join with social reco and pio reco.
+	 * summary by performing left outer between profile and score summary and
+	 * also provide the functionality of performing left join with social reco
+	 * and pio reco.
 	 * 
 	 * @param sparkContext
 	 * @param cassandraSparkConnector
@@ -100,8 +100,8 @@ public class UserItemSummaryCalc implements Serializable {
 
 		logger.info("performing left outer join between profile/Score-summary/social & Pio ");
 
-		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> 
-		pioCombined = getPioSummary(cassandraSparkConnector, sparkContext, joinedSocial);
+		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> pioCombined = getPioSummary(
+				cassandraSparkConnector, sparkContext, joinedSocial);
 
 		logger.info("combining all the scores");
 		JavaPairRDD<String, UserItemSummary> filteredUserItemScorePio = comibneUserItemSocialPio(pioCombined);
@@ -110,32 +110,32 @@ public class UserItemSummaryCalc implements Serializable {
 				.values();
 		filteredUserItemSummaryRDD.cache();
 
-
-		JavaRDD<UserItemSummary> defaultUserDetails  = addDefaultUser(filteredUserItemSummaryRDD);
-		JavaRDD<UserItemSummary> UserItemDetails = filteredUserItemSummaryRDD.union(defaultUserDetails);
+		JavaRDD<UserItemSummary> defaultUserDetails = addDefaultUser(filteredUserItemSummaryRDD);
+		JavaRDD<UserItemSummary> UserItemDetails = filteredUserItemSummaryRDD
+				.union(defaultUserDetails);
 		return UserItemDetails;
 
 	}
 
-	private JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>>
-	getPioSummary(
+	private JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> getPioSummary(
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
 			JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> joinedSocial) {
-		pioCF1 = otherAppsInfo.get(PropKeys.PIO_RECOMMENDATION.getValue());
+		pioCF = otherAppsInfo
+				.get(UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION);
 		Configuration pioConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraPioRDD = cassandraSparkConnector
-				.read(pioConf, sparkContext, itemLevelCFKeyspace, pioCF1,
+				.read(pioConf, sparkContext, itemLevelCFKeyspace, pioCF,
 						pageRowSize, UserItemRecommendationUtil.getWhereClause(
-								inputDate, pioCF1));
+								inputDate, pioCF));
 		logger.info("transformaing PIO column family");
 
 		JavaPairRDD<String, UserItemSummary> pioRDD = RecoTransformations
 				.getTransformations(cassandraPioRDD);
 		JavaPairRDD<String, UserItemSummary> filteredPioRDD = Filter
 				.filterSocial(pioRDD);
-		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> 
-		poiCombined = joinedSocial.leftOuterJoin(filteredPioRDD);
+		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> poiCombined = joinedSocial
+				.leftOuterJoin(filteredPioRDD);
 
 		return poiCombined;
 	}
@@ -144,14 +144,14 @@ public class UserItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
 			JavaPairRDD<String, UserItemSummary> filteredUserItem) {
-		socialCF1 = otherAppsInfo
-				.get(PropKeys.SOCIAL_RECOMMENDATION.getValue());
+		socialCF = otherAppsInfo
+				.get(UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION);
 
 		Configuration socialConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraSocialRDD = cassandraSparkConnector
-				.read(socialConf, sparkContext, itemLevelCFKeyspace, socialCF1,
+				.read(socialConf, sparkContext, itemLevelCFKeyspace, socialCF,
 						pageRowSize, UserItemRecommendationUtil.getWhereClause(
-								inputDate, socialCF1));
+								inputDate, socialCF));
 
 		logger.info("transforming social column family");
 		JavaPairRDD<String, UserItemSummary> socialRDD = RecoTransformations
@@ -173,9 +173,6 @@ public class UserItemSummaryCalc implements Serializable {
 		JavaPairRDD<String, UserItemSummary> filteredUserItem = poiCombined
 				.mapToPair(new PairFunction<Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>>, String, UserItemSummary>() {
 
-
-
-
 					/**
 					 * 
 					 */
@@ -193,7 +190,7 @@ public class UserItemSummaryCalc implements Serializable {
 					@Override
 					public Tuple2<String, UserItemSummary> call(
 							Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> record)
-									throws Exception {
+							throws Exception {
 
 						Score socialScoreInfo = new Score();
 						Score pioScoreInfo = new Score();
@@ -239,7 +236,8 @@ public class UserItemSummaryCalc implements Serializable {
 						}
 
 						else {
-							if (record._2._2.isPresent()) // PIO present social absent
+							if (record._2._2.isPresent()) // PIO present social
+															// absent
 							{
 								pioUserItem = record._2._2.get();
 								pioItem = pioUserItem.getItemSummary();
@@ -300,7 +298,7 @@ public class UserItemSummaryCalc implements Serializable {
 					.read(conf, sparkContext, itemLevelCFKeyspace,
 							scoreSummaryCF, pageRowSize,
 							UserItemRecommendationUtil
-							.getWhereClause(inputDate));
+									.getWhereClause(inputDate));
 			logger.info("transforming item summary column family");
 			JavaPairRDD<String, ItemSummary> scoreSummaryRDD = ScoreSummaryTransformation
 					.getScoreSummary(cassandraScoreSummaryRDD);
@@ -343,7 +341,7 @@ public class UserItemSummaryCalc implements Serializable {
 					@Override
 					public Tuple2<String, UserItemSummary> call(
 							Tuple2<String, Tuple2<String, Optional<ItemSummary>>> record)
-									throws Exception {
+							throws Exception {
 
 						itemSummary = record._2._2.get();
 						if (itemSummary != null) {
@@ -433,13 +431,12 @@ public class UserItemSummaryCalc implements Serializable {
 		JavaPairRDD<String, UserItemSummary> defaultUsers = mapRegionTenant_to_User
 				.mapToPair(new PairFunction<Tuple2<String, Iterable<UserItemSummary>>, String, UserItemSummary>() {
 
-					
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public Tuple2<String, UserItemSummary> call(
 							Tuple2<String, Iterable<UserItemSummary>> record)
-									throws Exception {
+							throws Exception {
 						UserItemSummary otherColumns = null;
 						String primaryKey = null;
 						primaryKey = record._1;

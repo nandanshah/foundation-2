@@ -21,7 +21,7 @@ import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.util.Filter;
 import com.dla.foundation.useritemreco.util.ItemSummaryTransformation;
-import com.dla.foundation.useritemreco.util.PropKeys;
+import com.dla.foundation.useritemreco.util.UserItemRecoProp;
 import com.dla.foundation.useritemreco.util.UserItemRecommendationUtil;
 import com.google.common.base.Optional;
 
@@ -33,7 +33,6 @@ import com.google.common.base.Optional;
  * 
  */
 public class ItemSummaryCalc implements Serializable {
-
 
 	private static final long serialVersionUID = 3297305915745901809L;
 	private static final String NOT_AVAILABLE = "NA";
@@ -77,13 +76,12 @@ public class ItemSummaryCalc implements Serializable {
 				sparkContext, cassandraSparkConnector, itemTrendRDD);
 		logger.info("performing left outer join between result (left outer join of item trend and popularity) "
 				+ "and f&p column family");
-		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>>
-		itemTrendPopFpRDD = joinFP(sparkContext, cassandraSparkConnector, itemTrendPopRDD);
+		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpRDD = joinFP(
+				sparkContext, cassandraSparkConnector, itemTrendPopRDD);
 		logger.info("performing left outer join between result (left outer join of item trend popularity fp & new release) "
 				+ "and f&p column family");
-		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>,
-		Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD=		
-		joinNewRelease(sparkContext, cassandraSparkConnector, itemTrendPopFpRDD);
+		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD = joinNewRelease(
+				sparkContext, cassandraSparkConnector, itemTrendPopFpRDD);
 
 		return getScoreSummary(itemTrendPopFpNewRDD);
 	}
@@ -95,14 +93,11 @@ public class ItemSummaryCalc implements Serializable {
 	 * @return
 	 */
 	private JavaRDD<ItemSummary> getScoreSummary(
-			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, 
-			Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD) {
+			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD) {
 
 		logger.info("combining the result of all the joins into item summary");
 		JavaRDD<ItemSummary> scoreSummaryRDD = itemTrendPopFpNewRDD
-				.map(new Function<Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>,
-						Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>>, ItemSummary>() {
-
+				.map(new Function<Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>>, ItemSummary>() {
 
 					private static final long serialVersionUID = -281276554955631663L;
 					Score score;
@@ -110,9 +105,8 @@ public class ItemSummaryCalc implements Serializable {
 					Map<String, Score> scores;
 
 					public ItemSummary call(
-							Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, 
-							Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> record)
-									throws Exception {
+							Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> record)
+							throws Exception {
 						String primaryKeys = record._1;
 						String[] keys = primaryKeys.split(DELIMITER);
 						scores = new HashMap<String, Score>();
@@ -120,11 +114,11 @@ public class ItemSummaryCalc implements Serializable {
 
 							scores.put(
 									record._2._1._1._1._2
-									.get()
-									.getScores()
-									.get(ScoreType.TREND_TYPE
-											.getColumn()).getType(),
-											record._2._1._1._1._2
+											.get()
+											.getScores()
+											.get(ScoreType.TREND_TYPE
+													.getColumn()).getType(),
+									record._2._1._1._1._2
 											.get()
 											.getScores()
 											.get(ScoreType.TREND_TYPE
@@ -137,14 +131,14 @@ public class ItemSummaryCalc implements Serializable {
 							score.setScoreReason(NOT_AVAILABLE);
 							scores.put(ScoreType.TREND_TYPE.getColumn(), score);
 						}
-						if ( record._2._1._1._2.isPresent()) {
+						if (record._2._1._1._2.isPresent()) {
 							scores.put(
 									record._2._1._1._2
-									.get()
-									.getScores()
-									.get(ScoreType.POPULARITY_TYPE
-											.getColumn()).getType(),
-											record._2._1._1._2
+											.get()
+											.getScores()
+											.get(ScoreType.POPULARITY_TYPE
+													.getColumn()).getType(),
+									record._2._1._1._2
 											.get()
 											.getScores()
 											.get(ScoreType.POPULARITY_TYPE
@@ -159,32 +153,26 @@ public class ItemSummaryCalc implements Serializable {
 						}
 						if (record._2._1._2.isPresent()) {
 							scores.put(
-									record._2._1._2
-									.get()
-									.getScores()
-									.get(ScoreType.FP_TYPE
-											.getColumn()).getType(),
-											record._2._1._2
-											.get()
-											.getScores()
-											.get(ScoreType.FP_TYPE
-													.getColumn()));
+									record._2._1._2.get().getScores()
+											.get(ScoreType.FP_TYPE.getColumn())
+											.getType(),
+									record._2._1._2.get().getScores()
+											.get(ScoreType.FP_TYPE.getColumn()));
 						} else {
 							score = new Score();
 							score.setScore(0.0);
 							score.setType(ScoreType.FP_TYPE.getColumn());
 							score.setScoreReason(NOT_AVAILABLE);
-							scores.put(ScoreType.FP_TYPE.getColumn(),
-									score);
+							scores.put(ScoreType.FP_TYPE.getColumn(), score);
 						}
-						if ( record._2._2.isPresent()) {
+						if (record._2._2.isPresent()) {
 							scores.put(
 									record._2._2
-									.get()
-									.getScores()
-									.get(ScoreType.NEW_RELEASE_TYPE
-											.getColumn()).getType(),
-											record._2._2
+											.get()
+											.getScores()
+											.get(ScoreType.NEW_RELEASE_TYPE
+													.getColumn()).getType(),
+									record._2._2
 											.get()
 											.getScores()
 											.get(ScoreType.NEW_RELEASE_TYPE
@@ -192,7 +180,8 @@ public class ItemSummaryCalc implements Serializable {
 						} else {
 							score = new Score();
 							score.setScore(0.0);
-							score.setType(ScoreType.NEW_RELEASE_TYPE.getColumn());
+							score.setType(ScoreType.NEW_RELEASE_TYPE
+									.getColumn());
 							score.setScoreReason(NOT_AVAILABLE);
 							scores.put(ScoreType.NEW_RELEASE_TYPE.getColumn(),
 									score);
@@ -220,15 +209,15 @@ public class ItemSummaryCalc implements Serializable {
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, String> itemRDD) throws Exception {
-		String trendCF = itemLevelRecommendationCF.get(PropKeys.TREND
-				.getValue());
+		String trendCF = itemLevelRecommendationCF
+				.get(UserItemRecoProp.ITEM_LEVEL_TREND_CF);
 		if (null != trendCF && "" != trendCF) {
 			Configuration conf = new Configuration();
 			logger.info("reading trend column family");
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraTrendRDD = cassandraSparkConnector
 					.read(conf, sparkContext, itemLevelCFKeyspace, trendCF,
 							pageRowSize, UserItemRecommendationUtil
-							.getWhereClause(inputDate));
+									.getWhereClause(inputDate));
 			logger.info("transforming record of trend column family");
 			JavaPairRDD<String, ItemSummary> trendRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraTrendRDD);
@@ -260,9 +249,9 @@ public class ItemSummaryCalc implements Serializable {
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> itemTrendRDD)
-					throws Exception {
-		String popularityCF = itemLevelRecommendationCF.get(PropKeys.POPULARITY
-				.getValue());
+			throws Exception {
+		String popularityCF = itemLevelRecommendationCF
+				.get(UserItemRecoProp.ITEM_LEVEL_POPULARITY_CF);
 
 		if (null != popularityCF && "" != popularityCF) {
 			Configuration conf = new Configuration();
@@ -271,7 +260,7 @@ public class ItemSummaryCalc implements Serializable {
 					.read(conf, sparkContext, itemLevelCFKeyspace,
 							popularityCF, pageRowSize,
 							UserItemRecommendationUtil
-							.getWhereClause(inputDate));
+									.getWhereClause(inputDate));
 			logger.info("transforming record of popularity column family");
 			JavaPairRDD<String, ItemSummary> popularityRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraPopularityRDD);
@@ -287,23 +276,21 @@ public class ItemSummaryCalc implements Serializable {
 		}
 	}
 
-	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
-	Optional<ItemSummary>>> 
-	joinFP(JavaSparkContext sparkContext,
+	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> joinFP(
+			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD)
-					throws Exception {
-		String fpCF = itemLevelRecommendationCF.get(PropKeys.FP
-				.getValue());
+			throws Exception {
+		String fpCF = itemLevelRecommendationCF
+				.get(UserItemRecoProp.ITEM_LEVEL_FNP_CF);
 
 		if (null != fpCF && "" != fpCF) {
 			Configuration conf = new Configuration();
 			logger.info("reading f&p column family");
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraFpRDD = cassandraSparkConnector
-					.read(conf, sparkContext, itemLevelCFKeyspace,
-							fpCF, pageRowSize,
-							UserItemRecommendationUtil
-							.getWhereClause(inputDate));
+					.read(conf, sparkContext, itemLevelCFKeyspace, fpCF,
+							pageRowSize, UserItemRecommendationUtil
+									.getWhereClause(inputDate));
 			logger.info("transforming record of fp column family");
 			JavaPairRDD<String, ItemSummary> fpRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraFpRDD);
@@ -319,24 +306,21 @@ public class ItemSummaryCalc implements Serializable {
 		}
 	}
 
-	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
-	Optional<ItemSummary>>, Optional<ItemSummary>>> 
-	joinNewRelease(JavaSparkContext sparkContext,
+	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> joinNewRelease(
+			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
-			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
-			Optional<ItemSummary>>> itemTrendPopFpRDD)
-					throws Exception {
-		String newCF = itemLevelRecommendationCF.get(PropKeys.NEW_RELEASE
-				.getValue());
+			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpRDD)
+			throws Exception {
+		String newCF = itemLevelRecommendationCF
+				.get(UserItemRecoProp.ITEM_LEVEL_NEW_RELEASE_CF);
 
 		if (null != newCF && "" != newCF) {
 			Configuration conf = new Configuration();
 			logger.info("reading new release column family");
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraNewReleaseRDD = cassandraSparkConnector
-					.read(conf, sparkContext, itemLevelCFKeyspace,
-							newCF, pageRowSize,
-							UserItemRecommendationUtil
-							.getWhereClause(inputDate));
+					.read(conf, sparkContext, itemLevelCFKeyspace, newCF,
+							pageRowSize, UserItemRecommendationUtil
+									.getWhereClause(inputDate));
 			logger.info("transforming record of new release column family");
 			JavaPairRDD<String, ItemSummary> newReleaseRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraNewReleaseRDD);
@@ -351,6 +335,5 @@ public class ItemSummaryCalc implements Serializable {
 					"FP column family name is not properly specified in property file");
 		}
 	}
-
 
 }

@@ -77,11 +77,11 @@ public class UserItemRecoPostprocess implements Serializable {
 								ScoreType.POPULARITY_TYPE.getColumn())
 								.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn())
-								.getScore()));
-						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn())
-								.getScoreReason()));
+								ScoreType.FP_TYPE.getColumn()).getScore()));
+						otherColumns.add(ByteBufferUtil
+								.bytes(scores
+										.get(ScoreType.FP_TYPE.getColumn())
+										.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.NEW_RELEASE_TYPE.getColumn())
 								.getScore()));
@@ -149,11 +149,11 @@ public class UserItemRecoPostprocess implements Serializable {
 								ScoreType.POPULARITY_TYPE.getColumn())
 								.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn())
-								.getScore()));
-						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn())
-								.getScoreReason()));
+								ScoreType.FP_TYPE.getColumn()).getScore()));
+						otherColumns.add(ByteBufferUtil
+								.bytes(scores
+										.get(ScoreType.FP_TYPE.getColumn())
+										.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.NEW_RELEASE_TYPE.getColumn())
 								.getScore()));
