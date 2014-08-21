@@ -1,7 +1,0 @@
-spark_mode=local
-app_name=UserItemRecommendation
-read_host_list=localhost
-write_host_list=localhost
-input_partitioner=Murmur3Partitioner
-output_partitioner=Murmur3Partitioner
-rpc_port=9160

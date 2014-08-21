@@ -40,7 +40,7 @@ public class RecoTransformations {
 
 					public Tuple2<String, UserItemSummary> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
-									throws Exception {
+							throws Exception {
 						String tenantId = null;
 						String regionId = null;
 						String userId = null;
@@ -55,7 +55,6 @@ public class RecoTransformations {
 						if (priamryKeyColumns != null) {
 							for (Entry<String, ByteBuffer> column : priamryKeyColumns
 									.entrySet()) {
-
 
 								if (column.getKey().compareToIgnoreCase(
 										userItemRecoCF.TENANT.getColumn()) == 0) {
@@ -118,7 +117,7 @@ public class RecoTransformations {
 								}
 								if (column.getKey().compareToIgnoreCase(
 										userItemRecoCF.SOCIAL_SCORE_REASON
-										.getColumn()) == 0) {
+												.getColumn()) == 0) {
 									if (null != column.getValue()) {
 										score.setScoreReason(ByteBufferUtil
 												.string(column.getValue()));
@@ -132,7 +131,7 @@ public class RecoTransformations {
 								if (column.getKey()
 										.compareToIgnoreCase(
 												userItemRecoCF.SOCIAL_SCORE
-												.getColumn()) == 0) {
+														.getColumn()) == 0) {
 									if (null != column.getValue())
 										score.setScore((ByteBufferUtil
 												.toDouble(column.getValue())));
@@ -140,7 +139,7 @@ public class RecoTransformations {
 								}
 								if (column.getKey().compareToIgnoreCase(
 										userItemRecoCF.PIO_SCORE_REASON
-										.getColumn()) == 0) {
+												.getColumn()) == 0) {
 									if (null != column.getValue()) {
 										score.setScoreReason((ByteBufferUtil
 												.string(column.getValue())));
@@ -160,17 +159,17 @@ public class RecoTransformations {
 										userItemRecoCF.DATE.getColumn()) == 0) {
 									if (null != column.getValue())
 										date = UserItemRecommendationUtil
-										.processInputDate(TimestampType.instance
-												.compose(column
-														.getValue()));
+												.processInputDate(TimestampType.instance
+														.compose(column
+																.getValue()));
 								}
 								if (column.getKey().compareToIgnoreCase(
 										userItemRecoCF.PIO_DATE.getColumn()) == 0) {
 									if (null != column.getValue())
 										date = UserItemRecommendationUtil
-										.processInputDate(TimestampType.instance
-												.compose(column
-														.getValue()));
+												.processInputDate(TimestampType.instance
+														.compose(column
+																.getValue()));
 								}
 							}
 						}
