@@ -5,20 +5,17 @@ import java.io.Serializable;
 public class CassandraConfig implements Serializable {
 	public final String fisKeySpace;
 	public final String pageRowSize;
-	public final String neonKeySpace;
+	public final String platformKeySpace;
 	public final String recommendationColFamily;
 	public final String profileColFamily;
 	public final String accountColFamily;
 
-	public CassandraConfig() {
-		this(null, null, null, null, null, null);
-	}
-
-	public CassandraConfig(String neonKeySpace, String fisKeySpace,
+	
+	public CassandraConfig(String platformKeySpace, String fisKeySpace,
 			String profileColFamily, String accountColFamily,
 			String recommendationColFamily, String pageRowSize) {
 
-		this.neonKeySpace = neonKeySpace;
+		this.platformKeySpace = platformKeySpace;
 		this.fisKeySpace = fisKeySpace;
 		this.profileColFamily = profileColFamily;
 		this.recommendationColFamily = recommendationColFamily;

@@ -35,7 +35,7 @@ public class RecommendationFetcher implements Serializable {
 
 	public void runRecommendationFetcher(PropertiesHandler propertyHandler) {
 
-		// Calculating PIO appURL
+		// Forming PIO appURL
 		String port;
 		try {
 			port = propertyHandler.getValue(CommonPropKeys.pio_port.getValue()) != null ? propertyHandler
@@ -55,7 +55,7 @@ public class RecommendationFetcher implements Serializable {
 
 			PIOConfig pioConfig = new PIOConfig(appKey, appURL, engineName,
 					Integer.parseInt(propertyHandler
-							.getValue(PropKeys.NUM_REC_PER_USER.getValue())));
+							.getValue(PropKeys.PIO_NUM_REC_PER_USER.getValue())));
 
 			RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
 
@@ -82,7 +82,7 @@ public class RecommendationFetcher implements Serializable {
 							.getValue()),
 					propertyHandler.getValue(CommonPropKeys.cs_accountCF
 							.getValue()),
-					propertyHandler.getValue(PropKeys.RECOMMEND_CF.getValue()),
+					propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()),
 					propertyHandler.getValue(CommonPropKeys.cs_pageRowSize
 							.getValue()));
 
@@ -96,18 +96,16 @@ public class RecommendationFetcher implements Serializable {
 	}
 
 	private String[] getCassnadraIPArray(String strCassnadraIP) {
-		return strCassnadraIP.split(",");
+		return strCassnadraIP.split(CONFIG_DELIM);
 	}
 
 	public static void main(String[] args) throws IOException {
 		String propertiesFilePath = "";
 
 		RecommendationFetcher recommndationFetcher = new RecommendationFetcher();
-		if (args.length ==2) {
+		if (args.length == 2) {
 			propertiesFilePath = args[0];
 			TENANT_ID = args[1];
-			System.out.println("TENANT ID " + TENANT_ID);
-			System.out.println(propertiesFilePath);
 			PropertiesHandler propertyHandler = new PropertiesHandler(
 					propertiesFilePath, RecoFetcherConstants.APPNAME);
 			recommndationFetcher.runRecommendationFetcher(propertyHandler);

@@ -187,7 +187,7 @@ public class SparkPIOConnector implements Serializable {
 							Tuple2<UserProfile, String> recommendation)
 							throws Exception {
 						Map<String, ByteBuffer> keys = new LinkedHashMap<String, ByteBuffer>();
-						;
+						
 						List<ByteBuffer> values = new ArrayList<ByteBuffer>();
 
 						UserProfile userProfile = recommendation._1();

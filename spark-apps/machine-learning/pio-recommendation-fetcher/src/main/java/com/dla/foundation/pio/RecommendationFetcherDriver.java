@@ -73,7 +73,7 @@ public class RecommendationFetcherDriver implements Serializable {
 		logger.info("Reading records from " + cassandraConfig.profileColFamily);
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileCassandraRDD = cassandraSparkConnector
 				.read(new Configuration(), sparkContext,
-						cassandraConfig.neonKeySpace,
+						cassandraConfig.platformKeySpace,
 						cassandraConfig.profileColFamily,
 						cassandraConfig.pageRowSize, new String[] {
 								ColumnCollection.ID,
@@ -82,7 +82,7 @@ public class RecommendationFetcherDriver implements Serializable {
 		logger.info("Reading records from " + cassandraConfig.accountColFamily);
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> accountCassandraRDD = cassandraSparkConnector
 				.read(new Configuration(), sparkContext,
-						cassandraConfig.neonKeySpace,
+						cassandraConfig.platformKeySpace,
 						cassandraConfig.accountColFamily,
 						cassandraConfig.pageRowSize,
 						new String[] { ColumnCollection.ID,
@@ -103,7 +103,6 @@ public class RecommendationFetcherDriver implements Serializable {
 				userProfileRDD, pioConfig);
 		JavaPairRDD<UserProfile, String> userPerRecoRDD = sparkPIOConnector
 				.toUserProfilePerRecoRDD(userRecommendationsRDD);
-
 		// Converts Primary Keys to Map<String, ByteBuffer> and Other values to
 		// List<ByteBuffer>
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraRDD = sparkPIOConnector
