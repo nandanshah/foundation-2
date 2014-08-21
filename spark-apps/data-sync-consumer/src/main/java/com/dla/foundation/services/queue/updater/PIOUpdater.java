@@ -10,8 +10,10 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.services.queue.filter.FilterException;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
 /**
  * PredictionIO Specific updater.
@@ -58,27 +60,30 @@ public class PIOUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(UserEvent event,
-			ArrayList<Filter> filters) {
-		// TODO Auto-generated method stub
-
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(
+			TEntity event, ArrayList<Filter> filters) throws FilterException {
+		for (Filter filter : filters) {
+			event = filter.doFilter(event);
+		}
+		return event;
 	}
 
 	@Override
-	protected UserEvent doUpdateSyncEvent(
-			UserEvent event) {
-//				try {
-//					client.createUser(event.visitorProfileId);
-//					client.createItem(event.customEventValue, new String[]{"movie"});
-//					client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
-//				} catch (ExecutionException | InterruptedException | IOException e) {
-//					logger.error(e.getMessage(), e);
-//				}
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
+		//		try {
+		//		client.createUser(event.visitorProfileId);
+		//		client.createItem(event.customEventValue, new String[]{"movie"});
+		//		client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
+		//	} catch (ExecutionException | InterruptedException | IOException e) {
+		//		logger.error(e.getMessage(), e);
+		//	}
 		return null;
 	}
 
 	@Override
-	protected void doUpdateAsyncEvent(UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
 		//		try {
 		//			client.createUser(event.visitorProfileId);
 		//			client.createItem(event.customEventValue, new String[]{"movie"});
@@ -86,6 +91,7 @@ public class PIOUpdater extends Updater {
 		//		} catch (ExecutionException | InterruptedException | IOException e) {
 		//			logger.error(e.getMessage(), e);
 		//		}
+
 	}
 
 	@Override

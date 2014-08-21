@@ -1,19 +1,22 @@
 package com.dla.foundation.services.queue.filter;
 
 import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
-public class TrendRecoFilter implements Filter {
+public class UserEventConversionFilter implements Filter {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6586760301417650259L;
+	private static final long serialVersionUID = 7291845249055249462L;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <TEntity extends SimpleFoundationEntity> TEntity doFilter(TEntity e)
 			throws FilterException {
-		((UserEvent) e).eventrequired = 1;
-		return (TEntity) e;
+		Event ee = (Event) e;
+		UserEvent ue = UserEvent.copy(ee);
+		return (TEntity) ue;
 	}
 }

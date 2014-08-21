@@ -1,9 +1,11 @@
 package com.dla.foundation.services.queue.filter;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import java.io.Serializable;
 
-public interface Filter {
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
-	void doFilter(UserEvent e);
+public interface Filter extends Serializable {
+
+	<TEntity extends SimpleFoundationEntity> TEntity doFilter(TEntity e) throws FilterException;
 
 }

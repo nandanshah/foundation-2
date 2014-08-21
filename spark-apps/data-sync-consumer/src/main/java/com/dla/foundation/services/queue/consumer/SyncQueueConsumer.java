@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
-import com.dla.foundation.fis.eo.entities.FISUserEvent;
+import com.dla.foundation.data.entities.event.Event;
+import com.dla.foundation.services.queue.filter.FilterException;
 import com.dla.foundation.services.queue.updater.Updater;
 import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -72,15 +72,14 @@ public class SyncQueueConsumer implements Runnable {
 				replyProps = new BasicProperties.Builder().correlationId(props.getCorrelationId()).build();
 
 				byte[] obj = delivery.getBody();
-				FISUserEvent fe = FISUserEvent.fromBytes(obj);
-				UserEvent ue = UserEvent.copy(fe);
+				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
-				ue = updater.updateSyncEvent(ue);
+				fe = (Event) updater.updateSyncEvent(fe);
 				//Push reply message to reply queue defined by producer.
-				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.getBytes());
+				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.toBytes());
 				syncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | IOException e) {
+					| InterruptedException | IOException | FilterException e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

@@ -19,7 +19,9 @@ import org.apache.log4j.Logger;
 import scala.NotImplementedError;
 
 import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.services.queue.filter.FilterException;
 
 /**
  * 
@@ -33,46 +35,6 @@ import com.dla.foundation.services.queue.filter.Filter;
 public class EmailUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-
-	@Override
-	protected void filterEvent(UserEvent event,
-			ArrayList<Filter> filters) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected UserEvent doUpdateSyncEvent(
-			UserEvent event) {
-		//		String emailContent = event.customEventValue;
-		//		String providerUrl = event.customEventAction;
-		//		Callable<String> emailWorker = new EmailWorker(emailContent,
-		//				providerUrl);
-		//		ExecutorService exService = Executors
-		//				.newSingleThreadScheduledExecutor();
-		//		Future<String> future = exService.submit(emailWorker);
-		//		try {
-		//			event.customEventLabel = future.get();
-		//		} catch (InterruptedException e) {
-		//			logger.error(e.getMessage(), e);
-		//		} catch (ExecutionException e) {
-		//			logger.error(e.getMessage(), e);
-		//		}
-		//		logger.info("Email status: " + event.customEventLabel);
-		return event;
-
-	}
-
-	@Override
-	protected void doUpdateAsyncEvent(UserEvent event) {
-		throw new NotImplementedError(
-				"Async event not supported in Email Service");
-	}
-
-	@Override
-	public void close() {
-
-	}
 
 	/**
 	 * This class forwards the email message to the Mandrill email service.
@@ -128,5 +90,47 @@ public class EmailUpdater extends Updater {
 			return sb.toString();
 
 		}
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(
+			TEntity event, ArrayList<Filter> filters) throws FilterException {
+		for (Filter filter : filters) {
+			event = filter.doFilter(event);
+		}
+		return event;
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
+		//		String emailContent = event.customEventValue;
+		//		String providerUrl = event.customEventAction;
+		//		Callable<String> emailWorker = new EmailWorker(emailContent,
+		//				providerUrl);
+		//		ExecutorService exService = Executors
+		//				.newSingleThreadScheduledExecutor();
+		//		Future<String> future = exService.submit(emailWorker);
+		//		try {
+		//			event.customEventLabel = future.get();
+		//		} catch (InterruptedException e) {
+		//			logger.error(e.getMessage(), e);
+		//		} catch (ExecutionException e) {
+		//			logger.error(e.getMessage(), e);
+		//		}
+		//		logger.info("Email status: " + event.customEventLabel);
+		return event;
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
+		throw new NotImplementedError(
+				"Async event not supported in Email Service");
+	}
+
+	@Override
+	public void close() {
+
 	}
 }

@@ -2,8 +2,9 @@ package com.dla.foundation.services.queue.updater;
 
 import java.util.ArrayList;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.services.queue.filter.FilterException;
 import com.dla.foundation.services.queue.util.UpdaterConfig;
 
 
@@ -21,20 +22,20 @@ public abstract class Updater {
 	 * Write event to endpoint and do return the response event
 	 * 
 	 * @param event Event to be written to endpoint
+	 * @throws FilterException 
 	 */
-	final public UserEvent updateSyncEvent(UserEvent event) {
-		filterEvent(event, conf.filters);
-		return doUpdateSyncEvent(event);
+	final public <TEntity extends SimpleFoundationEntity> TEntity updateSyncEvent(TEntity event) throws FilterException {
+		return doUpdateSyncEvent(filterEvent(event, conf.filters));
 	}
 
 	/**
 	 * Write event to endpoint, does not return anything
 	 * 
 	 * @param event Event to be written to endpoint
+	 * @throws FilterException 
 	 */
-	final public void updateAsyncEvent(UserEvent event) {
-		filterEvent(event, conf.filters);
-		doUpdateAsyncEvent(event);
+	final public <TEntity extends SimpleFoundationEntity> void updateAsyncEvent(TEntity event) throws FilterException {
+		doUpdateAsyncEvent(filterEvent(event, conf.filters));
 	}
 
 	/**
@@ -42,9 +43,10 @@ public abstract class Updater {
 	 */
 	abstract void close();
 
-	protected abstract void filterEvent(UserEvent event, ArrayList<Filter> filters);
+	protected abstract <TEntity extends SimpleFoundationEntity> TEntity filterEvent(TEntity event, ArrayList<Filter> filters) 
+			throws FilterException;
 
-	protected abstract UserEvent doUpdateSyncEvent(UserEvent event);
+	protected abstract <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(TEntity event);
 
-	protected abstract void doUpdateAsyncEvent(UserEvent event);
+	protected abstract <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(TEntity event);
 }

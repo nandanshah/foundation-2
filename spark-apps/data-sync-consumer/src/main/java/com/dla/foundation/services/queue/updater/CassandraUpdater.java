@@ -11,8 +11,10 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.FoundationDataService;
 import com.dla.foundation.data.FoundationDataServiceImpl;
 import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.cassandra.CassandraContext;
 import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.services.queue.filter.FilterException;
 
 /**
  * Cassandra Specific updater.
@@ -58,11 +60,12 @@ public class CassandraUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(UserEvent event,
-			ArrayList<Filter> filters) {
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(TEntity event,
+			ArrayList<Filter> filters) throws FilterException {
 		for (Filter filter : filters) {
-			filter.doFilter(event);
+			event = filter.doFilter(event);
 		}
+		return event;
 	}
 
 	/**
@@ -70,15 +73,17 @@ public class CassandraUpdater extends Updater {
 	 * 
 	 * by underlying Cassandra Writer
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	protected UserEvent doUpdateSyncEvent(UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
 		UserEvent ret = null;
 		try {
-			ret =  dataService.insertOrUpdateUserEvent(event);
+			ret =  dataService.insertOrUpdateUserEvent((UserEvent) event);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-		return ret;
+		return (TEntity) ret;
 	}
 
 	/**
@@ -87,9 +92,10 @@ public class CassandraUpdater extends Updater {
 	 * This method does not return any acknowledgment or message to caller unlike updateSyncEvent method
 	 */
 	@Override
-	protected void doUpdateAsyncEvent(UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
 		try {
-			dataService.insertOrUpdateUserEvent(event);
+			dataService.insertOrUpdateUserEvent((UserEvent) event);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -97,6 +103,10 @@ public class CassandraUpdater extends Updater {
 
 	@Override
 	public void close() {
-
+		try {
+			dataContext.close();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 }
