@@ -34,14 +34,10 @@ import com.google.common.base.Optional;
  */
 public class ItemSummaryCalc implements Serializable {
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 3297305915745901809L;
 	private static final String NOT_AVAILABLE = "NA";
-	private static final String TRENDING = "trending";
 	private static final String DELIMITER = "#";
-	private static final String POPULARITY = "popularity";
 	private String itemLevelCFKeyspace;
 	private Map<String, String> itemLevelRecommendationCF;
 	private String pageRowSize;
@@ -79,45 +75,56 @@ public class ItemSummaryCalc implements Serializable {
 		logger.info("performing left outer join between result (left outer join of item and trend) and popularity column family");
 		JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD = joinPopularity(
 				sparkContext, cassandraSparkConnector, itemTrendRDD);
-		return getScoreSummary(itemTrendPopRDD);
+		logger.info("performing left outer join between result (left outer join of item trend and popularity) "
+				+ "and f&p column family");
+		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>>
+		itemTrendPopFpRDD = joinFP(sparkContext, cassandraSparkConnector, itemTrendPopRDD);
+		logger.info("performing left outer join between result (left outer join of item trend popularity fp & new release) "
+				+ "and f&p column family");
+		JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>,
+		Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD=		
+		joinNewRelease(sparkContext, cassandraSparkConnector, itemTrendPopFpRDD);
+
+		return getScoreSummary(itemTrendPopFpNewRDD);
 	}
 
 	/**
 	 * This function will combine the result of all the join into item summary.
 	 * 
-	 * @param itemTrendPopRDD
+	 * @param itemTrendPopFpNewRDD
 	 * @return
 	 */
 	private JavaRDD<ItemSummary> getScoreSummary(
-			JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD) {
+			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, 
+			Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpNewRDD) {
 
 		logger.info("combining the result of all the joins into item summary");
-		JavaRDD<ItemSummary> scoreSummaryRDD = itemTrendPopRDD
-				.map(new Function<Tuple2<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>>, ItemSummary>() {
+		JavaRDD<ItemSummary> scoreSummaryRDD = itemTrendPopFpNewRDD
+				.map(new Function<Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>,
+						Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>>, ItemSummary>() {
 
-					/**
-			 * 
-			 */
+
 					private static final long serialVersionUID = -281276554955631663L;
 					Score score;
 					ItemSummary itemSummary;
 					Map<String, Score> scores;
 
 					public ItemSummary call(
-							Tuple2<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> record)
-							throws Exception {
+							Tuple2<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, 
+							Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> record)
+									throws Exception {
 						String primaryKeys = record._1;
 						String[] keys = primaryKeys.split(DELIMITER);
 						scores = new HashMap<String, Score>();
-						if (record._2._1._2.isPresent()) {
+						if (record._2._1._1._1._2.isPresent()) {
 
 							scores.put(
-									record._2._1._2
-											.get()
-											.getScores()
-											.get(ScoreType.TREND_TYPE
-													.getColumn()).getType(),
-									record._2._1._2
+									record._2._1._1._1._2
+									.get()
+									.getScores()
+									.get(ScoreType.TREND_TYPE
+											.getColumn()).getType(),
+											record._2._1._1._1._2
 											.get()
 											.getScores()
 											.get(ScoreType.TREND_TYPE
@@ -126,18 +133,18 @@ public class ItemSummaryCalc implements Serializable {
 
 							score = new Score();
 							score.setScore(0.0);
-							score.setType(TRENDING);
+							score.setType(ScoreType.TREND_TYPE.getColumn());
 							score.setScoreReason(NOT_AVAILABLE);
 							scores.put(ScoreType.TREND_TYPE.getColumn(), score);
 						}
-						if (record._2._2.isPresent()) {
+						if ( record._2._1._1._2.isPresent()) {
 							scores.put(
-									record._2._2
-											.get()
-											.getScores()
-											.get(ScoreType.POPULARITY_TYPE
-													.getColumn()).getType(),
-									record._2._2
+									record._2._1._1._2
+									.get()
+									.getScores()
+									.get(ScoreType.POPULARITY_TYPE
+											.getColumn()).getType(),
+											record._2._1._1._2
 											.get()
 											.getScores()
 											.get(ScoreType.POPULARITY_TYPE
@@ -145,13 +152,54 @@ public class ItemSummaryCalc implements Serializable {
 						} else {
 							score = new Score();
 							score.setScore(0.0);
-							score.setType(POPULARITY);
+							score.setType(ScoreType.POPULARITY_TYPE.getColumn());
 							score.setScoreReason(NOT_AVAILABLE);
 							scores.put(ScoreType.POPULARITY_TYPE.getColumn(),
 									score);
 						}
+						if (record._2._1._2.isPresent()) {
+							scores.put(
+									record._2._1._2
+									.get()
+									.getScores()
+									.get(ScoreType.FP_TYPE
+											.getColumn()).getType(),
+											record._2._1._2
+											.get()
+											.getScores()
+											.get(ScoreType.FP_TYPE
+													.getColumn()));
+						} else {
+							score = new Score();
+							score.setScore(0.0);
+							score.setType(ScoreType.FP_TYPE.getColumn());
+							score.setScoreReason(NOT_AVAILABLE);
+							scores.put(ScoreType.FP_TYPE.getColumn(),
+									score);
+						}
+						if ( record._2._2.isPresent()) {
+							scores.put(
+									record._2._2
+									.get()
+									.getScores()
+									.get(ScoreType.NEW_RELEASE_TYPE
+											.getColumn()).getType(),
+											record._2._2
+											.get()
+											.getScores()
+											.get(ScoreType.NEW_RELEASE_TYPE
+													.getColumn()));
+						} else {
+							score = new Score();
+							score.setScore(0.0);
+							score.setType(ScoreType.NEW_RELEASE_TYPE.getColumn());
+							score.setScoreReason(NOT_AVAILABLE);
+							scores.put(ScoreType.NEW_RELEASE_TYPE.getColumn(),
+									score);
+						}
 						itemSummary = new ItemSummary(keys[0], keys[1],
 								keys[2], scores, inputDate);
+
 						return itemSummary;
 					}
 				});
@@ -180,7 +228,7 @@ public class ItemSummaryCalc implements Serializable {
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraTrendRDD = cassandraSparkConnector
 					.read(conf, sparkContext, itemLevelCFKeyspace, trendCF,
 							pageRowSize, UserItemRecommendationUtil
-									.getWhereClause(inputDate));
+							.getWhereClause(inputDate));
 			logger.info("transforming record of trend column family");
 			JavaPairRDD<String, ItemSummary> trendRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraTrendRDD);
@@ -188,7 +236,7 @@ public class ItemSummaryCalc implements Serializable {
 			JavaPairRDD<String, ItemSummary> filteredTrendRDD = Filter
 					.filterItemSummary(trendRDD);
 			logger.info("performing left outer join between item and trend column family");
-			//key for both is: tenantid#regionid#itemid
+			// key for both is: tenantid#regionid#itemid
 			return itemRDD.leftOuterJoin(filteredTrendRDD);
 		} else {
 			throw new Exception(
@@ -212,7 +260,7 @@ public class ItemSummaryCalc implements Serializable {
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> itemTrendRDD)
-			throws Exception {
+					throws Exception {
 		String popularityCF = itemLevelRecommendationCF.get(PropKeys.POPULARITY
 				.getValue());
 
@@ -223,7 +271,7 @@ public class ItemSummaryCalc implements Serializable {
 					.read(conf, sparkContext, itemLevelCFKeyspace,
 							popularityCF, pageRowSize,
 							UserItemRecommendationUtil
-									.getWhereClause(inputDate));
+							.getWhereClause(inputDate));
 			logger.info("transforming record of popularity column family");
 			JavaPairRDD<String, ItemSummary> popularityRDD = ItemSummaryTransformation
 					.getItemSummary(cassandraPopularityRDD);
@@ -231,12 +279,78 @@ public class ItemSummaryCalc implements Serializable {
 			JavaPairRDD<String, ItemSummary> filteredPopularityRDD = Filter
 					.filterItemSummary(popularityRDD);
 			logger.info("performing left outer join between result of item and trend with popularity column family");
-			//key for both is: tenantid#regionid#itemid
+			// key for both is: tenantid#regionid#itemid
 			return itemTrendRDD.leftOuterJoin(filteredPopularityRDD);
 		} else {
 			throw new Exception(
 					"Popularity column family name is not properly specified in property file");
 		}
 	}
+
+	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
+	Optional<ItemSummary>>> 
+	joinFP(JavaSparkContext sparkContext,
+			CassandraSparkConnector cassandraSparkConnector,
+			JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD)
+					throws Exception {
+		String fpCF = itemLevelRecommendationCF.get(PropKeys.FP
+				.getValue());
+
+		if (null != fpCF && "" != fpCF) {
+			Configuration conf = new Configuration();
+			logger.info("reading f&p column family");
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraFpRDD = cassandraSparkConnector
+					.read(conf, sparkContext, itemLevelCFKeyspace,
+							fpCF, pageRowSize,
+							UserItemRecommendationUtil
+							.getWhereClause(inputDate));
+			logger.info("transforming record of fp column family");
+			JavaPairRDD<String, ItemSummary> fpRDD = ItemSummaryTransformation
+					.getItemSummary(cassandraFpRDD);
+			logger.info("filtering record of fp column family");
+			JavaPairRDD<String, ItemSummary> filteredFpRDD = Filter
+					.filterItemSummary(fpRDD);
+			logger.info("performing left outer join between result of item trend and popularity with fp column family");
+			// key for both is: tenantid#regionid#itemid
+			return itemTrendPopRDD.leftOuterJoin(filteredFpRDD);
+		} else {
+			throw new Exception(
+					"FP column family name is not properly specified in property file");
+		}
+	}
+
+	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
+	Optional<ItemSummary>>, Optional<ItemSummary>>> 
+	joinNewRelease(JavaSparkContext sparkContext,
+			CassandraSparkConnector cassandraSparkConnector,
+			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>,
+			Optional<ItemSummary>>> itemTrendPopFpRDD)
+					throws Exception {
+		String newCF = itemLevelRecommendationCF.get(PropKeys.NEW_RELEASE
+				.getValue());
+
+		if (null != newCF && "" != newCF) {
+			Configuration conf = new Configuration();
+			logger.info("reading new release column family");
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraNewReleaseRDD = cassandraSparkConnector
+					.read(conf, sparkContext, itemLevelCFKeyspace,
+							newCF, pageRowSize,
+							UserItemRecommendationUtil
+							.getWhereClause(inputDate));
+			logger.info("transforming record of new release column family");
+			JavaPairRDD<String, ItemSummary> newReleaseRDD = ItemSummaryTransformation
+					.getItemSummary(cassandraNewReleaseRDD);
+			logger.info("filtering record of new release column family");
+			JavaPairRDD<String, ItemSummary> filterednewReleaseRDD = Filter
+					.filterItemSummary(newReleaseRDD);
+			logger.info("performing left outer join between result of item trend popularity fp with new release column family");
+			// key for both is: tenantid#regionid#itemid
+			return itemTrendPopFpRDD.leftOuterJoin(filterednewReleaseRDD);
+		} else {
+			throw new Exception(
+					"FP column family name is not properly specified in property file");
+		}
+	}
+
 
 }
