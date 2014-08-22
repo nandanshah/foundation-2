@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.util;
+package com.dla.foundation.intelligence.eo.util;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,6 +11,9 @@ import org.apache.spark.SparkFiles;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.updater.Updater;
+
 public class QueueListenerConfigHandler implements Serializable {
 
 	private static final long serialVersionUID = -4419336790877201871L;
@@ -19,6 +22,8 @@ public class QueueListenerConfigHandler implements Serializable {
 	private int rabbitmq_server_port;
 	private String exchange_name;
 	private String exchange_type;
+	private String rabbitmq_username;
+	private String rabbitmq_password;
 	private List<QueueConfig> qConfigs = new ArrayList<QueueConfig>();
 	private String PROPERTIES_FILE_NAME = "QueueListenerConfig.json";
 	private String PROPERTIES_FILE_VAR = "queueConfigFilePath";
@@ -28,9 +33,10 @@ public class QueueListenerConfigHandler implements Serializable {
 
 	private enum QueueConfigKeys {
 		rabbitmq_server_host("rabbitmq_server_host"), rabbitmq_server_port("rabbitmq_server_port"), 
+		rabbitmq_username("rabbitmq_username"), rabbitmq_password("rabbitmq_password"),
 		exchange_name("exchange_name"), exchange_type("exchange_type"),	queue_config("queue_config"), 
 		queue_name("queue_name"), queue_type("queue_type"), queue_updater("queue_updater"), 
-		queue_bind_key("queue_bind_key");
+		updater_filters("updater_filters"), queue_bind_key("queue_bind_key");
 
 		private String value;
 
@@ -51,13 +57,15 @@ public class QueueListenerConfigHandler implements Serializable {
 	public QueueListenerConfigHandler() throws IOException {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
-		
+
 		String content = new String(Files.readAllBytes(Paths.get(propertiesFilePath)));
 		JSONObject configJson = new JSONObject(content);
 		rabbitmq_server_host = configJson.getString(QueueConfigKeys.rabbitmq_server_host.getValue());
 		rabbitmq_server_port = configJson.getInt(QueueConfigKeys.rabbitmq_server_port.getValue());
 		exchange_name = configJson.getString(QueueConfigKeys.exchange_name.getValue());
 		exchange_type = configJson.getString(QueueConfigKeys.exchange_type.getValue());
+		rabbitmq_username = configJson.getString(QueueConfigKeys.rabbitmq_username.getValue());
+		rabbitmq_password = configJson.getString(QueueConfigKeys.rabbitmq_password.getValue());
 
 		JSONArray arr =  configJson.getJSONArray(QueueConfigKeys.queue_config.getValue());
 		for (int i = 0; i < arr.length(); i++) {
@@ -66,11 +74,30 @@ public class QueueListenerConfigHandler implements Serializable {
 			int port = oneQ.has(QueueConfigKeys.rabbitmq_server_port.getValue()) ? oneQ.getInt(QueueConfigKeys.rabbitmq_server_port.getValue()) : rabbitmq_server_port;
 			String exch_name = oneQ.has(QueueConfigKeys.exchange_name.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_name.getValue()) : exchange_name;
 			String exch_type = oneQ.has(QueueConfigKeys.exchange_type.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_type.getValue()) : exchange_type;
+			
+			String username = oneQ.has(QueueConfigKeys.rabbitmq_username.getValue()) ? oneQ.getString(QueueConfigKeys.rabbitmq_username.getValue()) : rabbitmq_username;
+			String password = oneQ.has(QueueConfigKeys.rabbitmq_password.getValue()) ? oneQ.getString(QueueConfigKeys.rabbitmq_password.getValue()) : rabbitmq_password;
+
+			UpdaterConfig uc = new UpdaterConfig();
+
+			if(oneQ.has(QueueConfigKeys.updater_filters.getValue())) {
+				String[] filters = oneQ.getString(QueueConfigKeys.updater_filters.getValue()).split(",");
+				for (String filter : filters) {
+					Class<? extends Updater> filterClass = null;
+					try {
+						filterClass = (Class<Updater>) Class.forName(filter);
+						Filter f = (Filter) filterClass.newInstance();
+						uc.filters.add(f);
+					} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 
 			qConfigs.add(new QueueConfig(server, port, exch_name, exch_type, oneQ.getString(QueueConfigKeys.queue_name.getValue()), 
 					queue_type.valueOf(oneQ.getString(QueueConfigKeys.queue_type.getValue())), 
 					oneQ.getString(QueueConfigKeys.queue_updater.getValue()), 
-					oneQ.getString(QueueConfigKeys.queue_bind_key.getValue())));
+					oneQ.getString(QueueConfigKeys.queue_bind_key.getValue()),uc,username,password));
 		}
 	}
 
@@ -102,14 +129,17 @@ public class QueueListenerConfigHandler implements Serializable {
 		private int rabbitMQPort;
 		private String exchangeName;
 		private String exchangeType;
+		private String username;
+		private String password;
 		private String name;
 		private queue_type type;
 		private String updater;
 		private String bind_key;
+		private UpdaterConfig updaterConf;
 
 		public QueueConfig(String rabbitMQServer, int rabbitMQPort,
 				String exchangeName, String exchangeType, String name,
-				queue_type type, String updater, String bind_key) {
+				queue_type type, String updater, String bind_key, UpdaterConfig updaterConf, String username, String password) {
 			this.rabbitMQServer = rabbitMQServer;
 			this.rabbitMQPort = rabbitMQPort;
 			this.exchangeName = exchangeName;
@@ -118,6 +148,9 @@ public class QueueListenerConfigHandler implements Serializable {
 			this.type = type;
 			this.updater = updater;
 			this.bind_key = bind_key;
+			this.updaterConf = updaterConf;
+			this.username = username;
+			this.password = password;
 		}
 
 		public String getRabbitMQServer() {
@@ -167,6 +200,24 @@ public class QueueListenerConfigHandler implements Serializable {
 		}
 		public void setBind_key(String bind_key) {
 			this.bind_key = bind_key;
-		}	
+		}
+		public UpdaterConfig getUpdaterConf() {
+			return updaterConf;
+		}
+		public void setUpdaterConf(UpdaterConfig updaterConf) {
+			this.updaterConf = updaterConf;
+		}
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
 	}
 }

@@ -22,7 +22,7 @@ public class DispatcherTest {
 	private RabbitMQDispatcher rmqC;
 
 	@Before
-	public void before() {
+	public void before() throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		rmqC = new RabbitMQDispatcher();
 		Properties props = new Properties();
 		try {
@@ -31,9 +31,11 @@ public class DispatcherTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
-			rmqC.init(new EOConfig(props.getProperty("rabbitmq_server_host"),Integer.parseInt(props.getProperty("rabbitmq_server_port"))));
+			rmqC.init(new EOConfig(props.getProperty("rabbitmq_server_host"),Integer.parseInt(props.getProperty("rabbitmq_server_port"))
+					,props.getProperty("exchange_name"),props.getProperty("exchange_type"),
+					props.getProperty("rabbitmq_username"),props.getProperty("rabbitmq_password")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

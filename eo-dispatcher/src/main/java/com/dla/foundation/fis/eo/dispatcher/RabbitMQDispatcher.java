@@ -1,11 +1,12 @@
 package com.dla.foundation.fis.eo.dispatcher;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.dla.foundation.fis.eo.entities.DeviceType;
 import com.dla.foundation.fis.eo.entities.EventType;
-import com.dla.foundation.fis.eo.entities.DispatcherDataEvent;
+import com.dla.foundation.fis.eo.entities.FISUserEvent;
 import com.dla.foundation.fis.eo.entities.ImpressionSource;
 import com.dla.foundation.fis.eo.entities.NetworkType;
 import com.dla.foundation.fis.eo.entities.SearchType;
@@ -14,21 +15,25 @@ import com.dla.foundation.fis.eo.entities.UserActions;
 import com.dla.foundation.fis.eo.exception.DispatcherException;
 
 /**
- * This class will call rabbitmq push event depending upon the method called with event type(act as enum). 
+ * This class will call rabbitmq push event depending upon the method called with event type(act as enum).
+ *  
  * @author shishir_shivhare
  *
  */
-public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEvent> {
+public class RabbitMQDispatcher extends AbstractRMQDispatcher<FISUserEvent> {
 
-	public RabbitMQDispatcher() {
+	private EventRouteProvider erp;
+	
+	public RabbitMQDispatcher() throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		this.conf = new EOConfig();
+		erp = new EventRouteProvider();
 	}
 
 	@Override
 	public boolean profileAdded(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileAdded;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -40,7 +45,11 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileAdded_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -49,7 +58,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileDeleted;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -61,7 +70,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileDeleted_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -70,7 +82,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
 			UUID preferredregionId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdatePreferredRegion;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -83,7 +95,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceId = deviceId;
 		e.preferredRegionID = preferredregionId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdatePreferredRegion_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -92,7 +107,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId,
 			UUID preferredLocaleId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdatePreferredLocale;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -105,7 +120,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceId = deviceId;
 		e.preferredLocaleID = preferredLocaleId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdatePreferredLocale_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -115,7 +133,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
 			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdateNewSocialMediaAccountLinkage;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -129,7 +147,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.socialMediaType = socialMediaType;
 		e.gigyaAuthToken = gigyaAuthToken;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdateNewSocialMediaAccountLinkage_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -139,7 +160,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId,
 			SocialMediaType socialMediaType, String gigyaAuthToken, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.profileUpdateSocialMediaAccountDelete;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -153,7 +174,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.socialMediaType = socialMediaType;
 		e.gigyaAuthToken = gigyaAuthToken;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.profileUpdateSocialMediaAccountDelete_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -161,7 +185,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 	public boolean accountAdd(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountAdd;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -172,7 +196,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.accountAdd_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -180,7 +207,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 	public boolean accountDelete(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountDelete;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -191,7 +218,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.accountDelete_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -199,7 +229,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 	public boolean accountInfoUpdate(UUID tenantId, UUID sessionId,
 			UUID accountId, long timestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.accountInfoUpdate;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -210,7 +240,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.accountInfoUpdate_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -218,7 +251,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 	public boolean userLogin(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userLogin;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -230,7 +263,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userLogin_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -238,7 +274,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 	public boolean userLogout(UUID tenantId, UUID sessionId, UUID accountId,
 			long timestamp, UUID profileId, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userLogout;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -250,7 +286,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userLogout_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -259,7 +298,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			long timestamp, UUID profileId, Map<String, String> avp,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.addSession;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -272,7 +311,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.addSession_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -282,7 +324,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			String searchString, Map<String, String> filters, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userSearch;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -297,7 +339,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userSearch_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -308,7 +353,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID itemId, int rankOfItemId, UserActions action, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userSearchResultClick;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -326,7 +371,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userSearchResultClick_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -335,7 +383,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPreview;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -348,7 +396,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPreview_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -357,7 +408,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemMoreInfo;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -370,7 +421,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemMoreInfo_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -379,7 +433,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			long timestamp, UUID profileId, UUID itemId, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemShare;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -392,7 +446,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemShare_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -401,7 +458,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			long timestamp, UUID profileId, UUID itemId, int rateScore,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemRate;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -415,7 +472,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRate_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -424,7 +484,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemAddToWatchList;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -437,7 +497,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemAddToWatchList_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -446,7 +509,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemDeleteFromWatchlist;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -459,7 +522,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemDeleteFromWatchlist_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -468,7 +534,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPlayStart;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -481,7 +547,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStart_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -490,7 +559,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = EventType.userItemPlayPercentage;
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -504,7 +573,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPercentage_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -513,7 +585,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStop);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -527,7 +599,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStop_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -536,7 +611,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPause);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -550,7 +625,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPause_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -559,7 +637,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			double playPercentage, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayResume);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -573,7 +651,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayResume_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -583,7 +664,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			long rentStartTimestamp, long rentEndTimestamp, UUID regionId,
 			UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRent);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -598,7 +679,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRent_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -607,7 +691,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			long purchaseStartTimestamp, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPurchase);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -621,7 +705,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPurchase_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -630,7 +717,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemImpression);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -643,7 +730,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemImpression_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -652,7 +742,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, Map<String, String> avp,
 			UUID regionId, UUID localeId, DeviceType deviceType, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.accountInfoUpdate);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -664,7 +754,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.accountInfoUpdate_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -674,7 +767,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPreview);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -688,7 +781,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPreview_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -698,7 +794,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemMoreInfo);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -712,7 +808,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemMoreInfo_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -722,7 +821,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemShare);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -736,7 +835,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemShare_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -746,7 +848,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRate);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -761,7 +863,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRate_SEARCH_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -771,7 +876,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStart);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -785,7 +890,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStart_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -795,7 +903,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPercentage);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -810,7 +918,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPercentage_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -820,7 +931,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayStop);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -835,7 +946,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayStop_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -845,7 +959,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayPause);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -860,7 +974,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayPause_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -870,7 +987,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			double playPercentage, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPlayResume);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -885,7 +1002,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPlayResume_PLAYBACK_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -896,7 +1016,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			ImpressionSource impressionSource, DeviceType deviceType,
 			UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemRent);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -912,7 +1032,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemRent_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -921,7 +1044,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemAddToWatchList);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -935,7 +1058,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemAddToWatchList_WATCHLIST_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -945,7 +1071,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			long purchaseStartTimestamp, ImpressionSource impressionSource,
 			DeviceType deviceType, UUID regionId, UUID localeId, UUID deviceId, NetworkType networkType)
 					throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemPurchase);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -960,7 +1086,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemPurchase_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 
@@ -969,7 +1098,7 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 			UUID accountId, long timestamp, UUID profileId, UUID itemId,
 			ImpressionSource impressionSource, UUID regionId, UUID localeId,
 			DeviceType deviceType, UUID deviceId, NetworkType networkType) throws DispatcherException {
-		DispatcherDataEvent e = new DispatcherDataEvent();
+		FISUserEvent e = new FISUserEvent();
 		e.type = (EventType.userItemImpression);
 		e.tenantID = tenantId;
 		e.sessionID = sessionId;
@@ -983,7 +1112,10 @@ public class RabbitMQDispatcher extends AbstractRMQDispatcher<DispatcherDataEven
 		e.deviceType = deviceType;
 		e.deviceId = deviceId;
 		e.networkType = networkType;
-		enqueueAsync(e, RabbitMQDispatcherConstants.userItemImpression_ACCOUNT_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY);
+		List<String> eventRoutes = erp.getRoute(e.type.toString());
+		for (String route : eventRoutes) {
+			enqueueAsync(e, route);
+		}
 		return true;
 	}
 }

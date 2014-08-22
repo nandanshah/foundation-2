@@ -1,19 +1,27 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import javax.net.ssl.HttpsURLConnection;
+
 import org.apache.log4j.Logger;
+
 import scala.NotImplementedError;
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
+
+import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 /**
  * 
@@ -24,41 +32,9 @@ import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
  *         are used since there are no specific fields for email service.
  * 
  */
-public class EmailUpdater implements Updater {
+public class EmailUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-
-	@Override
-	public AnalyticsCollectionEvent updateSyncEvent(
-			AnalyticsCollectionEvent event) {
-		String emailContent = event.customEventValue;
-		String providerUrl = event.customEventAction;
-		Callable<String> emailWorker = new EmailWorker(emailContent,
-				providerUrl);
-		ExecutorService exService = Executors
-				.newSingleThreadScheduledExecutor();
-		Future<String> future = exService.submit(emailWorker);
-		try {
-			event.customEventLabel = future.get();
-		} catch (InterruptedException e) {
-			logger.error(e.getMessage(), e);
-		} catch (ExecutionException e) {
-			logger.error(e.getMessage(), e);
-		}
-		logger.info("Email status: " + event.customEventLabel);
-		return event;
-	}
-
-	@Override
-	public void updateAsyncEvent(AnalyticsCollectionEvent event) {
-		throw new NotImplementedError(
-				"Async event not supported in Email Service");
-	}
-
-	@Override
-	public void close() {
-
-	}
 
 	/**
 	 * This class forwards the email message to the Mandrill email service.
@@ -114,5 +90,47 @@ public class EmailUpdater implements Updater {
 			return sb.toString();
 
 		}
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(
+			TEntity event, ArrayList<Filter> filters) throws FilterException {
+		for (Filter filter : filters) {
+			event = filter.doFilter(event);
+		}
+		return event;
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
+		//		String emailContent = event.customEventValue;
+		//		String providerUrl = event.customEventAction;
+		//		Callable<String> emailWorker = new EmailWorker(emailContent,
+		//				providerUrl);
+		//		ExecutorService exService = Executors
+		//				.newSingleThreadScheduledExecutor();
+		//		Future<String> future = exService.submit(emailWorker);
+		//		try {
+		//			event.customEventLabel = future.get();
+		//		} catch (InterruptedException e) {
+		//			logger.error(e.getMessage(), e);
+		//		} catch (ExecutionException e) {
+		//			logger.error(e.getMessage(), e);
+		//		}
+		//		logger.info("Email status: " + event.customEventLabel);
+		return event;
+	}
+
+	@Override
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
+		throw new NotImplementedError(
+				"Async event not supported in Email Service");
+	}
+
+	@Override
+	public void close() {
+
 	}
 }

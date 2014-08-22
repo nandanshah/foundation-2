@@ -1,12 +1,13 @@
-package com.dla.foundation.services.queue.consumer;
+package com.dla.foundation.intelligence.eo.consumer;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
-import com.dla.foundation.services.queue.updater.Updater;
-import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
+import com.dla.foundation.data.entities.event.Event;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
+import com.dla.foundation.intelligence.eo.updater.Updater;
+import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -25,7 +26,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 public class SyncQueueConsumer implements Runnable {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-	
+
 	private ConnectionFactory factory;
 	private Connection connection;
 	private Channel syncChannel;
@@ -42,6 +43,8 @@ public class SyncQueueConsumer implements Runnable {
 		try {
 			factory.setHost(myConfig.getRabbitMQServer());
 			factory.setPort(myConfig.getRabbitMQPort());
+			factory.setUsername(myConfig.getUsername());
+			factory.setPassword(myConfig.getPassword());
 			connection = factory.newConnection();
 			syncChannel = connection.createChannel();
 			syncChannel.exchangeDeclare(myConfig.getExchangeName(), myConfig.getExchangeType());
@@ -69,14 +72,14 @@ public class SyncQueueConsumer implements Runnable {
 				replyProps = new BasicProperties.Builder().correlationId(props.getCorrelationId()).build();
 
 				byte[] obj = delivery.getBody();
-				AnalyticsCollectionEvent fe = AnalyticsCollectionEvent.fromBytes(obj);
+				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
-				fe = updater.updateSyncEvent(fe);
+				fe = (Event) updater.updateSyncEvent(fe);
 				//Push reply message to reply queue defined by producer.
-				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.getBytes());
+				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.toBytes());
 				syncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | IOException e) {
+					| InterruptedException | IOException | FilterException e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

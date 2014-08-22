@@ -16,6 +16,9 @@ public class RabbitMQDispatcherConstants {
 	public static final String EXCHANGE_NAME = "FOUNDATION_EXCH";
 	public static final String EXCHANGE_TYPE = "topic";
 	
+	public static final String DEFAULT_USER = "guest";
+	public static final String DEFAULT_PWD = "guest";
+	
 	/* Message routing keys for events/messages propagating to Cassandra */
 	public static final String profileAdded_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "profileAdded.profile.cassandra.async.event.message";
 	public static final String profileDeleted_PROFILE_SERVICE_CASSANDRA_ASYNC_ROUTE_KEY = "profileDeleted.profile.cassandra.async.event.message";
