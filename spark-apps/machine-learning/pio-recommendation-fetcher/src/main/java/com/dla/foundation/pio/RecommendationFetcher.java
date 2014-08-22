@@ -11,7 +11,6 @@ import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.pio.util.CassandraConfig;
 import com.dla.foundation.pio.util.PIOConfig;
-import com.dla.foundation.pio.util.PropKeys;
 import com.dla.foundation.pio.util.RecoFetcherConstants;
 
 public class RecommendationFetcher implements Serializable {
@@ -21,7 +20,9 @@ public class RecommendationFetcher implements Serializable {
 	public static Date RECO_FETCH_TIMESTAMP;
 	private static final String CONFIG_DELIM = ",";
 	private static final String POST_FIX_TO_TENANT = ":last_processed";
-
+	private static final String HTTP_PREFIX="http://";
+	private static final String PORT_DELIM = ":";
+	
 	private static Logger logger = Logger.getLogger(RecommendationFetcher.class
 			.getName());
 
@@ -52,9 +53,9 @@ public class RecommendationFetcher implements Serializable {
 				.getValue(CommonPropKeys.pio_port.getValue())
 				: RecoFetcherConstants.DEFAULT_API_PORT_NUM;
 
-		final String appURL = "http://"
+		final String appURL = HTTP_PREFIX
 				+ propertyHandler.getValue(CommonPropKeys.pio_host.getValue())
-				+ ":" + port;
+				+ PORT_DELIM + port;
 
 		// Instantiates PIOConfig Class : This class holds config properties
 		// needed to make call to predictionIO (PIO).
@@ -65,7 +66,7 @@ public class RecommendationFetcher implements Serializable {
 
 		PIOConfig pioConfig = new PIOConfig(appKey, appURL, engineName,
 				Integer.parseInt(propertyHandler
-						.getValue(PropKeys.PIO_NUM_REC_PER_USER.getValue())));
+						.getValue(RecoFetcherConstants.PIO_NUM_REC_PER_USER)));
 
 		RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
 
@@ -82,13 +83,13 @@ public class RecommendationFetcher implements Serializable {
 		// used for reading and writing data from Cassandra.
 
 		CassandraConfig cassandraConfig = new CassandraConfig(
-				propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
+				propertyHandler.getValue(CommonPropKeys.cs_platformKeyspace
 						.getValue()),
 				propertyHandler.getValue(CommonPropKeys.cs_fisKeyspace
 						.getValue()),
 				propertyHandler.getValue(CommonPropKeys.cs_profileCF.getValue()),
 				propertyHandler.getValue(CommonPropKeys.cs_accountCF.getValue()),
-				propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()),
+				RecoFetcherConstants.RECOMMEND_CF,
 				propertyHandler.getValue(CommonPropKeys.cs_pageRowSize
 						.getValue()));
 

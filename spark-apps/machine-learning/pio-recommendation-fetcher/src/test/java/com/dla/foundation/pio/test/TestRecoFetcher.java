@@ -1,14 +1,17 @@
 package com.dla.foundation.pio.test;
 
 import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.dla.foundation.analytics.utils.CassandraContext;
@@ -16,7 +19,6 @@ import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.pio.RecommendationFetcher;
 import com.dla.foundation.pio.util.ColumnCollection;
-import com.dla.foundation.pio.util.PropKeys;
 import com.dla.foundation.pio.util.RecoFetcherConstants;
 
 public class TestRecoFetcher {
@@ -30,8 +32,8 @@ public class TestRecoFetcher {
 	private static final String DEFAULT_PROFILE_FILE_PATH = "src/test/resources/profileTable.csv";
 	private static final String DEFAULT_ACCOUNT_FILE_PATH = "src/test/resources/accountTable.csv";
 	private static final String RESULT_FILE_PATH = "src/test/resources/result.csv";
-	private static final String PROP_FILE_PATH = "D:/FoundationIntelligenceNew/foundation-intelligence-system/spark-apps/commons/src/main/resources/local/common.properties";
-	private static final String INSERT_PROP = "VALUES  ('pioRecoFetcher', {'4c6f0f00-66de-1347-a621-8bfba5f4eaff':'wBYDEbrxeND3IVo4SaK3xQjRXiPJeojhZVMISSGgtbvKTiavBD4Z8qlyXkQRevtP,ItemRec','numRecsPerUser':'2','recommendCF':'pio1'});";
+	private static String PROP_FILE_PATH ;
+	private static final String INSERT_PROP = "VALUES  ('pioRecoFetcher', {'4c6f0f00-66de-1347-a621-8bfba5f4eaff':'wBYDEbrxeND3IVo4SaK3xQjRXiPJeojhZVMISSGgtbvKTiavBD4Z8qlyXkQRevtP,ItemRec','numRecsPerUser':'2'});";
 	private static Map<String, List<String>> mapReco;
 	private static HashMap<String, String> mapRegion;
 
@@ -39,11 +41,11 @@ public class TestRecoFetcher {
 	public void setUp() throws Exception {
 
 		String current_dir = System.getProperty("user.dir");
-		System.out.println(current_dir);
-
+		PROP_FILE_PATH =current_dir + "/../../commons/src/test/resources/common.properties";
 		populateRecoAndRegions();
 		logger.info("Connecting to mock cassandra");
-		cassandraContext = new CassandraContext();
+		cassandraContext = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandraContext.connect();
 		logger.info("Connected to mock cassandra successfully");
 
@@ -68,30 +70,29 @@ public class TestRecoFetcher {
 								.getValue(CommonPropKeys.cs_fisKeyspace
 										.getValue())
 						+ "."
-						+ propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF
-								.getValue())
+						+ RecoFetcherConstants.RECOMMEND_CF
 						+ " ( tenantid uuid, regionid uuid, profileid uuid, itemid uuid ,lastrecofetched timestamp, recobyfoundationscore double,recobyfoundationreason text, eventrequired int ,primary key(profileid,itemid));");
 		logger.info("Created columnfamily : "
-				+ propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()));
+				+ RecoFetcherConstants.RECOMMEND_CF);
 
 		cassandraContext
 				.executeCommand("CREATE KEYSPACE IF NOT EXISTS "
 						+ propertyHandler
-								.getValue(CommonPropKeys.cs_analyticsKeyspace
+								.getValue(CommonPropKeys.cs_platformKeyspace
 										.getValue())
 						+ " WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};");
 		logger.info("Created keyspace : "
-				+ propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
+				+ propertyHandler.getValue(CommonPropKeys.cs_platformKeyspace
 						.getValue()));
 
 		cassandraContext.executeCommand("use "
-				+ propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
+				+ propertyHandler.getValue(CommonPropKeys.cs_platformKeyspace
 						.getValue()));
 
 		cassandraContext
 				.executeCommand("CREATE TABLE IF NOT EXISTS "
 						+ propertyHandler
-								.getValue(CommonPropKeys.cs_analyticsKeyspace
+								.getValue(CommonPropKeys.cs_platformKeyspace
 										.getValue())
 						+ "."
 						+ propertyHandler.getValue(CommonPropKeys.cs_profileCF
@@ -104,7 +105,7 @@ public class TestRecoFetcher {
 		cassandraContext
 				.executeCommand("CREATE TABLE IF NOT EXISTS "
 						+ propertyHandler
-								.getValue(CommonPropKeys.cs_analyticsKeyspace
+								.getValue(CommonPropKeys.cs_platformKeyspace
 										.getValue())
 						+ "."
 						+ propertyHandler.getValue(CommonPropKeys.cs_accountCF
@@ -174,8 +175,7 @@ public class TestRecoFetcher {
 			recoFetcher.runRecommendationFetcher(propertyHandler);
 			ResultSet recommendationsResult = cassandraContext.getRows(
 					propertyHandler.getValue(CommonPropKeys.cs_fisKeyspace
-							.getValue()), propertyHandler
-							.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()));
+							.getValue()), RecoFetcherConstants.RECOMMEND_CF);
 
 			assertTrue(verifyResult(recommendationsResult));
 		} catch (IOException e) {
@@ -193,7 +193,9 @@ public class TestRecoFetcher {
 		while ((elements = fhandler.nextLine()) != null) {
 			String accID = elements[0];
 			String tenantID = elements[1];
-			query = "INSERT INTO fis.accounttable (id,tenantid) VALUES (" + accID
+			query = "INSERT INTO "+propertyHandler
+					.getValue(CommonPropKeys.cs_platformKeyspace
+							.getValue()) +"."+propertyHandler.getValue(CommonPropKeys.cs_accountCF.getValue()) +" (id,tenantid) VALUES (" + accID
 					+ "," + tenantID + ");";
 			logger.info("Executing query : " + query);
 			cassandraContext.executeCommand(query);
@@ -211,7 +213,9 @@ public class TestRecoFetcher {
 			String accID = elements[0];
 			String proID = elements[1];
 			String regionID = elements[2];
-			query = "INSERT INTO profiletable(accountid,id,homeregionid) VALUES ("
+			query = "INSERT INTO "+propertyHandler
+					.getValue(CommonPropKeys.cs_platformKeyspace
+							.getValue()) +"."+propertyHandler.getValue(CommonPropKeys.cs_profileCF.getValue())+" (accountid,id,homeregionid) VALUES ("
 					+ accID + "," + proID + "," + regionID + " );";
 			logger.info("Executing query : " + query);
 			cassandraContext.executeCommand(query);
@@ -219,7 +223,6 @@ public class TestRecoFetcher {
 	}
 
 	private boolean verifyResult(ResultSet recommendationsResult) {
-		//logger.info("****************  Size " +recommendationsResult.all().size());
 		boolean flag = false;
 		for (Row userRecord : recommendationsResult.all()) {
 			flag=true;
