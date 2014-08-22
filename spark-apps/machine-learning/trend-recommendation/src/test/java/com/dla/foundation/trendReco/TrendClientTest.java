@@ -20,11 +20,15 @@ import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 public class TrendClientTest {
 	private TrendRecoClient trendRecoClient;
 	private CassandraContext cassandra;
+	private String current_dir=null;
 
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException,IOException {
 		trendRecoClient = new TrendRecoClient();
 		cassandra = new CassandraContext();
+		current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandra.connect();
 		executeCommands();
 	}
@@ -33,11 +37,7 @@ public class TrendClientTest {
 	public void userEvtSummaryCalTest() throws Exception {
 		assertNotNull(trendRecoClient);
 		
-		String current_dir = System.getProperty("user.dir");
-              cassandra = new CassandraContext(current_dir
-                           + "/../../commons/src/test/resources/cassandra.yaml");
-
-			trendRecoClient.runTrendRecommendation(current_dir);
+			trendRecoClient.runTrendRecommendation(current_dir+ "/../../commons/src/test/resources/common.properties");
 		
 		
 		assertNotNull(cassandra);
