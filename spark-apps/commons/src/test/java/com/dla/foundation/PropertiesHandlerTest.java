@@ -30,7 +30,7 @@ public class PropertiesHandlerTest {
 
 		String current_dir = System.getProperty("user.dir");
 		csContext = new CassandraContext(current_dir
-				+ "\\src\\test\\resources\\cassandra.yaml");
+				+ "/src/test/resources/cassandra.yaml");
 
 		csContext.connect();
 

@@ -17,9 +17,9 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.trendReco.model.CassandraConfig;
-import com.dla.foundation.trendReco.model.DailyEventSummaryPerItem;
 import com.dla.foundation.trendReco.model.DayScore;
 import com.dla.foundation.trendReco.model.Trend;
 import com.dla.foundation.trendReco.model.TrendScore;
@@ -29,6 +29,7 @@ import com.dla.foundation.trendReco.util.DayScoreTransformation;
 import com.dla.foundation.trendReco.util.Filter;
 import com.dla.foundation.trendReco.util.PropKeys;
 import com.dla.foundation.trendReco.util.TrendRecoPostprocessing;
+import com.dla.foundation.trendReco.util.TrendRecoProp;
 import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 
 /**
@@ -68,75 +69,73 @@ public class TrendScoreDriver implements Serializable {
 	 *            : Path of property file required by zscore calculator
 	 * 
 	 */
-	public void runTrendScoreDriver(String appPropFilePath,
-			String trendRecoPropFilePath) {
-		
-		try{
-			// Initializing property handler
-			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
-			
+	public void runTrendScoreDriver(String commPropFilePath) {
+
+		try {
+
+			PropertiesHandler trendScoreProp = new PropertiesHandler(
+					commPropFilePath, TrendRecoProp.TREND_SCORE_APP_NAME);
+
 			// initializing spark context
 			logger.info("initializing spark context");
 			JavaSparkContext sparkContext = new JavaSparkContext(
-					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
-					appProp.getValue(PropKeys.APP_NAME.getValue()));
-			
+					trendScoreProp.getValue(CommonPropKeys.spark_host
+							.getValue()), TrendRecoProp.TREND_SCORE_APP_NAME);
+
 			// initializing cassandra service
 			logger.info("initializing cassandra service");
 			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil
-							.getList(appProp.getValue(PropKeys.INPUT_HOST_LIST
+					TrendRecommendationUtil.getList(trendScoreProp
+							.getValue(CommonPropKeys.cs_hostList.getValue()),
+							","), TrendRecoProp.PARTITIONER,
+					trendScoreProp.getValue(CommonPropKeys.cs_rpcPort
+							.getValue()), TrendRecommendationUtil.getList(
+							trendScoreProp.getValue(CommonPropKeys.cs_hostList
 									.getValue()), ","),
-					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
-							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
-							.getValue()));
-			runTrendScoreDriver(sparkContext, cassandraSparkConnector, trendRecoPropFilePath);
-		}catch(Exception e){
+					TrendRecoProp.PARTITIONER);
+			runTrendScoreDriver(sparkContext, cassandraSparkConnector,
+					trendScoreProp);
+
+		} catch (Exception e) {
 			logger.error(e);
 		}
 	}
-	
-	public void runTrendScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String trendRecoPropFilePath) throws Exception {
+
+	public void runTrendScoreDriver(JavaSparkContext sparkContext,
+			CassandraSparkConnector cassandraSparkConnector,
+			PropertiesHandler trendScoreProp) throws Exception {
 		try {
 			logger.info("Initializing property handler ");
-			
-			PropertiesHandler trendScoreProp = new PropertiesHandler(
-					trendRecoPropFilePath);
 
 			// initializing query for zscore
 			logger.info("initializing query for zscore");
 			final String TREND_SCORE_QUERY_PROPERTY = "UPDATE "
-					+ trendScoreProp.getValue(PropKeys.OUTPUT_KEYSPACE
-							.getValue())
-					+ "."
-					+ trendScoreProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()) + " SET "
+					+ trendScoreProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()) + "."
+					+ TrendRecoProp.TREND_SCORE_OUT_CF + " SET "
 					+ Trend.TREND_SCORE.getColumn() + " =?, "
 					+ Trend.NORMALIZED_SCORE.getColumn() + " =?,"
 					+ Trend.TREND_SCORE_REASON.getColumn() + " =?,"
 					+ Trend.DATE.getColumn() + "=?,"
-					+ Trend.EVENTREQUIRED.getColumn() + "=?";  											// Added to update query
-
+					+ Trend.EVENTREQUIRED.getColumn() + "=?"; 
+																
 			logger.info("initializing cassandra config for zscore service");
 			// initializing cassandra config for zscore service
 			CassandraConfig trendScoreCassandraProp = new CassandraConfig(
-					trendScoreProp.getValue(PropKeys.INPUT_KEYSPACE.getValue()),
-					trendScoreProp.getValue(PropKeys.OUTPUT_KEYSPACE.getValue()),
-					trendScoreProp.getValue(PropKeys.INPUT_COLUMNFAMILY
-							.getValue()), trendScoreProp
-							.getValue(PropKeys.OUTPUT_COLUMNFAMILY.getValue()),
-					trendScoreProp.getValue(PropKeys.PAGE_ROW_SIZE.getValue()),
-					TREND_SCORE_QUERY_PROPERTY);
+					trendScoreProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()),
+					trendScoreProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()), TrendRecoProp.TREND_SCORE_INP_CF,
+					TrendRecoProp.TREND_SCORE_OUT_CF,
+					trendScoreProp.getValue(CommonPropKeys.cs_pageRowSize
+							.getValue()), TREND_SCORE_QUERY_PROPERTY);
 
 			logger.info("initializing  zscore service with current date and period");
 			// initializing zscore service with current date and period
 			ZScoreService zScoreService = (ZScoreService) TrendRecommendationUtil
 					.getService(
-							trendScoreProp.getValue(PropKeys.FULL_QUALIFIED_CLASSNAME
-									.getValue()), ITrendScore.class)
+							TrendRecoProp.TREND_SCORE_FULLY_QUALIFIED_CLASS_NAME,
+							ITrendScore.class)
 					.getConstructor(Long.class, int.class)
 					.newInstance(
 							TrendRecommendationUtil
@@ -181,6 +180,15 @@ public class TrendScoreDriver implements Serializable {
 						zScoreService, trendScoreCassandraProp,
 						trendScoreConfig);
 
+				Date input_date_trend_score = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(trendScoreProp
+								.getValue(PropKeys.CURRENT_TREND_DATE
+										.getValue()), DATE_FORMAT), 1);
+
+				trendScoreProp.writeToCassandra(PropKeys.CURRENT_TREND_DATE
+						.getValue(), TrendRecommendationUtil.getDate(
+						input_date_trend_score, DATE_FORMAT));
+
 			} else {
 				throw new Exception(
 						"Please provide input date (input_date) for incremental processing or start date (start_date) for full recalculation with incremental_flag (true will be for incremental processing of input date and false will be for full recalculation from specified start date to end date");
@@ -190,12 +198,13 @@ public class TrendScoreDriver implements Serializable {
 		} catch (NumberFormatException e) {
 			logger.error("Please provide proper zscore period " + e);
 			throw new Exception("Please provide proper zscore period " + e);
-			
+
 		} catch (ParseException e) {
 			logger.error("Please provide proper current trend date in the format "
 					+ DATE_FORMAT + "\n " + e);
-			throw new Exception("Please provide proper current trend date in the format "
-					+ DATE_FORMAT + "\n " + e);
+			throw new Exception(
+					"Please provide proper current trend date in the format "
+							+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e);
@@ -206,7 +215,8 @@ public class TrendScoreDriver implements Serializable {
 			logger.error("Exception occured while loading class dynaamically :"
 					+ e);
 			e.printStackTrace();
-			throw new Exception("Exception occured while loading class dynaamically :"+ e);
+			throw new Exception(
+					"Exception occured while loading class dynaamically :" + e);
 		} catch (Exception e) {
 			logger.error(e);
 			throw new Exception(e);
@@ -351,7 +361,7 @@ public class TrendScoreDriver implements Serializable {
 	public static void main(String[] args) {
 		TrendScoreDriver trendRecoSer = new TrendScoreDriver();
 		if (args.length == 2) {
-			trendRecoSer.runTrendScoreDriver(args[0], args[1]);
+			trendRecoSer.runTrendScoreDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");
 		}
