@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.util;
+package com.dla.foundation.intelligence.eo.util;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,8 +11,8 @@ import org.apache.spark.SparkFiles;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.dla.foundation.services.queue.filter.Filter;
-import com.dla.foundation.services.queue.updater.Updater;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.updater.Updater;
 
 public class QueueListenerConfigHandler implements Serializable {
 

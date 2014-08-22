@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,11 +7,12 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
 import com.dla.foundation.data.persistence.elasticsearch.ESServiceImpl;
-import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 public class ElasticSearchUpdater extends Updater {
 
@@ -27,7 +28,7 @@ public class ElasticSearchUpdater extends Updater {
 	PropertiesHandler phandler= null;
 
 	private ElasticSearchUpdater()
-	{	
+	{
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
@@ -48,14 +49,17 @@ public class ElasticSearchUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(UserEvent event,
-			ArrayList<Filter> filters) {
-		// TODO Auto-generated method stub
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(
+			TEntity event, ArrayList<Filter> filters) throws FilterException {
+		for (Filter filter : filters) {
+			event = filter.doFilter(event);
+		}
+		return event;
 	}
 
 	@Override
-	protected UserEvent doUpdateSyncEvent(
-			UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
 		//		try{
 		//			if(event.customEventLabel.contains("Added"))
 		//				es_service.addItem(event);
@@ -71,7 +75,8 @@ public class ElasticSearchUpdater extends Updater {
 	}
 
 	@Override
-	protected void doUpdateAsyncEvent(UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
 		//		bulk_events.getBulkEvent(event, es_service);
 	}
 

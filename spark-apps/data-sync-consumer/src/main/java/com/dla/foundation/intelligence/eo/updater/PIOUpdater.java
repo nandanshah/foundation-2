@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import io.prediction.Client;
 
@@ -9,9 +9,12 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
-import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 /**
  * PredictionIO Specific updater.
@@ -24,8 +27,8 @@ public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private Client client;
-	private String PROPERTIES_FILE_NAME = "PIO_props.properties";
-	private String PROPERTIES_FILE_VAR = "piopropertiesfile";
+	private String PROPERTIES_FILE_NAME = "common.properties";
+	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private final int DEFAULT_API_PORT_NUM = 8000;
 
@@ -42,15 +45,17 @@ public class PIOUpdater extends Updater {
 
 		try {
 			phandler = new PropertiesHandler(propertiesFilePath);
-			hostname = phandler.getValue("hostname");
+			hostname = phandler.getValue(CommonPropKeys.pio_host);
 			try {
-				port = (Integer.parseInt(phandler.getValue("port")) != -1) ? Integer.parseInt(phandler.getValue("port")) : DEFAULT_API_PORT_NUM;
+				port = (Integer.parseInt(phandler.getValue(CommonPropKeys.pio_port)) != -1) ? Integer
+						.parseInt(phandler.getValue(CommonPropKeys.pio_port))
+						: DEFAULT_API_PORT_NUM;
 			} catch (NumberFormatException e) {
 				port = DEFAULT_API_PORT_NUM;
 				logger.error(e.getMessage(), e);
 			}
 			appURL = "http://" + hostname + ":" + port;
-			appKey = phandler.getValue("appkey");
+			appKey = phandler.getValue(CommonPropKeys.pio_appkey);
 			client = new Client(appKey, appURL);
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);
@@ -58,27 +63,30 @@ public class PIOUpdater extends Updater {
 	}
 
 	@Override
-	protected void filterEvent(UserEvent event,
-			ArrayList<Filter> filters) {
-		// TODO Auto-generated method stub
-
+	protected <TEntity extends SimpleFoundationEntity> TEntity filterEvent(
+			TEntity event, ArrayList<Filter> filters) throws FilterException {
+		for (Filter filter : filters) {
+			event = filter.doFilter(event);
+		}
+		return event;
 	}
 
 	@Override
-	protected UserEvent doUpdateSyncEvent(
-			UserEvent event) {
-//				try {
-//					client.createUser(event.visitorProfileId);
-//					client.createItem(event.customEventValue, new String[]{"movie"});
-//					client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
-//				} catch (ExecutionException | InterruptedException | IOException e) {
-//					logger.error(e.getMessage(), e);
-//				}
+	protected <TEntity extends SimpleFoundationEntity> TEntity doUpdateSyncEvent(
+			TEntity event) {
+		//		try {
+		//		client.createUser(event.visitorProfileId);
+		//		client.createItem(event.customEventValue, new String[]{"movie"});
+		//		client.userActionItem(event.visitorProfileId, event.customEventAction, event.customEventValue);
+		//	} catch (ExecutionException | InterruptedException | IOException e) {
+		//		logger.error(e.getMessage(), e);
+		//	}
 		return null;
 	}
 
 	@Override
-	protected void doUpdateAsyncEvent(UserEvent event) {
+	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
+			TEntity event) {
 		//		try {
 		//			client.createUser(event.visitorProfileId);
 		//			client.createItem(event.customEventValue, new String[]{"movie"});
@@ -86,6 +94,7 @@ public class PIOUpdater extends Updater {
 		//		} catch (ExecutionException | InterruptedException | IOException e) {
 		//			logger.error(e.getMessage(), e);
 		//		}
+
 	}
 
 	@Override

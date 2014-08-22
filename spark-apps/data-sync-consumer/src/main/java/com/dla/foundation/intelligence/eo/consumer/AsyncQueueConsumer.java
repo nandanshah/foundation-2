@@ -1,13 +1,13 @@
-package com.dla.foundation.services.queue.consumer;
+package com.dla.foundation.intelligence.eo.consumer;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
-import com.dla.foundation.fis.eo.entities.FISUserEvent;
-import com.dla.foundation.services.queue.updater.Updater;
-import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
+import com.dla.foundation.data.entities.event.Event;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
+import com.dla.foundation.intelligence.eo.updater.Updater;
+import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -65,14 +65,13 @@ public class AsyncQueueConsumer implements Runnable {
 			try {
 				delivery = consumer.nextDelivery();
 				byte[] obj = delivery.getBody();
-				FISUserEvent fe = FISUserEvent.fromBytes(obj);
-				UserEvent ue = UserEvent.copy(fe);
+				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
-				updater.updateAsyncEvent(ue);
+				updater.updateAsyncEvent(fe);
 				//Default acknowledgment
 				asyncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | IOException e) {
+					| InterruptedException | IOException | FilterException e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

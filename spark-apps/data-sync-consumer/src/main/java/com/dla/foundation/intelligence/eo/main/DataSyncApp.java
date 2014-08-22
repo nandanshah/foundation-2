@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.main;
+package com.dla.foundation.intelligence.eo.main;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -8,7 +8,7 @@ import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
-import com.dla.foundation.services.queue.consumer.RMQQueueReceiver;
+import com.dla.foundation.intelligence.eo.consumer.RMQQueueReceiver;
 
 /**
  * Driver app for spark based rabbitmq message consumers

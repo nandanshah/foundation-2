@@ -21,11 +21,6 @@
 
 	<dependencies>
 		<dependency>
-                        <groupId>com.dla.foundation.fis</groupId>
-                        <artifactId>eo-dispatcher</artifactId>
-                        <version>1.0.0</version>
-                </dependency>
-		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-streaming_2.10</artifactId>
 			<version>${spark-version}</version>
@@ -61,9 +56,9 @@
 			<version>${platform-common-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>persistence-api</artifactId>
-			<version>1.0.2</version>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
 		</dependency>
 	</dependencies>
 </project>

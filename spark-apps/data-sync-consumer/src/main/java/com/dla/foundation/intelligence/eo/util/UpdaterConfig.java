@@ -1,9 +1,9 @@
-package com.dla.foundation.services.queue.util;
+package com.dla.foundation.intelligence.eo.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.dla.foundation.services.queue.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.Filter;
 
 public class UpdaterConfig implements Serializable {
 
