@@ -12,20 +12,25 @@ import org.apache.cassandra.service.EmbeddedCassandraService;
  */
 public class MockCassandra extends Thread {
 	private static EmbeddedCassandraService cassandra;
+	private String config_path;
+
+	/**
+	 * Initilizes MockCassandra with valid config_path.
+	 * @param config_path
+	 */
+	public MockCassandra(String config_path) {
+		this.config_path = config_path;
+	}
 
 	@Override
 	public void run() {
 		super.run();
-		String current_dir = System.getProperty("user.dir");
-		System.out.println(current_dir);
-		System.setProperty("cassandra.config", "file:///" + current_dir
-				+ "/../../commons/src/main/resources/cassandra.yaml");
+		System.setProperty("cassandra.config", config_path);
 		try {
 			if (cassandra == null) {
 				cassandra = new EmbeddedCassandraService();
 				cassandra.start();
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

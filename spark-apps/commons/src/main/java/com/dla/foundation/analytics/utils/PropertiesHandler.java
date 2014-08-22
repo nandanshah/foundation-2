@@ -1,5 +1,6 @@
 package com.dla.foundation.analytics.utils;
 
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -13,7 +14,7 @@ import com.datastax.driver.core.ResultSet;
  * say servletcontext or any other source in future.
  * 
  */
-public class PropertiesHandler {
+public class PropertiesHandler implements Closeable {
 
 	public static final Properties propsInFile = new Properties();
 	private static final String propertiesCol = "properties";
@@ -34,11 +35,14 @@ public class PropertiesHandler {
 	 */
 	public PropertiesHandler() throws IOException {
 		fileName = propertiesFilePath;
+		FileInputStream input = null;
 		try {
-			FileInputStream input = new FileInputStream(fileName);
+			input = new FileInputStream(fileName);
 			propsInFile.load(input);
 		} catch (IOException e) {
 			throw e;
+		}finally {
+			input.close();
 		}
 	}
 
@@ -53,11 +57,14 @@ public class PropertiesHandler {
 	 */
 	public PropertiesHandler(String pFileName) throws IOException {
 		fileName = pFileName;
+		FileInputStream input = null;
 		try {
-			FileInputStream input = new FileInputStream(fileName);
+			input = new FileInputStream(fileName);
 			propsInFile.load(input);
 		} catch (IOException e) {
 			throw e;
+		} finally {
+			input.close();
 		}
 	}
 
@@ -76,14 +83,17 @@ public class PropertiesHandler {
 			throws IOException {
 		this.fileName = pFileName;
 		this.appName = appName;
+		FileInputStream input = null;
 		try {
-			FileInputStream input = new FileInputStream(fileName);
+			input = new FileInputStream(fileName);
 			propsInFile.load(input);
-			csContext = new CassandraContext();
+			csContext = new CassandraContext(null);
 			connectToCassandra();
 			readFromCassandra();
 		} catch (IOException e) {
 			throw e;
+		} finally {
+			input.close();
 		}
 	}
 
@@ -118,8 +128,6 @@ public class PropertiesHandler {
 		return defaultValue;
 	}
 
-
-
 	/**
 	 * This method returns property value for specified enum i.e. property key
 	 * 
@@ -141,9 +149,10 @@ public class PropertiesHandler {
 	 *            property key
 	 * @param defaultValue
 	 * @return property value or defaultValue
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public String getValue(CommonPropKeys cpe, String defaultValue) throws IOException {
+	public String getValue(CommonPropKeys cpe, String defaultValue)
+			throws IOException {
 		String value = readValue(cpe.toString());
 		if (null != value)
 			return value;
@@ -197,7 +206,8 @@ public class PropertiesHandler {
 	 * Read dynamic properties from Cassandra
 	 */
 	private void readFromCassandra() {
-		ResultSet rs = csContext.getRows(keyspace, colFamily, appnameCol,appName);
+		ResultSet rs = csContext.getRows(keyspace, colFamily, appnameCol,
+				appName);
 		propsInCS = rs.one().getMap(propertiesCol, String.class, String.class);
 	}
 
@@ -211,5 +221,10 @@ public class PropertiesHandler {
 					+ "' is not present in property file : " + fileName
 					+ " or in Cassandra");
 		return value.trim();
+	}
+
+	@Override
+	public void close() throws IOException {
+		csContext.close();
 	}
 }

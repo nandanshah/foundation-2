@@ -29,7 +29,8 @@ public class ItemTransformation implements Serializable {
 	private static final String DELIMITER_PROPERTY = "#";
 
 	public static JavaPairRDD<String, String> getItem(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
+			final Map<String, String> regionTenantInfo) {
 
 		JavaPairRDD<String, String> itemRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -53,29 +54,24 @@ public class ItemTransformation implements Serializable {
 
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.TENANT
-														.getColumn()) == 0) {
+										.compareToIgnoreCase(
+												regionTenantInfo
+														.get(UserItemRecoProp.ITEM_LEVEL_TENANT_ID)) == 0) {
 									if (null != column.getValue())
 										tenantId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
 								} else if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.REGION
-														.getColumn()) == 0) {
+										.compareToIgnoreCase(
+												regionTenantInfo
+														.get(UserItemRecoProp.ITEM_LEVEL_REGION_ID)) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.ID.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										itemId = UUIDType.instance.compose(
 												column.getValue()).toString();

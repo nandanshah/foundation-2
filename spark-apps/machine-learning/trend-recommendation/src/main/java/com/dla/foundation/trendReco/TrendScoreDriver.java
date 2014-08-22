@@ -19,6 +19,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.trendReco.model.CassandraConfig;
+import com.dla.foundation.trendReco.model.DailyEventSummaryPerItem;
 import com.dla.foundation.trendReco.model.DayScore;
 import com.dla.foundation.trendReco.model.Trend;
 import com.dla.foundation.trendReco.model.TrendScore;
@@ -98,7 +99,7 @@ public class TrendScoreDriver implements Serializable {
 		}
 	}
 	
-	public void runTrendScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String trendRecoPropFilePath) {
+	public void runTrendScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String trendRecoPropFilePath) throws Exception {
 		try {
 			logger.info("Initializing property handler ");
 			
@@ -115,7 +116,9 @@ public class TrendScoreDriver implements Serializable {
 							.getValue()) + " SET "
 					+ Trend.TREND_SCORE.getColumn() + " =?, "
 					+ Trend.NORMALIZED_SCORE.getColumn() + " =?,"
-					+ Trend.TREND_SCORE_REASON.getColumn() + " =?";
+					+ Trend.TREND_SCORE_REASON.getColumn() + " =?,"
+					+ Trend.DATE.getColumn() + "=?,"
+					+ Trend.EVENTREQUIRED.getColumn() + "=?";  											// Added to update query
 
 			logger.info("initializing cassandra config for zscore service");
 			// initializing cassandra config for zscore service
@@ -186,20 +189,27 @@ public class TrendScoreDriver implements Serializable {
 
 		} catch (NumberFormatException e) {
 			logger.error("Please provide proper zscore period " + e);
+			throw new Exception("Please provide proper zscore period " + e);
+			
 		} catch (ParseException e) {
 			logger.error("Please provide proper current trend date in the format "
+					+ DATE_FORMAT + "\n " + e);
+			throw new Exception("Please provide proper current trend date in the format "
 					+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e);
+			throw new Exception(e);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | NoSuchMethodException
 				| SecurityException | ClassNotFoundException e) {
 			logger.error("Exception occured while loading class dynaamically :"
 					+ e);
 			e.printStackTrace();
+			throw new Exception("Exception occured while loading class dynaamically :"+ e);
 		} catch (Exception e) {
 			logger.error(e);
+			throw new Exception(e);
 		}
 	}
 

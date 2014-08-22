@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -63,9 +64,7 @@ public class UserSummaryTransformation implements Serializable{
 									+ DELIMITER_PROPERTY
 									+ userSummary.getItemId()
 									+ DELIMITER_PROPERTY
-									+ TrendRecommendationUtil
-											.getFormattedDate(userSummary
-													.getTimestamp()));
+									+ userSummary.getTimestamp());
 
 							if (0 != "".compareTo(primaryKey)) {
 								return new Tuple2<String, UserSummary>(
@@ -93,25 +92,19 @@ public class UserSummaryTransformation implements Serializable{
 
 				if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
 						userSummary.setTenantId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
 						userSummary.setRegionId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
 						userSummary.setItemId(UUIDType.instance.compose(column.getValue()).toString());
 
@@ -125,38 +118,27 @@ public class UserSummaryTransformation implements Serializable{
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
 				if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.DAY_SCORE
-										.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						userSummary.setDayScore(ByteBufferUtil.toDouble(column
 								.getValue()));
 				} else if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.DATE.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.DATE.getColumn()) == 0) {
 					if (null != column.getValue())
 
-						userSummary.setTimestamp(TimestampType.instance
-								.compose(column.getValue()).getTime());
+						userSummary.setTimestamp(TrendRecommendationUtil
+								.getFormattedDate(TimestampType.instance
+								.compose(column.getValue()).getTime()));
 
 				} else if (column
 						.getKey()
-						.toLowerCase()
-						.compareTo(
-								DailyEventSummaryPerUserItem.EVENT_AGGREGATE
-										.getColumn()) == 0) {
+						.compareToIgnoreCase(DailyEventSummaryPerUserItem.EVENT_AGGREGATE.getColumn()) == 0) {
 
-					MapType<UUID, Integer> mapType = MapType.getInstance(UUIDType.instance, Int32Type.instance);
-					eventTypeAggregate = new HashMap<String, Integer>();
 					if (null != column.getValue()){
-						Map<UUID,Integer> tmpMap =    mapType.compose(column.getValue());
-						for (Entry<UUID, Integer> map : tmpMap.entrySet()) {
-							eventTypeAggregate.put(map.getKey().toString() , map.getValue());
-						}
-						userSummary.setEventTypeAggregate(eventTypeAggregate);
+				
+						userSummary.setEventTypeAggregate(MapType.getInstance(UTF8Type.instance,Int32Type.instance)
+								.compose(column.getValue()));
 					}
 
 				}

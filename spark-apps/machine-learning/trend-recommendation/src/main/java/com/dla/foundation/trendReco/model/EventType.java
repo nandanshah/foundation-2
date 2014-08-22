@@ -9,20 +9,18 @@ public class EventType implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String eventType;
-	private String eventName;
-	private Map<String, Integer> threshold;
+	private double threshold;
 	private int weight;
 
 	
-	public EventType(String eventid, String eventType, int weight) {
-		this(eventid, eventType, null, weight);
+	public EventType(String eventType, int weight) {
+		this(eventType,-1, weight);
 	}
-
 	
-	public EventType(String eventType, String eventName,
-			Map<String, Integer> threshold, int weight) {
+	public EventType(String eventType,
+			double threshold, int weight) {
 		super();
-		this.eventName = eventName;
+		
 		this.eventType = eventType;
 		this.threshold = threshold;
 		this.weight = weight;
@@ -31,12 +29,8 @@ public class EventType implements Serializable {
 	public String getEventType() {
 		return eventType;
 	}
-
-	public String getEventName() {
-		return eventName;
-	}
-
-	public Map<String, Integer> getThreshold() {
+	
+	public double getThreshold() {
 		return threshold;
 	}
 

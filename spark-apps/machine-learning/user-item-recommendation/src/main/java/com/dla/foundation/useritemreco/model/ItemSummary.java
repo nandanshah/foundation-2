@@ -6,9 +6,6 @@ import java.util.Map;
 
 public class ItemSummary implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4399190419319538112L;
 	private String tenantId;
 	private String regionId;
@@ -34,6 +31,30 @@ public class ItemSummary implements Serializable {
 
 	public String getRegionId() {
 		return regionId;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
+	}
+
+	public void setRegionId(String regionId) {
+		this.regionId = regionId;
+	}
+
+	public void setItemId(String itemId) {
+		this.itemId = itemId;
+	}
+
+	public void setScores(Map<String, Score> scores) {
+		this.scores = scores;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public ItemSummary(String tenantId, String regionId, String itemId,

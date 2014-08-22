@@ -63,31 +63,20 @@ public class ScoreSummaryTransformation implements Serializable {
 							for (Entry<String, ByteBuffer> column : priamryKeyColumns
 									.entrySet()) {
 
-								if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.TENANT
-														.getColumn()) == 0) {
+								if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.TENANT.getColumn()) == 0) {
 									if (null != column.getValue())
 										tenantId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.REGION
-														.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.REGION.getColumn()) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.ITEM.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.ITEM.getColumn()) == 0) {
 									if (null != column.getValue())
 										itemId = UUIDType.instance.compose(
 												column.getValue()).toString();
@@ -102,12 +91,8 @@ public class ScoreSummaryTransformation implements Serializable {
 
 							for (Entry<String, ByteBuffer> column : otherColumns
 									.entrySet()) {
-								if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.TREND_SCORE
-														.getColumn()) == 0) {
+								if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.TREND_SCORE.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
 										if (scores
@@ -144,12 +129,9 @@ public class ScoreSummaryTransformation implements Serializable {
 										}
 									}
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.TREND_SCORE_REASON
-														.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.TREND_SCORE_REASON
+												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
 										if (scores
@@ -187,12 +169,9 @@ public class ScoreSummaryTransformation implements Serializable {
 										}
 									}
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.POPULARITY_SCORE
-														.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.POPULARITY_SCORE
+												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
 										if (scores
@@ -231,12 +210,9 @@ public class ScoreSummaryTransformation implements Serializable {
 										}
 									}
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.POPULARITY_SCORE_REASON
-														.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.POPULARITY_SCORE_REASON
+												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
 										if (scores
@@ -276,11 +252,185 @@ public class ScoreSummaryTransformation implements Serializable {
 										}
 									}
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.DATE.getColumn()) == 0) {
+								}
+
+								/*
+								 * 
+								 * 
+								 */
+
+								else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.FP_SCORE.getColumn()) == 0) {
+
+									if (null != column.getValue()) {
+										if (scores
+												.containsKey(ScoreType.FP_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.FP_TYPE
+															.getColumn())
+													.setScore(
+															ByteBufferUtil
+																	.toDouble(column
+																			.getValue()));
+										} else {
+											Score score = new Score();
+											score.setScore(ByteBufferUtil
+													.toDouble(column.getValue()));
+											scores.put(ScoreType.FP_TYPE
+													.getColumn(), score);
+										}
+
+									} else {
+										if (scores
+												.containsKey(ScoreType.FP_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.FP_TYPE
+															.getColumn())
+													.setScore(0);
+										} else {
+											Score score = new Score();
+											score.setScore(0);
+											scores.put(ScoreType.FP_TYPE
+													.getColumn(), score);
+										}
+									}
+
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.FP_SCORE_REASON
+												.getColumn()) == 0) {
+
+									if (null != column.getValue()) {
+										if (scores
+												.containsKey(ScoreType.FP_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.FP_TYPE
+															.getColumn())
+													.setScoreReason(
+															ByteBufferUtil
+																	.string(column
+																			.getValue()));
+										} else {
+											Score score = new Score();
+											score.setScoreReason(ByteBufferUtil
+													.string(column.getValue()));
+											scores.put(ScoreType.FP_TYPE
+													.getColumn(), score);
+										}
+
+									} else {
+										if (scores
+												.containsKey(ScoreType.FP_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.FP_TYPE
+															.getColumn())
+													.setScoreReason(
+															NOT_AVAILABLE);
+										} else {
+											Score score = new Score();
+											score.setScoreReason(NOT_AVAILABLE);
+											scores.put(ScoreType.FP_TYPE
+													.getColumn(), score);
+										}
+									}
+
+								}
+
+								else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.NEW_RELEASE_SCORE
+												.getColumn()) == 0) {
+
+									if (null != column.getValue()) {
+										if (scores
+												.containsKey(ScoreType.NEW_RELEASE_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn())
+													.setScore(
+															ByteBufferUtil
+																	.toDouble(column
+																			.getValue()));
+										} else {
+											Score score = new Score();
+											score.setScore(ByteBufferUtil
+													.toDouble(column.getValue()));
+											scores.put(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn(), score);
+										}
+
+									} else {
+										if (scores
+												.containsKey(ScoreType.NEW_RELEASE_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn())
+													.setScore(0);
+										} else {
+											Score score = new Score();
+											score.setScore(0);
+											scores.put(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn(), score);
+										}
+									}
+
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.NEW_RELEASE_SCORE_REASON
+												.getColumn()) == 0) {
+
+									if (null != column.getValue()) {
+										if (scores
+												.containsKey(ScoreType.NEW_RELEASE_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn())
+													.setScoreReason(
+															ByteBufferUtil
+																	.string(column
+																			.getValue()));
+										} else {
+											Score score = new Score();
+											score.setScoreReason(ByteBufferUtil
+													.string(column.getValue()));
+											scores.put(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn(), score);
+										}
+
+									} else {
+										if (scores
+												.containsKey(ScoreType.NEW_RELEASE_TYPE
+														.getColumn())) {
+											scores.get(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn())
+													.setScoreReason(
+															NOT_AVAILABLE);
+										} else {
+											Score score = new Score();
+											score.setScoreReason(NOT_AVAILABLE);
+											scores.put(
+													ScoreType.NEW_RELEASE_TYPE
+															.getColumn(), score);
+										}
+									}
+
+								}
+
+								/*
+								 * 
+								 * 
+								 */
+
+								else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.DATE.getColumn()) == 0) {
 									if (null != column.getValue())
 										date = UserItemRecommendationUtil
 												.processInputDate(TimestampType.instance

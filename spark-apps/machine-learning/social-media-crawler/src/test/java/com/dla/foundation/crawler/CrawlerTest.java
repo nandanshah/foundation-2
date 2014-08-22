@@ -46,7 +46,9 @@ public class CrawlerTest {
 		friendsCF = phandler.getValue(CrawlerPropKeys.friendsColumnFamily
 				.getValue());
 
-		context = new CassandraContext();
+		String current_dir = System.getProperty("user.dir");
+		context = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		context.connect();
 		// FIXME: this is very specific test case as i'm using my user id and my
 		// friends user id for testing. Will need some dummy accounts here

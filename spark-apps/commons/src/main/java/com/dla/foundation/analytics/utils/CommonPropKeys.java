@@ -9,8 +9,8 @@ public enum CommonPropKeys {
 
 	// cassandra common properties
 	cs_hostList("cs_hostList"), cs_rpcPort("cs_rpcPort"), cs_pageRowSize(
-			"cs_pageRowSize"), cs_fisKeyspace("cs_fisKeyspace"), cs_analyticsKeyspace(
-			"cs_analyticsKeyspace"), cs_entityPackagePrefix(
+			"cs_pageRowSize"), cs_fisKeyspace("cs_fisKeyspace"), cs_platformKeyspace(
+			"cs_platformKeyspace"), cs_entityPackagePrefix(
 			"cs_entityPackagePrefix"), cs_sparkAppPropCF("cs_sparkAppPropCF"), cs_sparkAppPropCol(
 			"cs_sparkAppPropCol"),
 
@@ -19,12 +19,18 @@ public enum CommonPropKeys {
 
 	// PIO common properties
 	pio_host("pio_host"), pio_port("pio_port"), pio_appkey("pio_appkey"), pio_engine(
-			"pio_engine"),
+			"pio_engine"), pio_profileCF("pio_profileCF"), pio_accountCF(
+			"pio_accountCF"), pio_itemCF("pio_itemCF"),
 
 	// Elastic search common properties
 	es_host("es_host"), es_httpPort("es_httpPort"), es_transportPort(
 			"es_transportPort"), es_clusterName("es_clusterName"), es_destTimeStampCol(
-			"es_destTimeStampCol");
+			"es_destTimeStampCol"),
+
+	// gigya common properties;
+	gigya_ApiKey("gigya_ApiKey"), gigya_SecretKey("gigya_SecretKey"), gigya_ApiScheme(
+			"gigya_ApiScheme"), gigya_ApiDomain("gigya_ApiDomain"), gigya_TimeoutMillis(
+			"gigya_TimeoutMillis");
 
 	private String value;
 

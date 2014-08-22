@@ -30,4 +30,4 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, user-item-recommendation, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --class com.dla.foundation.useritemreco.UserItemRecoDriver --master $SPARK_CLUSTER $SH_DIR/../lib/user-item-recommendation-1.0.0.jar $SH_DIR/../conf/appProp.txt $SH_DIR/../conf/scoreSummaryProp.txt $SH_DIR/../conf/userItemSummaryProp.txt --deploy-mode client --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --class com.dla.foundation.useritemreco.UserItemRecoDriver --master $SPARK_CLUSTER $SH_DIR/../lib/user-item-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties $SH_DIR/../conf/userItemSummaryProp.txt --deploy-mode client --jars $JAR_LIST

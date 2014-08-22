@@ -16,8 +16,8 @@ public class TrendRecoClient {
 
 	public void runTrendRecommendation(String appPropFilePath,
 			String userSumPropFilePath, String dayScorePropFilePath,
-			String trendScorePropPath) {
-		try {
+			String trendScorePropPath) throws Exception {
+	
 			logger.info("Initializing property handler ");
 			// Initializing property handler
 			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
@@ -48,13 +48,9 @@ public class TrendRecoClient {
 			TrendScoreDriver trendScoreDriver = new TrendScoreDriver();
 			trendScoreDriver.runTrendScoreDriver(sparkContext,
 					cassandraSparkConnector, trendScorePropPath);
-
-		} catch (Exception e) {
-			logger.error(e);
-		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		if (args.length == 4) {
 			TrendRecoClient client = new TrendRecoClient();
 			client.runTrendRecommendation(args[0], args[1], args[2], args[3]);

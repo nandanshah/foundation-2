@@ -10,6 +10,7 @@ import java.text.ParseException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datastax.driver.core.ResultSet;
@@ -24,9 +25,13 @@ public class DayScoreTest {
 	private CassandraContext cassandra;
 	
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException, IOException {
 		dayScoreDriver = new DayScoreDriver();
-		cassandra = new CassandraContext();
+		
+		String current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
+		
 		cassandra.connect();
 		executeCommands();
 	}
@@ -37,7 +42,7 @@ public class DayScoreTest {
 		dayScoreDriver
 				.runDayScoreDriver(
 						"src/test/resources/appPropTest.txt",
-						"src/test/resources/dayScorePropTest.txt");
+						"src/test/resources/dayScorePropTest_Ind.txt");
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest1",
 				"dailyeventsummary");

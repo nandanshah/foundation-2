@@ -15,8 +15,9 @@ import scala.Tuple2;
 public class UserItemRecommendationUtil {
 
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
-	private static final String FLAG = "flag";
+	private static final String EVENT_REQUIRED = "eventrequired";
 	private static final String DATE = "date";
+	private static final String LAST_RECO_FETCHED = "lastrecofetched";
 	private static final String DELIMITER = "#";
 
 	public static long getFormattedDate(long time) {
@@ -53,12 +54,41 @@ public class UserItemRecommendationUtil {
 		return simpleDateFormat.parse(date);
 	}
 
+	public static String getDate(Date date, String dateFormat)
+			throws ParseException {
+
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		return simpleDateFormat.format(date);
+	}
+
 	public static String getWhereClause(Date startDate) {
 		long startTimestamp = getFormattedDate(startDate.getTime());
 		long endTimestamp = getFormattedDate(DateUtils.addDays(startDate, 1)
 				.getTime());
-		return FLAG + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
-				+ startTimestamp + " and " + DATE + "< " + endTimestamp;
+
+		return EVENT_REQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
+				+ " >= " + startTimestamp + " and " + DATE + "< "
+				+ endTimestamp;
+
+	}
+
+	public static String getWhereClause(Date startDate, String appType) {
+		long startTimestamp = getFormattedDate(startDate.getTime());
+		long endTimestamp = getFormattedDate(DateUtils.addDays(startDate, 1)
+				.getTime());
+		if (UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION
+				.equalsIgnoreCase(appType) || appType == null) {
+			return EVENT_REQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
+					+ " >= " + startTimestamp + " and " + DATE + "< "
+					+ endTimestamp;
+		}
+		if (UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION
+				.equalsIgnoreCase(appType)) {
+			return EVENT_REQUIRED + "=" + REQUIRED_EVENT_VALUE + " and "
+					+ LAST_RECO_FETCHED + " >= " + startTimestamp + " and "
+					+ LAST_RECO_FETCHED + "< " + endTimestamp;
+		}
+		return null;
 	}
 
 	public static JavaPairRDD<String, String> mergeTenant(
@@ -69,9 +99,6 @@ public class UserItemRecommendationUtil {
 		JavaPairRDD<String, String> profileWithTenantRDD = profileWithTmpRDD
 				.mapToPair(new PairFunction<Tuple2<String, Tuple2<String, String>>, String, String>() {
 
-					/**
-			 * 
-			 */
 					private static final long serialVersionUID = 8059711385731707290L;
 
 					public Tuple2<String, String> call(

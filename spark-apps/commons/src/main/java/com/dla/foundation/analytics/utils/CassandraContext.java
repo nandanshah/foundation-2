@@ -1,5 +1,7 @@
 package com.dla.foundation.analytics.utils;
 
+import java.io.IOException;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
@@ -11,14 +13,42 @@ import com.datastax.driver.core.querybuilder.Select.Where;
 public class CassandraContext {
 	private Cluster cluster;
 	private Session session;
+	private String config_path;
+
+	/**
+	 * Initializes Cassandracontext with yaml configuration file path. Valid
+	 * config path requires to start mock cassandra. Otherwise pass null value.
+	 * 
+	 * @param config_path
+	 * @throws IOException
+	 */
+	public CassandraContext(String config_path) {
+		if (config_path != null) {
+			String file_sep = System.getProperty("file.separator");
+			String file_protocol = "file:///";
+
+			config_path = config_path.replace("\\", file_sep);
+			config_path = config_path.replace("/", file_sep);
+
+			if (!config_path.startsWith("file"))
+				config_path = file_protocol + config_path;
+
+			this.config_path = config_path;
+		}
+	}
 
 	/**
 	 * This method will be used to start mock cassandra.
 	 * 
 	 * @throws InterruptedException
+	 * @throws IOException
+	 *             throws exception if tries to connect mock-cassandra with null
+	 *             path.
 	 */
-	public void connect() throws InterruptedException {
-		MockCassandra cassandra = new MockCassandra();
+	public void connect() throws InterruptedException, IOException {
+		if (config_path == null)
+			throw new IOException("Invalid file path");
+		MockCassandra cassandra = new MockCassandra(config_path);
 		cassandra.start();
 		Thread.sleep(20000);
 		cluster = Cluster.builder().addContactPoint("localhost").build();
@@ -51,7 +81,7 @@ public class CassandraContext {
 	}
 
 	/**
-	 * This method will execute the provided commands. Befor this it should
+	 * This method will execute the specified commands. Before this it should
 	 * connect to cassandra.
 	 * 
 	 * @param command

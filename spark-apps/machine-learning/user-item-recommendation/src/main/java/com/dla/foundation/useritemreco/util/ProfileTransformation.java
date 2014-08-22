@@ -29,7 +29,8 @@ public class ProfileTransformation implements Serializable {
 	private static final String DELIMITER = "#";
 
 	public static JavaPairRDD<String, String> getProfile(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
+			final Map<String, String> userItemPreferredRegion) {
 
 		JavaPairRDD<String, String> profileRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -51,21 +52,14 @@ public class ProfileTransformation implements Serializable {
 							for (Entry<String, ByteBuffer> column : priamryKeyColumns
 									.entrySet()) {
 
-								if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.ID.getColumn()) == 0) {
+								if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										profileId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
-								} else if (column
-										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.ACCOUNT
-														.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.ACCOUNT.getColumn()) == 0) {
 									if (null != column.getValue())
 										accountId = UUIDType.instance.compose(
 												column.getValue()).toString();
@@ -82,10 +76,9 @@ public class ProfileTransformation implements Serializable {
 									.entrySet()) {
 								if (column
 										.getKey()
-										.toLowerCase()
-										.compareTo(
-												userItemRecoCF.PREFERRED_REGION
-														.getColumn()) == 0) {
+										.compareToIgnoreCase(
+												userItemPreferredRegion
+														.get(UserItemRecoProp.PROFILE_LEVEL_PREFERRED_REGION_ID)) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();

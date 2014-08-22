@@ -3,7 +3,6 @@ package com.dla.foundation.useritemreco.util;
 import java.io.Serializable;
 
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 
 import scala.Tuple2;
@@ -23,9 +22,6 @@ public class Filter implements Serializable {
 		JavaPairRDD<String, String> filteredRdd = rdd
 				.filter(new Function<Tuple2<String, String>, Boolean>() {
 
-					/**
-			 * 
-			 */
 					private static final long serialVersionUID = -6021748217701617184L;
 
 					public Boolean call(Tuple2<String, String> record)
@@ -47,9 +43,6 @@ public class Filter implements Serializable {
 		JavaPairRDD<String, ItemSummary> filteredScoreRDD = scoreRDD
 				.filter(new Function<Tuple2<String, ItemSummary>, Boolean>() {
 
-					/**
-			 * 
-			 */
 					private static final long serialVersionUID = -6160930803403593402L;
 
 					public Boolean call(Tuple2<String, ItemSummary> record)
@@ -67,30 +60,61 @@ public class Filter implements Serializable {
 		return filteredScoreRDD;
 	}
 
-	public static JavaRDD<UserItemSummary> filterScoreSummary(
-			JavaRDD<UserItemSummary> javaRDD) {
+	public static JavaPairRDD<String, UserItemSummary> filterScoreSummary(
+			JavaPairRDD<String, UserItemSummary> javaRDD) {
 
-		JavaRDD<UserItemSummary> filteredScoreSummaryRDD = javaRDD
-				.filter(new Function<UserItemSummary, Boolean>() {
+		JavaPairRDD<String, UserItemSummary> filteredScoreSummaryRDD = javaRDD
+				.filter(new Function<Tuple2<String, UserItemSummary>, Boolean>() {
 
-					/**
-			 * 
-			 */
 					private static final long serialVersionUID = 4834345712959347417L;
 
-					public Boolean call(UserItemSummary record)
+					public Boolean call(Tuple2<String, UserItemSummary> record)
 							throws Exception {
 						if (record != null) {
-							if (null != record.getItemSummary()) {
-								return true;
+							if (record._1 != null && record._2 != null) {
+								UserItemSummary userItem = record._2;
+								if (userItem.getItemSummary() != null) {
+									return true;
+								}
+							}
+						}
+						return false;
+
+					}
+
+				});
+
+		return filteredScoreSummaryRDD;
+	}
+
+	public static JavaPairRDD<String, UserItemSummary> filterSocial(
+			JavaPairRDD<String, UserItemSummary> javaRDD) {
+
+		JavaPairRDD<String, UserItemSummary> filteredSocialSummaryRDD = javaRDD
+				.filter(new Function<Tuple2<String, UserItemSummary>, Boolean>() {
+
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Boolean call(Tuple2<String, UserItemSummary> record)
+							throws Exception {
+						if (record != null) {
+							if (record._1 != null && record._2 != null) {
+								UserItemSummary userItem = record._2;
+								if (userItem.getItemSummary() != null) {
+									return true;
+								}
+
 							}
 						}
 						return false;
 					}
 
 				});
-
-		return filteredScoreSummaryRDD;
+		return filteredSocialSummaryRDD;
 	}
 
 }
