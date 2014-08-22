@@ -8,6 +8,13 @@ import java.util.GregorianCalendar;
 import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
+/**
+ * Sets day of UserEvent. All events generated on particular
+ * date will be assigned midnights time and date.
+ * 
+ * @author tsudake.psl@dlavideo.com
+ *
+ */
 public class DateSetterFilter implements Filter, Serializable {
 
 	/**
