@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 public class UserItemSummary implements Serializable {
 
-
-
-
 	private static final long serialVersionUID = -828822672311537746L;
 
 	private String userId;

@@ -20,11 +20,15 @@ import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 public class TrendClientTest {
 	private TrendRecoClient trendRecoClient;
 	private CassandraContext cassandra;
+	private String current_dir=null;
 
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException,IOException {
 		trendRecoClient = new TrendRecoClient();
 		cassandra = new CassandraContext();
+		current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 		cassandra.connect();
 		executeCommands();
 	}
@@ -33,12 +37,11 @@ public class TrendClientTest {
 	public void userEvtSummaryCalTest() throws Exception {
 		assertNotNull(trendRecoClient);
 		
-			trendRecoClient.runTrendRecommendation("src/test/resources/appPropTest.txt","src/test/resources/userSumPropTest.txt",
-					"src/test/resources/dayScorePropTest.txt","src/test/resources/trendScorePropTest.txt");
+			trendRecoClient.runTrendRecommendation(current_dir+ "/../../commons/src/test/resources/common.properties");
 		
 		
 		assertNotNull(cassandra);
-		ResultSet dayScoreResult = cassandra.getRows("sampletrendrecotest4",
+		ResultSet dayScoreResult = cassandra.getRows("fis",
 				"dailyeventsummaryperuseritem");
 		double sum = 0;
 		for (Row row : dayScoreResult) {
@@ -56,8 +59,8 @@ public class TrendClientTest {
 		}
 		assertEquals(2.0, sum, 0);
 
-		ResultSet trendScoreResult = cassandra.getRows("sampletrendrecotest4",
-				"trend");
+		ResultSet trendScoreResult = cassandra.getRows("fis",
+				"trendreco");
 		
 		for (Row row : trendScoreResult) {
 			
@@ -70,7 +73,7 @@ public class TrendClientTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		cassandra.executeCommand("drop keyspace IF EXISTS sampletrendrecotest4;");
+		//cassandra.executeCommand("drop keyspace IF EXISTS fis;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

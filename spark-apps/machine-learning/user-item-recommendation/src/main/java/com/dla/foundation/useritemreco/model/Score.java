@@ -14,15 +14,13 @@ public class Score implements Serializable {
 	private String scoreReason;
 
 	public Score(String scoreReason, double score) {
-		this.scoreReason=scoreReason;
-		this.score=score;
+		this.scoreReason = scoreReason;
+		this.score = score;
 	}
-
 
 	public Score() {
 		super();
 	}
-
 
 	public double getScore() {
 		return score;

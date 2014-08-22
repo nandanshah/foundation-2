@@ -50,6 +50,13 @@ public class TrendRecommendationUtil implements Serializable {
 		return simpleDateFormat.parse(date);
 	}
 
+	public static String getDate(Date date, String dateFormat)
+			throws ParseException {
+
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		return simpleDateFormat.format(date);
+	}
+
 	public static Date processInputDate(Date inputDate) {
 		Calendar date = new GregorianCalendar();
 		date.setTime(inputDate);
@@ -80,17 +87,19 @@ public class TrendRecommendationUtil implements Serializable {
 				.getFormattedDate(startDate.getTime());
 		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
 				.addDays(startDate, 1).getTime());
-		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
-				+ startTimestamp + " and " + DATE + "< " + endTimestamp;
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
+				+ " >= " + startTimestamp + " and " + DATE + "< "
+				+ endTimestamp;
 	}
 
 	public static String getWhereClause(Date startDate, Date endDate) {
 		long startTimestamp = TrendRecommendationUtil
 				.getFormattedDate(startDate.getTime());
-		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils.addDays(endDate, 1)
-				.getTime());
-		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
-				+ startTimestamp + " and " + DATE + "< " + endTimestamp;
+		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
+				.addDays(endDate, 1).getTime());
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
+				+ " >= " + startTimestamp + " and " + DATE + "< "
+				+ endTimestamp;
 	}
 
 	public static String getWhereClause(Date startDate, int historyPeriod) {
@@ -99,8 +108,9 @@ public class TrendRecommendationUtil implements Serializable {
 		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
 				.addDays(startDate, (-1) * historyPeriod).getTime());
 
-		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE + " >= "
-				+ endTimestamp + " and " + DATE + "<= " + startTimestamp;
+		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
+				+ " >= " + endTimestamp + " and " + DATE + "<= "
+				+ startTimestamp;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,7 +129,8 @@ public class TrendRecommendationUtil implements Serializable {
 				String[] values = record[2].split("#");
 				eventType = new EventType(record[0].trim().toLowerCase(), Integer.parseInt(values[1]),Integer.parseInt(record[1]));
 			} else {
-				eventType = new EventType(record[0].trim().toLowerCase(),Integer.parseInt(record[1].trim()));
+				eventType = new EventType(record[0].trim().toLowerCase(),
+						Integer.parseInt(record[1].trim()));
 			}
 
 			requiredEvent.put(record[0].toLowerCase(), eventType);

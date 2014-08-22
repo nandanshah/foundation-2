@@ -67,7 +67,7 @@ public class TrendRecoPostprocessing implements Serializable {
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						eventTypeAggregate = eventWithDayScore.getEventTypeAggregate();
 						otherColumns = new ArrayList<ByteBuffer>();
-						
+
 						primaryKey.put(DailyEventSummaryPerItem.PERIOD
 								.getColumn(), ByteBufferUtil.bytes(UUIDs
 								.startOf(eventWithDayScore.getTimestamp())));
@@ -80,7 +80,7 @@ public class TrendRecoPostprocessing implements Serializable {
 						primaryKey.put(DailyEventSummaryPerItem.ITEM
 								.getColumn(), UUIDType.instance
 								.fromString(eventWithDayScore.getItemId()));
-						otherColumns.add(MapType.getInstance(UTF8Type.instance,					
+						otherColumns.add(MapType.getInstance(UTF8Type.instance,
 								Int32Type.instance).decompose(
 								eventTypeAggregate));
 						otherColumns.add(ByteBufferUtil.bytes(eventWithDayScore
@@ -108,13 +108,13 @@ public class TrendRecoPostprocessing implements Serializable {
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
 
-					TimestampType timestampType;													// TimestampType for date
-					
+					TimestampType timestampType;
+
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							TrendScore itemTrendScore) throws Exception {
-						
+
 						timestampType = TimestampType.instance;
-						
+
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
 						primaryKey.put(Trend.ID.getColumn(), ByteBufferUtil
@@ -135,12 +135,10 @@ public class TrendRecoPostprocessing implements Serializable {
 						otherColumns.add(ByteBufferUtil.bytes(itemTrendScore
 								.getNormalizedScore()));
 						otherColumns.add(ByteBufferUtil.bytes(TRENDING));
-						otherColumns.add(timestampType.decompose(new Date(itemTrendScore
-										.getTimestamp())));								// Date - getTimeStamp - itemTrendScore
-						otherColumns.add(ByteBufferUtil
-								.bytes(EVENTREQUIRED));											// FLAG = 1 - change name
-										
-						
+						otherColumns.add(timestampType.decompose(new Date(
+								itemTrendScore.getTimestamp()))); 
+						otherColumns.add(ByteBufferUtil.bytes(EVENTREQUIRED)); 
+
 						return new Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>>(
 								primaryKey, otherColumns);
 
@@ -160,22 +158,17 @@ public class TrendRecoPostprocessing implements Serializable {
 					private static final long serialVersionUID = 8819507645398525927L;
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
-					//Map<String, Integer> eventTypeAggregate;
-
+					
 					TimestampType timestampType;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							UserSummary userSummary) throws Exception {
-						//eventTypeAggregate = new HashMap<String, Integer>();
+					
 						timestampType = TimestampType.instance;
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
-						/*for (Entry<String, Integer> eventType : userSummary						// Need to remove 
-								.getEventTypeAggregate().entrySet()) {
-							eventTypeAggregate.put(eventType.getKey(),
-									eventType.getValue());
-						}
-						*/primaryKey.put(DailyEventSummaryPerUserItem.PERIOD
+					
+						primaryKey.put(DailyEventSummaryPerUserItem.PERIOD
 								.getColumn(), ByteBufferUtil.bytes(UUIDs
 								.startOf(userSummary.getTimestamp())));
 						primaryKey.put(DailyEventSummaryPerUserItem.TENANT
@@ -192,8 +185,7 @@ public class TrendRecoPostprocessing implements Serializable {
 								.fromString(userSummary.getUserId()));
 						otherColumns.add(MapType.getInstance(UTF8Type.instance,
 								Int32Type.instance).decompose(
-										userSummary
-										.getEventTypeAggregate()));
+								userSummary.getEventTypeAggregate()));
 						otherColumns.add(ByteBufferUtil.bytes(userSummary
 								.getDayScore()));
 						otherColumns.add(timestampType.decompose(new Date(

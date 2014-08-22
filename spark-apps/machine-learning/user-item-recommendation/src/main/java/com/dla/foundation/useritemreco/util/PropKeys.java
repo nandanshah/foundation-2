@@ -2,12 +2,13 @@ package com.dla.foundation.useritemreco.util;
 
 public enum PropKeys {
 
-	MODE_PROPERTY("spark_mode"), APP_NAME("app_name"), INPUT_KEYSPACE(
+	INPUT_DATE(
+			"input_date");
+	/*MODE_PROPERTY("spark_mode"), APP_NAME("app_name"), INPUT_KEYSPACE(
 			"input_keyspace"), INPUT_COLUMNFAMILY("input_columnfamily"), INPUT_PARTITIONER(
 			"input_partitioner"), INPUT_RPC_PORT("rpc_port"), OUTPUT_KEYSPACE(
 			"output_keyspace"), OUTPUT_COLUMNFAMILY("output_columnfamily"), OUTPUT_PARTITIONER(
-			"output_partitioner"), PAGE_ROW_SIZE("page_row_size"), INPUT_DATE(
-			"input_date"), INPUT_HOST_LIST("read_host_list"), OUTPUT_HOST_LIST(
+			"output_partitioner"), PAGE_ROW_SIZE("page_row_size"), , INPUT_HOST_LIST("read_host_list"), OUTPUT_HOST_LIST(
 			"write_host_list"), ITEM_LEVEL_RECO_COLUMNFAMILIES(
 			"item_level_columnfamilies"), ITEM_LEVEL_CF_KEYSPACE(
 			"item_level_keyspace"), TREND("item_level_trend_columnfamily"), POPULARITY(
@@ -19,7 +20,7 @@ public enum PropKeys {
 			"item_level_tenant_id"), PREFFRED_REGION_ID(
 			"profile_level_preferred_region_id"), SOCIAL_RECOMMENDATION(
 			"user_level_social_recommendation"), PIO_RECOMMENDATION(
-			"user_level_pio_recommendation");
+			"user_level_pio_recommendation");*/
 
 	private String value;
 

@@ -13,7 +13,6 @@ import scala.Tuple2;
 
 import com.dla.foundation.useritemreco.model.userItemRecoCF;
 
-
 /**
  * This class is used to transform record of item in cassandra format into
  * required format
@@ -30,7 +29,8 @@ public class ItemTransformation implements Serializable {
 	private static final String DELIMITER_PROPERTY = "#";
 
 	public static JavaPairRDD<String, String> getItem(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,final Map<String,String> regionTenantInfo) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
+			final Map<String, String> regionTenantInfo) {
 
 		JavaPairRDD<String, String> itemRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -42,7 +42,7 @@ public class ItemTransformation implements Serializable {
 
 					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
-									throws Exception {
+							throws Exception {
 						String tenantId = null;
 						String regionId = null;
 						String itemId = null;
@@ -55,7 +55,8 @@ public class ItemTransformation implements Serializable {
 								if (column
 										.getKey()
 										.compareToIgnoreCase(
-												regionTenantInfo.get(PropKeys.TENANT_ID.getValue())) == 0) {
+												regionTenantInfo
+														.get(UserItemRecoProp.ITEM_LEVEL_TENANT_ID)) == 0) {
 									if (null != column.getValue())
 										tenantId = UUIDType.instance.compose(
 												column.getValue()).toString();
@@ -63,15 +64,14 @@ public class ItemTransformation implements Serializable {
 								} else if (column
 										.getKey()
 										.compareToIgnoreCase(
-												regionTenantInfo.get(PropKeys.REGION_ID.getValue())) == 0) {
+												regionTenantInfo
+														.get(UserItemRecoProp.ITEM_LEVEL_REGION_ID)) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
-								} else if (column
-										.getKey()
-										.compareToIgnoreCase(
-												userItemRecoCF.ID.getColumn()) == 0) {
+								} else if (column.getKey().compareToIgnoreCase(
+										userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										itemId = UUIDType.instance.compose(
 												column.getValue()).toString();

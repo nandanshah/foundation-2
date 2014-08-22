@@ -17,6 +17,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.trendReco.model.CassandraConfig;
 import com.dla.foundation.trendReco.model.DailyEventSummaryPerUserItem;
@@ -27,6 +28,7 @@ import com.dla.foundation.trendReco.services.UserEvtSummaryService;
 import com.dla.foundation.trendReco.util.Filter;
 import com.dla.foundation.trendReco.util.PropKeys;
 import com.dla.foundation.trendReco.util.TrendRecoPostprocessing;
+import com.dla.foundation.trendReco.util.TrendRecoProp;
 import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 import com.dla.foundation.trendReco.util.UserEventTransformation;
 
@@ -68,62 +70,61 @@ public class UserEventSummaryDriver implements Serializable {
 	 *            : Path of property file required by user summary calculator
 	 * 
 	 */
-	public void runUserEvtSummaryDriver(String appPropFilePath,
-			String userSumPropFilePath) {
-		
-		try{
+	public void runUserEvtSummaryDriver(String commPropFilePath) {
+
+		try {
 			logger.info("Initializing property handler ");
-			// Initializing property handler
-			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
+
+			PropertiesHandler userSumProp = new PropertiesHandler(
+					commPropFilePath, TrendRecoProp.USER_EVENT_SUM_APP_NAME);
+
 			// initializing spark context
 			logger.info("initializing spark context");
 			JavaSparkContext sparkContext = new JavaSparkContext(
-					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
-					appProp.getValue(PropKeys.APP_NAME.getValue()));
-			
+					userSumProp.getValue(CommonPropKeys.spark_host.getValue()),
+					TrendRecoProp.USER_EVENT_SUM_APP_NAME);
+
 			// initializing spark-cassandra connector
 			logger.info("initializing spark-cassandra connector");
 			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.INPUT_HOST_LIST.getValue()),
-							IP_SEPARATOR),
-					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
-							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
-							.getValue()));
-			runUserEvtSummaryDriver(sparkContext,cassandraSparkConnector,userSumPropFilePath);
-		}catch(Exception e){
+					TrendRecommendationUtil
+							.getList(CommonPropKeys.cs_hostList.getValue(),
+									IP_SEPARATOR),
+					TrendRecoProp.PARTITIONER,
+					userSumProp.getValue(CommonPropKeys.cs_rpcPort.getValue()),
+					TrendRecommendationUtil.getList(userSumProp
+							.getValue(CommonPropKeys.cs_hostList.getValue()),
+							","), TrendRecoProp.PARTITIONER);
+			runUserEvtSummaryDriver(sparkContext, cassandraSparkConnector,
+					userSumProp);
+
+		} catch (Exception e) {
 			logger.error(e);
 		}
-		
 
 	}
-	
-	public void runUserEvtSummaryDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,
-			String userSumPropFilePath) throws Exception {
+
+	public void runUserEvtSummaryDriver(JavaSparkContext sparkContext,
+			CassandraSparkConnector cassandraSparkConnector,
+			PropertiesHandler userSumProp) throws Exception {
 		try {
-			
-			PropertiesHandler userSumProp = new PropertiesHandler(
-					userSumPropFilePath);
 
 			logger.info("Initializing query for user Summary");
 			final String USER_SUMM_QUERY_PROPERTY = "UPDATE "
-					+ userSumProp.getValue(PropKeys.OUTPUT_KEYSPACE.getValue())
-					+ "."
-					+ userSumProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()) + " SET "
+					+ userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()) + "."
+					+ TrendRecoProp.USER_EVENT_SUM_OUT_CF + " SET "
 					+ DailyEventSummaryPerUserItem.EVENT_AGGREGATE.getColumn()
 					+ "=?,"
 					+ DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()
 					+ "=?," + DailyEventSummaryPerUserItem.DATE.getColumn()
-					+ "=?," + DailyEventSummaryPerUserItem.EVENTREQUIRED.getColumn()
+					+ "=?,"
+					+ DailyEventSummaryPerUserItem.EVENTREQUIRED.getColumn()
 					+ "=?";
 
 			Map<String, EventType> requiredEventType = TrendRecommendationUtil
 					.getRequiredEvent(userSumProp
-							.getValue(PropKeys.EVENT_REQUIRED.getValue()));
+							.getValue(PropKeys.EVENT_REQUIRED.getValue())); 
 
 			logger.info("initializing  user Summary service with required events");
 			// initializing user Summary service with required events
@@ -133,13 +134,14 @@ public class UserEventSummaryDriver implements Serializable {
 			logger.info("initializing cassandra config for  user Summary service");
 			// initializing cassandra config for user Summary service
 			CassandraConfig userSummCassandraProp = new CassandraConfig(
-					userSumProp.getValue(PropKeys.INPUT_KEYSPACE.getValue()),
-					userSumProp.getValue(PropKeys.OUTPUT_KEYSPACE.getValue()),
-					userSumProp.getValue(PropKeys.INPUT_COLUMNFAMILY.getValue()),
-					userSumProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()), userSumProp
-							.getValue(PropKeys.PAGE_ROW_SIZE.getValue()),
-					USER_SUMM_QUERY_PROPERTY);
+					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()),
+					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()),
+					TrendRecoProp.USER_EVENT_SUM_INP_CF,
+					TrendRecoProp.USER_EVENT_SUM_OUT_CF,
+					userSumProp.getValue(CommonPropKeys.cs_pageRowSize
+							.getValue()), USER_SUMM_QUERY_PROPERTY);
 
 			String incrementalFlag = userSumProp
 					.getValue(PropKeys.INCREMENTAL_FLAG.getValue());
@@ -174,6 +176,16 @@ public class UserEventSummaryDriver implements Serializable {
 				userEvtSummaryRecalculator(sparkContext,
 						cassandraSparkConnector, userSummaryService,
 						userSummaryConfig, userSummCassandraProp);
+
+				Date input_date_user_event = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(userSumProp
+								.getValue(PropKeys.INPUT_DATE.getValue()),
+								DATE_FORMAT), 1);
+
+				userSumProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
+						TrendRecommendationUtil.getDate(input_date_user_event,
+								DATE_FORMAT));
+
 			} else {
 				throw new Exception(
 						"Please provide input date (input_date) for incremental processing or start date (start_date) for full recalculation with incremental_flag (true will be for incremental processing of input date and false will be for full recalculation from specified start date to end date");
@@ -183,8 +195,9 @@ public class UserEventSummaryDriver implements Serializable {
 		} catch (ParseException e) {
 			logger.error("Please provide proper input date in the format "
 					+ DATE_FORMAT + "\n " + e);
-			throw new Exception("Please provide proper input date in the format "
-					+ DATE_FORMAT + "\n " + e);
+			throw new Exception(
+					"Please provide proper input date in the format "
+							+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -386,7 +399,7 @@ public class UserEventSummaryDriver implements Serializable {
 	public static void main(String[] args) {
 		UserEventSummaryDriver trendRecoSer = new UserEventSummaryDriver();
 		if (args.length == 2) {
-			trendRecoSer.runUserEvtSummaryDriver(args[0], args[1]);
+			trendRecoSer.runUserEvtSummaryDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");
 		}

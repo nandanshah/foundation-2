@@ -54,7 +54,6 @@ public class DayScoreTransformation implements Serializable {
 
 						return new Tuple2<String, DayScore>(primaryKey,
 								dayScore);
-
 					}
 				});
 

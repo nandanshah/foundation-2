@@ -30,7 +30,7 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, trend-recommendation-UserEventSummaryDriver, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.UserEventSummaryDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/appProp $SH_DIR/../conf/userSumProp --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.UserEventSummaryDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
 
 echo -e "Submitting Spark Application, trend-recommendation-DayScoreDriver, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib//trend-recommendation-1.0.0.jar $SH_DIR/../conf/appProp $SH_DIR/../conf/dayScoreProp --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib//trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
