@@ -3,10 +3,8 @@ package com.dla.foundation.trendReco.util;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
@@ -29,14 +27,13 @@ import com.dla.foundation.trendReco.model.UserSummary;
  * @author shishir_shivhare
  * 
  */
-public class UserSummaryTransformation implements Serializable{
+public class UserSummaryTransformation implements Serializable {
 
-	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6339194742636478273L;
-	
+
 	private static final String DELIMITER_PROPERTY = "#";
 
 	public static JavaPairRDD<String, UserSummary> getUserSummaryWithKey(
@@ -83,30 +80,29 @@ public class UserSummaryTransformation implements Serializable{
 	private static UserSummary getDayScorePerUser(
 			Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
 			throws NumberFormatException, CharacterCodingException {
-		Map<String,Integer> eventTypeAggregate;
 		UserSummary userSummary = new UserSummary();
 		Map<String, ByteBuffer> priamryKeyColumns = record._1();
 		if (priamryKeyColumns != null) {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns
 					.entrySet()) {
 
-				if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
+				if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setTenantId(UUIDType.instance.compose(column.getValue()).toString());
+						userSummary.setTenantId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
-				} else if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setRegionId(UUIDType.instance.compose(column.getValue()).toString());
+						userSummary.setRegionId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
-				} else if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						userSummary.setItemId(UUIDType.instance.compose(column.getValue()).toString());
+						userSummary.setItemId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
 				}
 
@@ -116,29 +112,28 @@ public class UserSummaryTransformation implements Serializable{
 		if (otherColumns != null) {
 
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()) == 0) {
+				if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						userSummary.setDayScore(ByteBufferUtil.toDouble(column
 								.getValue()));
-				} else if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.DATE.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.DATE.getColumn()) == 0) {
 					if (null != column.getValue())
 
 						userSummary.setTimestamp(TrendRecommendationUtil
 								.getFormattedDate(TimestampType.instance
-								.compose(column.getValue()).getTime()));
+										.compose(column.getValue()).getTime()));
 
-				} else if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerUserItem.EVENT_AGGREGATE.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerUserItem.EVENT_AGGREGATE
+								.getColumn()) == 0) {
 
-					if (null != column.getValue()){
-				
-						userSummary.setEventTypeAggregate(MapType.getInstance(UTF8Type.instance,Int32Type.instance)
-								.compose(column.getValue()));
+					if (null != column.getValue()) {
+
+						userSummary.setEventTypeAggregate(MapType.getInstance(
+								UTF8Type.instance, Int32Type.instance).compose(
+								column.getValue()));
 					}
 
 				}

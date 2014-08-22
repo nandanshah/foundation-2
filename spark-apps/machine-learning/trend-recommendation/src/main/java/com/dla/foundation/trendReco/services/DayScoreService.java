@@ -90,7 +90,9 @@ public class DayScoreService implements Serializable {
 							dayScoreCount += userSummary.getDayScore();
 
 						}
-						dayScore = new DayScore(keys[0],keys[1], Long.parseLong(keys[3]),keys[2], eventAggregate,dayScoreCount);
+						dayScore = new DayScore(keys[0], keys[1], Long
+								.parseLong(keys[3]), keys[2], eventAggregate,
+								dayScoreCount);
 						return dayScore;
 					}
 				});

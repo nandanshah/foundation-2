@@ -17,6 +17,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.trendReco.model.CassandraConfig;
 import com.dla.foundation.trendReco.model.DailyEventSummaryPerItem;
@@ -26,6 +27,7 @@ import com.dla.foundation.trendReco.services.DayScoreService;
 import com.dla.foundation.trendReco.util.Filter;
 import com.dla.foundation.trendReco.util.PropKeys;
 import com.dla.foundation.trendReco.util.TrendRecoPostprocessing;
+import com.dla.foundation.trendReco.util.TrendRecoProp;
 import com.dla.foundation.trendReco.util.TrendRecommendationUtil;
 import com.dla.foundation.trendReco.util.UserSummaryTransformation;
 
@@ -63,53 +65,52 @@ public class DayScoreDriver implements Serializable {
 	 *            : Path of property file required by day score calculator
 	 * 
 	 */
-	public void runDayScoreDriver(String appPropFilePath,
-			String dailyEventSumPropFilePath) {
-		try{
+	public void runDayScoreDriver(String commPropFilePath) {
+		try {
 			logger.info("Initializing property handler ");
-			// Initializing property handler
-			PropertiesHandler appProp = new PropertiesHandler(appPropFilePath);
-			
+
+			PropertiesHandler dayScoreProp = new PropertiesHandler(
+					commPropFilePath,
+					TrendRecoProp.DAILY_EVENT_SUMMARY_APP_NAME);
+
 			// initializing spark context
 			logger.info("initializing spark context");
 			JavaSparkContext sparkContext = new JavaSparkContext(
-					appProp.getValue(PropKeys.MODE_PROPERTY.getValue()),
-					appProp.getValue(PropKeys.APP_NAME.getValue()));
-			
+					dayScoreProp.getValue(CommonPropKeys.spark_host.getValue()),
+					TrendRecoProp.DAILY_EVENT_SUMMARY_APP_NAME);
+
 			// initializing cassandra service
 			logger.info("initializing spark-cassandra connector");
 			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil
-							.getList(appProp.getValue(PropKeys.INPUT_HOST_LIST
-									.getValue()), ","),
-					appProp.getValue(PropKeys.INPUT_PARTITIONER.getValue()),
-					appProp.getValue(PropKeys.INPUT_RPC_PORT.getValue()),
-					TrendRecommendationUtil.getList(appProp
-							.getValue(PropKeys.OUTPUT_HOST_LIST.getValue()),
-							","), appProp.getValue(PropKeys.OUTPUT_PARTITIONER
-							.getValue()));
-			
-			runDayScoreDriver(sparkContext, cassandraSparkConnector, dailyEventSumPropFilePath);
-		}catch(Exception e){
+					TrendRecommendationUtil.getList(dayScoreProp
+							.getValue(CommonPropKeys.cs_hostList.getValue()),
+							","),
+					TrendRecoProp.PARTITIONER,
+					dayScoreProp.getValue(CommonPropKeys.cs_rpcPort.getValue()),
+					TrendRecommendationUtil.getList(dayScoreProp
+							.getValue(CommonPropKeys.cs_hostList.getValue()),
+							","), TrendRecoProp.PARTITIONER);
+
+			runDayScoreDriver(sparkContext, cassandraSparkConnector,
+					dayScoreProp);
+
+		} catch (Exception e) {
 			logger.error(e);
 		}
 
 	}
-	
-	public void runDayScoreDriver(JavaSparkContext sparkContext,CassandraSparkConnector cassandraSparkConnector,String dailyEventSumPropFilePath) throws Exception {
+
+	public void runDayScoreDriver(JavaSparkContext sparkContext,
+			CassandraSparkConnector cassandraSparkConnector,
+			PropertiesHandler dailyEventSumProp) throws Exception {
 		try {
-			
-			PropertiesHandler dailyEventSumProp = new PropertiesHandler(
-					dailyEventSumPropFilePath);
 
 			logger.info("Initializing query for day score");
 			// initializing query for day score
 			final String DAY_SCORE_QUERY_PROPERTY = "UPDATE "
-					+ dailyEventSumProp.getValue(PropKeys.OUTPUT_KEYSPACE
-							.getValue())
-					+ "."
-					+ dailyEventSumProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()) + " SET "
+					+ dailyEventSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()) + "." + TrendRecoProp.DAY_SCORE_OUT_CF
+					+ " SET "
 					+ DailyEventSummaryPerItem.EVENT_AGGREGATE.getColumn()
 					+ " =?," + DailyEventSummaryPerItem.DAY_SCORE.getColumn()
 					+ "=?," + DailyEventSummaryPerItem.DATE.getColumn() + "=?,"
@@ -122,15 +123,12 @@ public class DayScoreDriver implements Serializable {
 			logger.info("initializing cassandra config for day score service");
 			// initializing cassandra config for day score service
 			CassandraConfig dataScoreCassandraProp = new CassandraConfig(
-					dailyEventSumProp.getValue(PropKeys.INPUT_KEYSPACE
+					dailyEventSumProp.getValue(CommonPropKeys.cs_fisKeyspace
 							.getValue()),
-					dailyEventSumProp.getValue(PropKeys.OUTPUT_KEYSPACE
-							.getValue()),
-					dailyEventSumProp.getValue(PropKeys.INPUT_COLUMNFAMILY
-							.getValue()),
-					dailyEventSumProp.getValue(PropKeys.OUTPUT_COLUMNFAMILY
-							.getValue()),
-					dailyEventSumProp.getValue(PropKeys.PAGE_ROW_SIZE
+					dailyEventSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+							.getValue()), TrendRecoProp.DAY_SCORE_INP_CF,
+					TrendRecoProp.DAY_SCORE_OUT_CF,
+					dailyEventSumProp.getValue(CommonPropKeys.cs_pageRowSize
 							.getValue()), DAY_SCORE_QUERY_PROPERTY);
 
 			String incrementalFlag = dailyEventSumProp
@@ -162,6 +160,16 @@ public class DayScoreDriver implements Serializable {
 				logger.info("Executing day score Recalculator");
 				dayScoreRecalculator(sparkContext, cassandraSparkConnector,
 						dayScoreService, dayScoreConfig, dataScoreCassandraProp);
+
+				Date input_date_daily_event = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(dailyEventSumProp
+								.getValue(PropKeys.INPUT_DATE.getValue()),
+								DATE_FORMAT), 1);
+
+				dailyEventSumProp.writeToCassandra(PropKeys.INPUT_DATE
+						.getValue(), TrendRecommendationUtil.getDate(
+						input_date_daily_event, DATE_FORMAT));
+
 			} else {
 				throw new Exception(
 						"Please provide input date (input_date) for incremental processing or start date (start_date) for full recalculation with incremental_flag (true will be for incremental processing of input date and false will be for full recalculation from specified start date to end date");
@@ -171,7 +179,9 @@ public class DayScoreDriver implements Serializable {
 		} catch (ParseException e) {
 			logger.error("Please provide proper input date in the format "
 					+ DATE_FORMAT + "\n " + e);
-			throw new Exception("Please provide proper input date in the format "+ DATE_FORMAT + "\n " + e);
+			throw new Exception(
+					"Please provide proper input date in the format "
+							+ DATE_FORMAT + "\n " + e);
 
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -182,7 +192,6 @@ public class DayScoreDriver implements Serializable {
 			throw new Exception(e.getMessage());
 		}
 	}
-	
 
 	/**
 	 * 
@@ -354,7 +363,7 @@ public class DayScoreDriver implements Serializable {
 	public static void main(String[] args) {
 		DayScoreDriver trendRecoSer = new DayScoreDriver();
 		if (args.length == 2) {
-			trendRecoSer.runDayScoreDriver(args[0], args[1]);
+			trendRecoSer.runDayScoreDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");
 		}

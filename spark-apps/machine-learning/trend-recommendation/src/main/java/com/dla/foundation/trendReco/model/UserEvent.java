@@ -2,6 +2,7 @@ package com.dla.foundation.trendReco.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 public class UserEvent implements Serializable {
 
@@ -11,7 +12,7 @@ public class UserEvent implements Serializable {
 	private static final long serialVersionUID = -808961715382376700L;
 
 	private String userId;
-	private String movieId;
+	private String itemId;
 	private String eventType;
 	private Date date;
 	private String tenantId;
@@ -26,11 +27,11 @@ public class UserEvent implements Serializable {
 	}
 
 	public String getMovieid() {
-		return movieId;
+		return itemId;
 	}
 
 	public void setMovieid(String movieid) {
-		this.movieId = movieid;
+		this.itemId = movieid;
 	}
 
 	public String getUserId() {
