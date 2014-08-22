@@ -63,7 +63,7 @@ public class UserItemRecoDriver implements Serializable {
 		Date input_date = DateUtils.addDays(UserItemRecommendationUtil.getDate(
 				userItemRecoProp.getValue(PropKeys.INPUT_DATE.getValue()),
 				DATE_FORMAT), 1);
-		userItemRecoProp.writeToCassandra("input_date",
+		userItemRecoProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
 				UserItemRecommendationUtil.getDate(input_date, DATE_FORMAT));
 	}
 

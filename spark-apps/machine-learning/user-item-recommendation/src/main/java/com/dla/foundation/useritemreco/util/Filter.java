@@ -70,11 +70,12 @@ public class Filter implements Serializable {
 
 					public Boolean call(Tuple2<String, UserItemSummary> record)
 							throws Exception {
-
-						if (record._1 != null && record._2 != null) {
-							UserItemSummary userItem = record._2;
-							if (userItem.getItemSummary() != null) {
-								return true;
+						if (record != null) {
+							if (record._1 != null && record._2 != null) {
+								UserItemSummary userItem = record._2;
+								if (userItem.getItemSummary() != null) {
+									return true;
+								}
 							}
 						}
 						return false;

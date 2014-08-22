@@ -343,21 +343,24 @@ public class UserItemSummaryCalc implements Serializable {
 							Tuple2<String, Tuple2<String, Optional<ItemSummary>>> record)
 							throws Exception {
 
-						itemSummary = record._2._2.get();
-						if (itemSummary != null) {
+						if (record._2._2.isPresent()) {
+							itemSummary = record._2._2.get();
+							if (itemSummary != null) {
 
-							region_id = itemSummary.getRegionId();
-							tenantId = itemSummary.getTenantId();
-							item_id = itemSummary.getItemId();
-							profile_id = record._2._1;
-							userItemSummary = new UserItemSummary(profile_id,
-									itemSummary);
+								region_id = itemSummary.getRegionId();
+								tenantId = itemSummary.getTenantId();
+								item_id = itemSummary.getItemId();
+								profile_id = record._2._1;
+								userItemSummary = new UserItemSummary(
+										profile_id, itemSummary);
 
-							primary_key = tenantId + DELIMITER_PROPERTY
-									+ region_id + DELIMITER_PROPERTY + item_id
-									+ DELIMITER_PROPERTY + profile_id;
-							return new Tuple2<String, UserItemSummary>(
-									primary_key, userItemSummary);
+								primary_key = tenantId + DELIMITER_PROPERTY
+										+ region_id + DELIMITER_PROPERTY
+										+ item_id + DELIMITER_PROPERTY
+										+ profile_id;
+								return new Tuple2<String, UserItemSummary>(
+										primary_key, userItemSummary);
+							}
 						}
 						return null;
 
