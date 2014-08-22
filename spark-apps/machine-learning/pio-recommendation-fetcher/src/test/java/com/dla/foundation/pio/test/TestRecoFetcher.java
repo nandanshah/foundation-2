@@ -31,7 +31,7 @@ public class TestRecoFetcher {
 	private static final String DEFAULT_ACCOUNT_FILE_PATH = "src/test/resources/accountTable.csv";
 	private static final String RESULT_FILE_PATH = "src/test/resources/result.csv";
 	private static final String PROP_FILE_PATH = "D:/FoundationIntelligenceNew/foundation-intelligence-system/spark-apps/commons/src/main/resources/local/common.properties";
-	private static final String INSERT_PROP = " VALUES  ('pioRecoFetcher', {'4c6f0f00-66de-1347-a621-8bfba5f4eaff':'wBYDEbrxeND3IVo4SaK3xQjRXiPJeojhZVMISSGgtbvKTiavBD4Z8qlyXkQRevtP,ItemRec'})";
+	private static final String INSERT_PROP = "VALUES  ('pioRecoFetcher', {'4c6f0f00-66de-1347-a621-8bfba5f4eaff':'wBYDEbrxeND3IVo4SaK3xQjRXiPJeojhZVMISSGgtbvKTiavBD4Z8qlyXkQRevtP,ItemRec','numRecsPerUser':'2','recommendCF':'pio1'});";
 	private static Map<String, List<String>> mapReco;
 	private static HashMap<String, String> mapRegion;
 

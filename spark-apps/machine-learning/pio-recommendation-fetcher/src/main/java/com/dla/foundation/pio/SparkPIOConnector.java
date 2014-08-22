@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.log4j.Logger;
+import org.apache.spark.Accumulator;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -25,16 +27,15 @@ import org.apache.spark.api.java.function.PairFunction;
 
 import scala.Tuple2;
 
-import com.dla.foundation.pio.entity.UserProfile;
 import com.dla.foundation.pio.util.ColumnCollection;
 import com.dla.foundation.pio.util.RecoFetcherConstants;
-import com.esotericsoftware.minlog.Log;
+import com.dla.foundation.pio.util.UserProfile;
 
 public class SparkPIOConnector implements Serializable {
 
 	private static final long serialVersionUID = 8073585091774712586L;
-	private static final String CURRENT_TIME = "now";
 	private static final String VALUE_DELIMETER = "#";
+	protected static final Integer USER_COUNT_INCR = 1;
 	private static Logger logger = Logger.getLogger(SparkPIOConnector.class
 			.getName());
 
@@ -74,6 +75,13 @@ public class SparkPIOConnector implements Serializable {
 	 *            EngineName that Client will use to get Recommendations.
 	 * @param intNumRecPerUser
 	 *            Maximum number of recommendations to be fetch per user.
+	 * @param accumRecoFailedUsers
+	 *            : a accumulator variable to count number of users for which
+	 *            PIO not able to return any recommendations.
+	 * @param accumAllUsers
+	 *            : a accumulator variable to count number of users for which we
+	 *            are going to fetch reco from PIO.
+	 * 
 	 * @return JavaPairRDD<String, List<String>> Key-Value pair where Key is
 	 *         UserProfile and value is List of Recommendations.
 	 */
@@ -81,8 +89,10 @@ public class SparkPIOConnector implements Serializable {
 	public JavaPairRDD<UserProfile, List<String>> getRecommendations(
 			JavaRDD<UserProfile> userProfileRDD, final String strAppKey,
 			final String strAppURL, final String strEngine,
-			final int intNumRecPerUser) {
-		logger.info("Fetching recommendations for users from Prediction IO.");
+			final int intNumRecPerUser,
+			final Accumulator<Integer> accumAllUsers,
+			final Accumulator<Integer> accumRecoFailedUsers) {
+		logger.info("Started fetching recommendations for users from Prediction IO.");
 		final JavaPairRDD<UserProfile, List<String>> recommendationsRDD = userProfileRDD
 				.mapToPair(new PairFunction<UserProfile, UserProfile, List<String>>() {
 
@@ -100,6 +110,7 @@ public class SparkPIOConnector implements Serializable {
 							// implements the Serilizable interface.
 							client = new Client(strAppKey, strAppURL);
 							client.identify(user.userID);
+							accumAllUsers.add(USER_COUNT_INCR);
 							logger.info("Fetching recommendations for user id "
 									+ user.userID);
 							// gets intNumRecPerUser recommendations from PIO.
@@ -111,6 +122,7 @@ public class SparkPIOConnector implements Serializable {
 							// If PIO doesn't find recommendation for particular
 							// user it throws IOException, in such cases we are
 							// returning empty array for same user.
+							accumRecoFailedUsers.add(USER_COUNT_INCR);
 
 						} finally {
 							client.close();
@@ -175,7 +187,7 @@ public class SparkPIOConnector implements Serializable {
 	 */
 
 	public JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> formatRecommendationsForCassandraWrite(
-			JavaPairRDD<UserProfile, String> userPerRecoRDD) {
+			JavaPairRDD<UserProfile, String> userPerRecoRDD, final Date date) {
 
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraRDD = userPerRecoRDD
 				.mapToPair(new PairFunction<Tuple2<UserProfile, String>, Map<String, ByteBuffer>, List<ByteBuffer>>() {
@@ -187,7 +199,7 @@ public class SparkPIOConnector implements Serializable {
 							Tuple2<UserProfile, String> recommendation)
 							throws Exception {
 						Map<String, ByteBuffer> keys = new LinkedHashMap<String, ByteBuffer>();
-						
+
 						List<ByteBuffer> values = new ArrayList<ByteBuffer>();
 
 						UserProfile userProfile = recommendation._1();
@@ -196,19 +208,19 @@ public class SparkPIOConnector implements Serializable {
 								.fromString(userProfile.userID));
 						keys.put(ColumnCollection.ITEM_ID,
 								UUIDType.instance.fromString(itemid));
+						logger.info("Started converting recommendation data to ByteBuffer format for profileid  "+keys.get(ColumnCollection.PROFILE_ID) +" and itemid "+keys.get(ColumnCollection.ITEM_ID));
 						values.add(UUIDType.instance
 								.fromString(userProfile.tenantID));
 						values.add(UUIDType.instance
 								.fromString(userProfile.regionID));
-						values.add(TimestampType.instance
-								.fromString(CURRENT_TIME));
+						values.add(TimestampType.instance.decompose(date));
 						values.add(ByteBufferUtil
 								.bytes(RecoFetcherConstants.RECO_SCORE));
 						values.add(ByteBufferUtil
 								.bytes(RecoFetcherConstants.RECO_REASON));
 						values.add(ByteBufferUtil
 								.bytes(RecoFetcherConstants.EVENT_REQ_FLAG));
-
+						logger.info("Completed converting recommendation data to ByteBuffer format for profileid  "+keys.get(ColumnCollection.PROFILE_ID) +" and itemid "+keys.get(ColumnCollection.ITEM_ID));
 						return new Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>>(
 								keys, values);
 					}
@@ -236,7 +248,7 @@ public class SparkPIOConnector implements Serializable {
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileCassandraRDD) {
 		return profileCassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
-
+						
 					@Override
 					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> dataFromCassandra)
@@ -245,7 +257,6 @@ public class SparkPIOConnector implements Serializable {
 						ByteBuffer ID = keySet.get(ColumnCollection.ID);
 						ByteBuffer accountID = keySet
 								.get(ColumnCollection.ACCOUNT_ID);
-
 						Map<String, ByteBuffer> valueMap = dataFromCassandra
 								._2();
 

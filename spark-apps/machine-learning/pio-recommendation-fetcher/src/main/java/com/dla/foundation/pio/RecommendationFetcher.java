@@ -2,6 +2,7 @@ package com.dla.foundation.pio;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 
@@ -17,7 +18,9 @@ public class RecommendationFetcher implements Serializable {
 
 	private static final long serialVersionUID = 648420875123997020L;
 	public static String TENANT_ID;
+	public static Date RECO_FETCH_TIMESTAMP;
 	private static final String CONFIG_DELIM = ",";
+	private static final String POST_FIX_TO_TENANT = ":last_processed";
 
 	private static Logger logger = Logger.getLogger(RecommendationFetcher.class
 			.getName());
@@ -33,66 +36,66 @@ public class RecommendationFetcher implements Serializable {
 	 * @throws IOException
 	 */
 
-	public void runRecommendationFetcher(PropertiesHandler propertyHandler) {
+	public void runRecommendationFetcher(PropertiesHandler propertyHandler)
+			throws IOException {
 
-		// Forming PIO appURL
 		String port;
-		try {
-			port = propertyHandler.getValue(CommonPropKeys.pio_port.getValue()) != null ? propertyHandler
-					.getValue(CommonPropKeys.pio_port.getValue())
-					: RecoFetcherConstants.DEFAULT_API_PORT_NUM;
 
-			final String appURL = "http://"
-					+ propertyHandler.getValue(CommonPropKeys.pio_host
-							.getValue()) + ":" + port;
+		RECO_FETCH_TIMESTAMP = new Date(System.currentTimeMillis());
 
-			// Instantiates PIOConfig Class : This class holds config properties
-			// needed to make call to predictionIO (PIO).
-			String[] engineConfig = propertyHandler.getValue(TENANT_ID).split(
-					CONFIG_DELIM);
-			String appKey = engineConfig[0];
-			String engineName = engineConfig[1];
+		logger.info(RecoFetcherConstants.APPNAME
+				+ " started fetching recommendations for tenantid "
+				+ RecommendationFetcher.TENANT_ID + " at "
+				+ RECO_FETCH_TIMESTAMP);
+		// Forming PIO appURL
+		port = propertyHandler.getValue(CommonPropKeys.pio_port.getValue()) != null ? propertyHandler
+				.getValue(CommonPropKeys.pio_port.getValue())
+				: RecoFetcherConstants.DEFAULT_API_PORT_NUM;
 
-			PIOConfig pioConfig = new PIOConfig(appKey, appURL, engineName,
-					Integer.parseInt(propertyHandler
-							.getValue(PropKeys.PIO_NUM_REC_PER_USER.getValue())));
+		final String appURL = "http://"
+				+ propertyHandler.getValue(CommonPropKeys.pio_host.getValue())
+				+ ":" + port;
 
-			RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
+		// Instantiates PIOConfig Class : This class holds config properties
+		// needed to make call to predictionIO (PIO).
+		String[] engineConfig = propertyHandler.getValue(TENANT_ID).split(
+				CONFIG_DELIM);
+		String appKey = engineConfig[0];
+		String engineName = engineConfig[1];
 
-			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					getCassnadraIPArray(propertyHandler.getValue(CommonPropKeys.cs_hostList
-							.getValue())),
-					RecoFetcherConstants.INPUT_PARTITIONER,
-					propertyHandler.getValue(CommonPropKeys.cs_rpcPort
-							.getValue()),
-					getCassnadraIPArray(propertyHandler
-							.getValue(CommonPropKeys.cs_hostList.getValue())),
-					RecoFetcherConstants.OUTPUT_PARTITIONER);
+		PIOConfig pioConfig = new PIOConfig(appKey, appURL, engineName,
+				Integer.parseInt(propertyHandler
+						.getValue(PropKeys.PIO_NUM_REC_PER_USER.getValue())));
 
-			// Instantiates CassandraConfig : This class holds parameters that
-			// are
-			// used for reading and writing data from Cassandra.
+		RecommendationFetcherDriver recFetcherDriver = new RecommendationFetcherDriver();
 
-			CassandraConfig cassandraConfig = new CassandraConfig(
-					propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
-							.getValue()),
-					propertyHandler.getValue(CommonPropKeys.cs_fisKeyspace
-							.getValue()),
-					propertyHandler.getValue(CommonPropKeys.cs_profileCF
-							.getValue()),
-					propertyHandler.getValue(CommonPropKeys.cs_accountCF
-							.getValue()),
-					propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()),
-					propertyHandler.getValue(CommonPropKeys.cs_pageRowSize
-							.getValue()));
+		CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
+				getCassnadraIPArray(propertyHandler.getValue(CommonPropKeys.cs_hostList
+						.getValue())), RecoFetcherConstants.INPUT_PARTITIONER,
+				propertyHandler.getValue(CommonPropKeys.cs_rpcPort.getValue()),
+				getCassnadraIPArray(propertyHandler
+						.getValue(CommonPropKeys.cs_hostList.getValue())),
+				RecoFetcherConstants.OUTPUT_PARTITIONER);
 
-			recFetcherDriver.fetchRecommendations(cassandraSparkConnector,
-					cassandraConfig, pioConfig, propertyHandler
-							.getValue(CommonPropKeys.spark_host.getValue()));
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		// Instantiates CassandraConfig : This class holds parameters that
+		// are
+		// used for reading and writing data from Cassandra.
 
+		CassandraConfig cassandraConfig = new CassandraConfig(
+				propertyHandler.getValue(CommonPropKeys.cs_analyticsKeyspace
+						.getValue()),
+				propertyHandler.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()),
+				propertyHandler.getValue(CommonPropKeys.cs_profileCF.getValue()),
+				propertyHandler.getValue(CommonPropKeys.cs_accountCF.getValue()),
+				propertyHandler.getValue(PropKeys.PIO_RECOMMEND_CF.getValue()),
+				propertyHandler.getValue(CommonPropKeys.cs_pageRowSize
+						.getValue()));
+
+		recFetcherDriver.fetchRecommendations(cassandraSparkConnector,
+				cassandraConfig, pioConfig,
+				propertyHandler.getValue(CommonPropKeys.spark_host.getValue()));
+		propertyHandler.writeToCassandra(TENANT_ID.concat(POST_FIX_TO_TENANT),RECO_FETCH_TIMESTAMP.toString());
 	}
 
 	private String[] getCassnadraIPArray(String strCassnadraIP) {
@@ -101,19 +104,23 @@ public class RecommendationFetcher implements Serializable {
 
 	public static void main(String[] args) throws IOException {
 		String propertiesFilePath = "";
-
-		RecommendationFetcher recommndationFetcher = new RecommendationFetcher();
-		if (args.length == 2) {
-			propertiesFilePath = args[0];
-			TENANT_ID = args[1];
-			PropertiesHandler propertyHandler = new PropertiesHandler(
-					propertiesFilePath, RecoFetcherConstants.APPNAME);
-			recommndationFetcher.runRecommendationFetcher(propertyHandler);
-		} else {
-			System.err
-					.println(" USAGE: RecommendationFetcher propertiesfile tenantID");
+		try {
+			RecommendationFetcher recommndationFetcher = new RecommendationFetcher();
+			if (args.length == 2) {
+				propertiesFilePath = args[0];
+				TENANT_ID = args[1];
+				PropertiesHandler propertyHandler = new PropertiesHandler(
+						propertiesFilePath, RecoFetcherConstants.APPNAME);
+				recommndationFetcher.runRecommendationFetcher(propertyHandler);
+			} else {
+				logger.error(" Please provide valid arguments : propertiesfile tenantID");
+				throw new IllegalArgumentException(
+						" Please provide valid arguments : propertiesfile tenantID");
+			}
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			throw new IOException(e);
 		}
-
 	}
 
 }

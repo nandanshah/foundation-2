@@ -1,4 +1,4 @@
-package com.dla.foundation.pio.entity;
+package com.dla.foundation.pio.util;
 
 import java.io.Serializable;
 

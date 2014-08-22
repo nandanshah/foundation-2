@@ -2,11 +2,13 @@ package com.dla.foundation.pio;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
+import org.apache.spark.Accumulator;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -14,11 +16,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
 
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
-import com.dla.foundation.pio.entity.UserProfile;
 import com.dla.foundation.pio.util.CassandraConfig;
 import com.dla.foundation.pio.util.ColumnCollection;
 import com.dla.foundation.pio.util.PIOConfig;
 import com.dla.foundation.pio.util.RecoFetcherConstants;
+import com.dla.foundation.pio.util.UserProfile;
 
 public class RecommendationFetcherDriver implements Serializable {
 
@@ -49,7 +51,7 @@ public class RecommendationFetcherDriver implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig cassandraConfig, PIOConfig pioConfig,
 			String sparkAppMaster) {
-		
+
 		logger.info("Forming update query for " + cassandraConfig.fisKeySpace
 				+ "." + cassandraConfig.recommendationColFamily);
 		final String recommendationUpdateQuery = "UPDATE "
@@ -69,6 +71,8 @@ public class RecommendationFetcherDriver implements Serializable {
 				.initilizeSparkContext(sparkAppMaster,
 						RecoFetcherConstants.APPNAME);
 		logger.info("Initialized java spark context successfully");
+		Accumulator<Integer> accumAllUsers = sparkContext.accumulator(0);
+		Accumulator<Integer> accumRecoFailedUsers = sparkContext.accumulator(0);
 
 		logger.info("Reading records from " + cassandraConfig.profileColFamily);
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileCassandraRDD = cassandraSparkConnector
@@ -97,22 +101,39 @@ public class RecommendationFetcherDriver implements Serializable {
 
 		JavaRDD<UserProfile> userProfileRDD = getUserProfile(profilePairRDD,
 				accountPairRDDAllTenant);
-
+		logger.info("Completed creating user profile for each user.");
 		// Get recommendation for Users read from Cassandra using PIO
 		JavaPairRDD<UserProfile, List<String>> userRecommendationsRDD = getRecommendations(
-				userProfileRDD, pioConfig);
+				userProfileRDD, pioConfig, accumAllUsers, accumRecoFailedUsers);
 		JavaPairRDD<UserProfile, String> userPerRecoRDD = sparkPIOConnector
 				.toUserProfilePerRecoRDD(userRecommendationsRDD);
 		// Converts Primary Keys to Map<String, ByteBuffer> and Other values to
 		// List<ByteBuffer>
+		logger.info("Started converting recommendations in ByteBuffer format for Cassandra writting.");
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraRDD = sparkPIOConnector
-				.formatRecommendationsForCassandraWrite(userPerRecoRDD);
+				.formatRecommendationsForCassandraWrite(userPerRecoRDD,
+						RecommendationFetcher.RECO_FETCH_TIMESTAMP);
 		logger.info("Writting user recommendations to Cassandra");
 		cassandraSparkConnector.write(new Configuration(),
 				cassandraConfig.fisKeySpace,
 				cassandraConfig.recommendationColFamily,
 				recommendationUpdateQuery, cassandraRDD);
 
+		int totalNumUsers = accumAllUsers.value();
+		int totalNumofFailures = accumRecoFailedUsers.value();
+		int recordsUpdated = (totalNumUsers - totalNumofFailures)
+				* pioConfig.numRecPerUser;
+		
+		logger.info(RecoFetcherConstants.APPNAME
+				+ " completed execution succesfully for tenantid "
+				+ RecommendationFetcher.TENANT_ID + " at "
+				+ new Date(System.currentTimeMillis()));
+		logger.info("Application has considered total " + totalNumUsers
+				+ " number of users and fetched max "+pioConfig.numRecPerUser + " recommendations for each user from PIO");
+		logger.info("PIO failed to provide recommendations for "
+				+ totalNumofFailures + " users");
+		logger.info("Total " + recordsUpdated
+				+ " records updated in Cassandra");
 		sparkContext.stop();
 	}
 
@@ -131,6 +152,7 @@ public class RecommendationFetcherDriver implements Serializable {
 			JavaPairRDD<String, String> profilePairRDD,
 			JavaPairRDD<String, String> accountPairRDDAllTenant) {
 		SparkPIOConnector sparkPIOConnector = new SparkPIOConnector();
+		logger.info("Started creating userprofile for each user.");
 		JavaPairRDD<String, String> accountPairRDD = sparkPIOConnector
 				.getAccountRecordsforTenant(accountPairRDDAllTenant,
 						RecommendationFetcher.TENANT_ID);
@@ -148,25 +170,35 @@ public class RecommendationFetcherDriver implements Serializable {
 
 	/**
 	 * 
-	 * This method returns recommendations for provided list of UserProfile from PIO..
+	 * This method returns recommendations for provided list of UserProfile from
+	 * PIO..
 	 * 
 	 * @param userProfileRDD
 	 *            List of users for whom recommendation will be fetched.
 	 * @param pioConfig
 	 *            Instance of PIOConfig, which holds holds information for PIO
 	 *            interactions, like appName,appURL, engineName etc.
+	 * @param accumRecoFailedUsers
+	 *            : a accumulator variable to count number of users for which
+	 *            PIO not able to return any recommendations.
+	 * @param accumAllUsers
+	 *            : a accumulator variable to count number of users for which we
+	 *            are going to fetch reco from PIO.
 	 * @return JavaRDDPair(key-value pair) of recommendations fetched from PIO.
 	 *         Key is UserProfile and Value is list of recommendations.
 	 */
 	private JavaPairRDD<UserProfile, List<String>> getRecommendations(
-			JavaRDD<UserProfile> userProfileRDD, PIOConfig pioConfig) {
+			JavaRDD<UserProfile> userProfileRDD, PIOConfig pioConfig,
+			Accumulator<Integer> accumAllUsers,
+			Accumulator<Integer> accumRecoFailedUsers) {
 		SparkPIOConnector sparkPIOConnector = new SparkPIOConnector();
 
 		JavaPairRDD<UserProfile, List<String>> allRecommendationsRDD = sparkPIOConnector
 				.getRecommendations(userProfileRDD, pioConfig.appKey,
 						pioConfig.appURL, pioConfig.engineName,
-						pioConfig.numRecPerUser);
-
+						pioConfig.numRecPerUser, accumAllUsers,
+						accumRecoFailedUsers);
+		logger.info("Stated removing user profiles for which PIO has not returned any recommendation.");
 		JavaPairRDD<UserProfile, List<String>> filteredRecommendationsRDD = sparkPIOConnector
 				.removeEmptyRecommendations(allRecommendationsRDD);
 		return filteredRecommendationsRDD;
