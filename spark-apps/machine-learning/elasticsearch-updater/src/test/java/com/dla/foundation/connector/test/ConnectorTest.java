@@ -27,7 +27,10 @@ public class ConnectorTest {
 	public void beforeClass() throws Exception {
 		LocalElasticSearch.init();
 		repository = new ElasticSearchRepo(esHost);
-		cassandra = new CassandraContext();
+		
+		String current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
 	    cassandra.connect();
 		executeCommands();
 	}

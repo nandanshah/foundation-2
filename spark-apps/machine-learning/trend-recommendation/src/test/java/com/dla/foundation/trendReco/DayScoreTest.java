@@ -25,9 +25,13 @@ public class DayScoreTest {
 	private CassandraContext cassandra;
 	
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException, IOException {
 		dayScoreDriver = new DayScoreDriver();
-		cassandra = new CassandraContext();
+		
+		String current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
+		
 		cassandra.connect();
 		executeCommands();
 	}

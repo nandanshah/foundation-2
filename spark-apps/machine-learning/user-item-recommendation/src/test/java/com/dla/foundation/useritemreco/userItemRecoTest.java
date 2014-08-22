@@ -21,11 +21,15 @@ import com.dla.foundation.analytics.utils.CassandraContext;
 public class userItemRecoTest {
 	private CassandraContext cassandra;
 	private UserItemRecoDriver userItemRecoDriver;
+	private String current_dir;
 
 	@Before
-	public void beforeClass() throws InterruptedException {
+	public void beforeClass() throws InterruptedException, IOException {
 		userItemRecoDriver = new UserItemRecoDriver();
-		cassandra = new CassandraContext();
+		current_dir = System.getProperty("user.dir");
+		cassandra = new CassandraContext(current_dir
+				+ "/../../commons/src/test/resources/cassandra.yaml");
+
 		cassandra.connect();
 		executeCommands();
 
@@ -35,8 +39,9 @@ public class userItemRecoTest {
 	public void userItemRecoCalulator() throws Exception {
 		assertNotNull(cassandra);
 		assertNotNull(userItemRecoDriver);
-		userItemRecoDriver.runUserItemRecoDriver("src/test/resources/common.properties"
-				);
+
+		userItemRecoDriver.runUserItemRecoDriver(current_dir
+				+ "/../../commons/src/test/resources/common.properties");
 		ResultSet userItemResult = cassandra.getRows("fis",
 				"useritemrecommendation");
 		for (Row row : userItemResult) {
@@ -73,15 +78,17 @@ public class userItemRecoTest {
 					assertEquals(0.6, row.getDouble(userItemRecoCF.TREND_SCORE
 							.getColumn()), 0);
 					assertEquals(0.6,
-							row.getDouble(userItemRecoCF.FP_SCORE
-									.getColumn()), 0);
-					assertEquals(0.6, row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
-							.getColumn()), 0);
+							row.getDouble(userItemRecoCF.FP_SCORE.getColumn()),
+							0);
 					assertEquals(0.6,
-							row.getDouble(userItemRecoCF.SOCIAL_SCORE
+							row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
 									.getColumn()), 0);
-					assertEquals(0.6, row.getDouble(userItemRecoCF.PIO_SCORE
+					assertEquals(0.6, row.getDouble(userItemRecoCF.SOCIAL_SCORE
 							.getColumn()), 0);
+					assertEquals(
+							0.6,
+							row.getDouble(userItemRecoCF.PIO_SCORE.getColumn()),
+							0);
 				}
 
 				if (0 == row
@@ -116,15 +123,17 @@ public class userItemRecoTest {
 					assertEquals(0.6, row.getDouble(userItemRecoCF.TREND_SCORE
 							.getColumn()), 0);
 					assertEquals(0.6,
-							row.getDouble(userItemRecoCF.FP_SCORE
-									.getColumn()), 0);
-					assertEquals(0.6, row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
-							.getColumn()), 0);
+							row.getDouble(userItemRecoCF.FP_SCORE.getColumn()),
+							0);
 					assertEquals(0.6,
-							row.getDouble(userItemRecoCF.SOCIAL_SCORE
+							row.getDouble(userItemRecoCF.NEW_RELEASE_SCORE
 									.getColumn()), 0);
-					assertEquals(0.6, row.getDouble(userItemRecoCF.PIO_SCORE
+					assertEquals(0.6, row.getDouble(userItemRecoCF.SOCIAL_SCORE
 							.getColumn()), 0);
+					assertEquals(
+							0.6,
+							row.getDouble(userItemRecoCF.PIO_SCORE.getColumn()),
+							0);
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
