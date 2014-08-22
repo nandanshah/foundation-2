@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,8 +20,8 @@ import scala.NotImplementedError;
 
 import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
-import com.dla.foundation.services.queue.filter.Filter;
-import com.dla.foundation.services.queue.filter.FilterException;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 /**
  * 

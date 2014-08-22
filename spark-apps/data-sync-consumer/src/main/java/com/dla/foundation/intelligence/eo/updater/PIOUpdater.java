@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import io.prediction.Client;
 
@@ -9,12 +9,12 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
-import com.dla.foundation.services.queue.filter.Filter;
-import com.dla.foundation.services.queue.filter.FilterException;
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 /**
  * PredictionIO Specific updater.

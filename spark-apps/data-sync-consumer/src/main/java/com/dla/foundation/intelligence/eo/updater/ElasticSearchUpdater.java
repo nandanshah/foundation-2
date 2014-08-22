@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
 import com.dla.foundation.data.persistence.elasticsearch.ESServiceImpl;
-import com.dla.foundation.services.queue.filter.Filter;
-import com.dla.foundation.services.queue.filter.FilterException;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
 
 public class ElasticSearchUpdater extends Updater {
 

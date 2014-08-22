@@ -1,11 +1,11 @@
-package com.dla.foundation.services.queue.updater;
+package com.dla.foundation.intelligence.eo.updater;
 
 import java.util.ArrayList;
 
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
-import com.dla.foundation.services.queue.filter.Filter;
-import com.dla.foundation.services.queue.filter.FilterException;
-import com.dla.foundation.services.queue.util.UpdaterConfig;
+import com.dla.foundation.intelligence.eo.filter.Filter;
+import com.dla.foundation.intelligence.eo.filter.FilterException;
+import com.dla.foundation.intelligence.eo.util.UpdaterConfig;
 
 
 /**

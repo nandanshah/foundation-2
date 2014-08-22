@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.filter;
+package com.dla.foundation.intelligence.eo.filter;
 
 import java.io.IOException;
 import java.util.HashMap;

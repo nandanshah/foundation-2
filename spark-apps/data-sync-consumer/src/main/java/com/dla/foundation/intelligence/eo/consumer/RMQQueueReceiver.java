@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.consumer;
+package com.dla.foundation.intelligence.eo.consumer;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -9,9 +9,9 @@ import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
 
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
-import com.dla.foundation.services.queue.updater.Updater;
-import com.dla.foundation.services.queue.util.QueueListenerConfigHandler;
-import com.dla.foundation.services.queue.util.QueueListenerConfigHandler.QueueConfig;
+import com.dla.foundation.intelligence.eo.updater.Updater;
+import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler;
+import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
 
 public class RMQQueueReceiver extends Receiver<AnalyticsCollectionEvent> implements Serializable {
 

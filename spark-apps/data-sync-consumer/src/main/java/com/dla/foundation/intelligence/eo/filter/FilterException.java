@@ -1,4 +1,4 @@
-package com.dla.foundation.services.queue.filter;
+package com.dla.foundation.intelligence.eo.filter;
 
 public class FilterException extends Exception {
 
