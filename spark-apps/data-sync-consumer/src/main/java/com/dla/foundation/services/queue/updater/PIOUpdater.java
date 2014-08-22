@@ -11,6 +11,7 @@ import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.services.queue.filter.Filter;
 import com.dla.foundation.services.queue.filter.FilterException;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.analytics.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
@@ -26,8 +27,8 @@ public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private Client client;
-	private String PROPERTIES_FILE_NAME = "PIO_props.properties";
-	private String PROPERTIES_FILE_VAR = "piopropertiesfile";
+	private String PROPERTIES_FILE_NAME = "common.properties";
+	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private final int DEFAULT_API_PORT_NUM = 8000;
 
@@ -44,15 +45,17 @@ public class PIOUpdater extends Updater {
 
 		try {
 			phandler = new PropertiesHandler(propertiesFilePath);
-			hostname = phandler.getValue("hostname");
+			hostname = phandler.getValue(CommonPropKeys.pio_host);
 			try {
-				port = (Integer.parseInt(phandler.getValue("port")) != -1) ? Integer.parseInt(phandler.getValue("port")) : DEFAULT_API_PORT_NUM;
+				port = (Integer.parseInt(phandler.getValue(CommonPropKeys.pio_port)) != -1) ? Integer
+						.parseInt(phandler.getValue(CommonPropKeys.pio_port))
+						: DEFAULT_API_PORT_NUM;
 			} catch (NumberFormatException e) {
 				port = DEFAULT_API_PORT_NUM;
 				logger.error(e.getMessage(), e);
 			}
 			appURL = "http://" + hostname + ":" + port;
-			appKey = phandler.getValue("appkey");
+			appKey = phandler.getValue(CommonPropKeys.pio_appkey);
 			client = new Client(appKey, appURL);
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);

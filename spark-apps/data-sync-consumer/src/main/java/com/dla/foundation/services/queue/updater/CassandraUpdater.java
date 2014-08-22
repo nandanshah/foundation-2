@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.DependencyLocator;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.FoundationDataService;
 import com.dla.foundation.data.FoundationDataServiceImpl;
@@ -27,8 +28,8 @@ public class CassandraUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private static FoundationDataService dataService = null;
-	private String PROPERTIES_FILE_NAME = "CassandraUpdater.properties";
-	private String PROPERTIES_FILE_VAR = "cupropertiesfile";
+	private String PROPERTIES_FILE_NAME = "common.properties";
+	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private CassandraContext dataContext;
 
@@ -46,9 +47,9 @@ public class CassandraUpdater extends Updater {
 
 		try {
 			PropertiesHandler phandler = new PropertiesHandler(propertiesFilePath);
-			nodeIpList = phandler.getValue("nodeIpList");	
-			dataKeyspace = phandler.getValue("dataKeyspace");
-			entityPackagePrefix = phandler.getValue("entityPackagePrefix");
+			nodeIpList = phandler.getValue(CommonPropKeys.cs_hostList);	
+			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);
+			entityPackagePrefix = phandler.getValue(CommonPropKeys.cs_entityPackagePrefix);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 		}

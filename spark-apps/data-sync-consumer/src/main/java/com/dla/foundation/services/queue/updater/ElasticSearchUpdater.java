@@ -28,7 +28,7 @@ public class ElasticSearchUpdater extends Updater {
 	PropertiesHandler phandler= null;
 
 	private ElasticSearchUpdater()
-	{	
+	{
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
