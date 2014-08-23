@@ -12,15 +12,15 @@ public enum CommonPropKeys {
 			"cs_pageRowSize"), cs_fisKeyspace("cs_fisKeyspace"), cs_platformKeyspace(
 			"cs_platformKeyspace"), cs_entityPackagePrefix(
 			"cs_entityPackagePrefix"), cs_sparkAppPropCF("cs_sparkAppPropCF"), cs_sparkAppPropCol(
-			"cs_sparkAppPropCol"),
+			"cs_sparkAppPropCol"),cs_profileCF("cs_profileCF"), cs_accountCF(
+					"cs_accountCF"), cs_itemCF("cs_itemCF"),
 
 	// spark common properties
 	spark_host("spark_host"), spark_port("spark_port"),
 
 	// PIO common properties
 	pio_host("pio_host"), pio_port("pio_port"), pio_appkey("pio_appkey"), pio_engine(
-			"pio_engine"), pio_profileCF("pio_profileCF"), pio_accountCF(
-			"pio_accountCF"), pio_itemCF("pio_itemCF"),
+			"pio_engine"), 
 
 	// Elastic search common properties
 	es_host("es_host"), es_httpPort("es_httpPort"), es_transportPort(
