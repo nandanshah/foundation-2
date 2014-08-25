@@ -11,6 +11,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	private static final long serialVersionUID = 2898274449817898426L;
 	private String userid;
 	private String parentItemId;
+	private int enabled;
 	private double socialScore;
 	private double trendScore;
 	private double popularScore;
@@ -36,6 +37,14 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public void setParentItemId(String parentItemId) {
 		this.parentItemId = parentItemId;
 	}
+	
+	public int getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(int enabled) {
+		this.enabled = enabled;
+	}
+	
 	public double getSocialScore() {
 		return socialScore;
 	}
@@ -101,6 +110,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 		return recoByfoundationreason;
 	}
 	public void setRecoByfoundationreason(String recoByfoundationreason) {
+		System.out.println("recoByFoundation"+recoByfoundationreason);
 		this.recoByfoundationreason = recoByfoundationreason;
 	}
 	@Override
