@@ -125,9 +125,8 @@ public class TrendRecommendationUtil implements Serializable {
 		for (String event : events) {
 			String[] record = event.split(",");
 			if (record.length == 3) {
-				
-				String[] values = record[2].split("#");
-				eventType = new EventType(record[0].trim().toLowerCase(), Integer.parseInt(values[1]),Integer.parseInt(record[1]));
+								
+				eventType = new EventType(record[0].trim().toLowerCase(), Integer.parseInt(record[2]),Integer.parseInt(record[1]));
 			} else {
 				eventType = new EventType(record[0].trim().toLowerCase(),
 						Integer.parseInt(record[1].trim()));

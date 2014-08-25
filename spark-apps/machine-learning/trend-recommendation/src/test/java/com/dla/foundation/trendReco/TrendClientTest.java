@@ -25,7 +25,6 @@ public class TrendClientTest {
 	@Before
 	public void beforeClass() throws InterruptedException,IOException {
 		trendRecoClient = new TrendRecoClient();
-		cassandra = new CassandraContext();
 		current_dir = System.getProperty("user.dir");
 		cassandra = new CassandraContext(current_dir
 				+ "/../../commons/src/test/resources/cassandra.yaml");
