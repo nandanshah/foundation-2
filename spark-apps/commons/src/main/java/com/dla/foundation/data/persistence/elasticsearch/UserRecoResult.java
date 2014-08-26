@@ -17,7 +17,7 @@ public class UserRecoResult {
 	public String toString() {
 		return "UserRecoResult [_id=" + _id + ", _index=" + _index
 				+ ", _source=" + _source.toString() + ", _type=" + _type + ", _version="
-				+ _version + " found=" + found + "]";
+				+ _version + ", found=" + found + "]";
 	}
 	
 	

@@ -56,13 +56,10 @@ public class CassandraEntityReader implements Serializable{
 	
 		long day_timestamp = DateUtil.getPreviousDay();
         String filterClause =  "flag =1 and date = "+ day_timestamp;
-        System.out.println("filterClause"+filterClause);
 		cassandraRDD = cassandraSparkConnector.read(conf, sparkContext,
 				userRecoConfig.getInputKeyspace(),
 				userRecoConfig.getInputColumnfamily(),
 				userRecoConfig.getPageRowSize(), filterClause); 
-		
-		System.out.println("Size of RDD"+ cassandraRDD.count());
 		transformData(cassandraRDD);
 	}
 
@@ -70,13 +67,11 @@ public class CassandraEntityReader implements Serializable{
 		 CassandraESTransformer transformer = new UserRecoTransformation();
 		 JavaPairRDD<String, ESEntity> userEventRDD = transformer.extractEntity(cassandraRDD);
 		 List<Tuple2<String, ESEntity>> lst=	userEventRDD.collect();
-		 System.out.println("bulkEvents"+ESWriter.bulkEvents);
 		 if (ESWriter.bulkEvents !=null && ESWriter.bulkEvents.length()>0){	
 			 logger.info("Writing remaining records to ES");
 			 ESWriter writer= new ESWriter();
 			 writer.postBulkData(ESWriter.bulkEvents.toString());
 		 }
-		 System.out.println("Size"+lst.size());
 		 ESWriter.swapRecoType();
 		
 		 

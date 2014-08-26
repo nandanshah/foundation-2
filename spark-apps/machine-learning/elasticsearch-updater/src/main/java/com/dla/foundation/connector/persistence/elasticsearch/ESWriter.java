@@ -28,7 +28,7 @@ public class ESWriter {
 	private static List<String> indexes= new ArrayList<String>();
 	private static PropertiesHandler phandler= null;
 	private static ElasticSearchRepo repository=null;
-	//private final  String id1 = "1";
+
 	final private static Logger logger = Logger.getLogger(ESWriter.class);
 	public static RecoType reco_type;
 	final static String reco_type_index = "catalog";
@@ -43,7 +43,6 @@ public class ESWriter {
 			repository=new ElasticSearchRepo(esHost);
 			checkRecoTypeFromJSON("catalog","reco_type");
 			type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
-			//System.out.println(reco_type+" -- Active--"+ reco_type.getActive()+"---Passive---"+reco_type.getPassive());//Should be taken from JSON document stored at /catalog3/reco_type/_show
 			createIndex= Boolean.parseBoolean(StaticProps.CREATE_INDEX.getValue());
 			buffer_threshold=Integer.parseInt(StaticProps.COUNT_THRESHHOLD.getValue());
 			if(type.equals("user_reco_1"))
@@ -53,7 +52,7 @@ public class ESWriter {
 					if(type.equals("user_reco_2"))
 						schemaFilePath=StaticProps.SCHEMA_PATH2.getValue();
 					else
-						System.out.println("reco_type is invalid");
+						logger.error("reco_type is invalid");
 				}
 			
 		} catch (IOException e) {
@@ -63,7 +62,6 @@ public class ESWriter {
 	
 	public void writeToES(String index, String id, String parentId, Object entity){
 		++count;
-		System.out.println("Count " +count);
 		try{
 			if(Integer.compare(buffer_threshold, count)==0){
 				processData(index, id, parentId, entity);
@@ -73,7 +71,6 @@ public class ESWriter {
 				bulkEvents=null;
 			}
 			else{
-				System.out.println("processing bulk data");
 				processData(index, id, parentId, entity);
 				}
 			}
@@ -129,7 +126,6 @@ public class ESWriter {
 	}
 
 	public void postBulkData(String json) {
-		System.out.println("json"+json);
 		try {
 			repository.doHttpRequest(esHost+"_bulk", json, "POST", true);
 		} catch (IOException e) {
@@ -142,26 +138,22 @@ public class ESWriter {
 		boolean indexExists = repository.checkESIndexIfExists(indexName, esHost);
 		
 			if(!indexExists){
-				System.out.println("No index named catalog");
 				repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
 				indexes.add(indexName);
 				repository.addESSchemaMapping(indexName, indexType, "src/main/resources/Reco_type.json", esHost);
-				System.out.println("Initializing reco_type for 1st time");
 				reco_type = new RecoType("user_reco_1", "user_reco_2");
 				try {
 					
 					repository.addItem(esHost+indexName+"/"+indexType+"/"+"_show", reco_type);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					System.out.println("Error adding json item for active passive reco-type");
+					logger.error("Error adding json item for active passive reco-type");
 				}
 			}
 			else{
 				
 				try {
-					System.out.println("getting the item");
 					reco_type = (RecoType)repository.getItem(indexName, indexType, "_show");
-					System.out.println("recotype"+reco_type.getActive());
 					//md.mapToMediaItem(, target);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

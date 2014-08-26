@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.dla.foundation.analytics.utils.CassandraContext;
@@ -34,7 +35,7 @@ public class ConnectorTest {
 	    cassandra.connect();
 		executeCommands();
 	}
-	@ignore
+	@Ignore
 	@Test
 	public void userRecoTest() throws IOException, InterruptedException {
 		
