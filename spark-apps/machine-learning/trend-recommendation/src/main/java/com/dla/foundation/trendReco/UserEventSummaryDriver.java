@@ -157,6 +157,16 @@ public class UserEventSummaryDriver implements Serializable {
 				userEvtSummaryCalculator(sparkContext, cassandraSparkConnector,
 						userSummaryService, userSummaryConfig,
 						userSummCassandraProp);
+				
+				Date input_date_user_event = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(userSumProp
+								.getValue(PropKeys.INPUT_DATE.getValue()),
+								DATE_FORMAT), 1);
+
+				userSumProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
+						TrendRecommendationUtil.getDate(input_date_user_event,
+								DATE_FORMAT));
+				
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module of user summary");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -176,15 +186,6 @@ public class UserEventSummaryDriver implements Serializable {
 				userEvtSummaryRecalculator(sparkContext,
 						cassandraSparkConnector, userSummaryService,
 						userSummaryConfig, userSummCassandraProp);
-
-				Date input_date_user_event = DateUtils.addDays(
-						TrendRecommendationUtil.getDate(userSumProp
-								.getValue(PropKeys.INPUT_DATE.getValue()),
-								DATE_FORMAT), 1);
-
-				userSumProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
-						TrendRecommendationUtil.getDate(input_date_user_event,
-								DATE_FORMAT));
 
 			} else {
 				throw new Exception(
@@ -398,7 +399,7 @@ public class UserEventSummaryDriver implements Serializable {
 
 	public static void main(String[] args) {
 		UserEventSummaryDriver trendRecoSer = new UserEventSummaryDriver();
-		if (args.length == 2) {
+		if (args.length == 1) {
 			trendRecoSer.runUserEvtSummaryDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");

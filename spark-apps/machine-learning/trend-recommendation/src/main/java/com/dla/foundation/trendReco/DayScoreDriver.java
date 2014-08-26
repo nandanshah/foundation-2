@@ -143,6 +143,17 @@ public class DayScoreDriver implements Serializable {
 				logger.info("Executing day score calculator");
 				dayScoreCalculator(sparkContext, cassandraSparkConnector,
 						dayScoreService, dayScoreConfig, dataScoreCassandraProp);
+				
+				Date input_date_daily_event = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(dailyEventSumProp
+								.getValue(PropKeys.INPUT_DATE.getValue()),
+								DATE_FORMAT), 1);
+
+				dailyEventSumProp.writeToCassandra(PropKeys.INPUT_DATE
+						.getValue(), TrendRecommendationUtil.getDate(
+						input_date_daily_event, DATE_FORMAT));
+
+				
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -160,15 +171,6 @@ public class DayScoreDriver implements Serializable {
 				logger.info("Executing day score Recalculator");
 				dayScoreRecalculator(sparkContext, cassandraSparkConnector,
 						dayScoreService, dayScoreConfig, dataScoreCassandraProp);
-
-				Date input_date_daily_event = DateUtils.addDays(
-						TrendRecommendationUtil.getDate(dailyEventSumProp
-								.getValue(PropKeys.INPUT_DATE.getValue()),
-								DATE_FORMAT), 1);
-
-				dailyEventSumProp.writeToCassandra(PropKeys.INPUT_DATE
-						.getValue(), TrendRecommendationUtil.getDate(
-						input_date_daily_event, DATE_FORMAT));
 
 			} else {
 				throw new Exception(
@@ -362,7 +364,7 @@ public class DayScoreDriver implements Serializable {
 
 	public static void main(String[] args) {
 		DayScoreDriver trendRecoSer = new DayScoreDriver();
-		if (args.length == 2) {
+		if (args.length == 1) {
 			trendRecoSer.runDayScoreDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");

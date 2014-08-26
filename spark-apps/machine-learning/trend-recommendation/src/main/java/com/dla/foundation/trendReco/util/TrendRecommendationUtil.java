@@ -21,6 +21,7 @@ public class TrendRecommendationUtil implements Serializable {
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
 	private static final String EVENTREQUIRED = "eventrequired";
 	private static final String DATE = "date";
+	private static final String VALUE = "value";
 
 	/**
 	 * 
@@ -75,9 +76,8 @@ public class TrendRecommendationUtil implements Serializable {
 		dates.add(tmpDate);
 		tmpDate = DateUtils.addDays(tmpDate, recalPeriod);
 		while (tmpDate.before(endDate) || tmpDate.equals(endDate)) {
-
-			tmpDate = DateUtils.addDays(tmpDate, recalPeriod);
 			dates.add(tmpDate);
+			tmpDate = DateUtils.addDays(tmpDate, recalPeriod);
 		}
 		return dates;
 	}
@@ -117,24 +117,46 @@ public class TrendRecommendationUtil implements Serializable {
 	public static Map<String, EventType> getRequiredEvent(String value)
 			throws NumberFormatException {
 		Map<String, EventType> requiredEvent = new HashedMap();
+		Map<String, Double> requiredWeight = null;
 		EventType eventType;
-		
+
 		String[] events = value.split("\\|");
 		requiredEvent = new HashedMap();
-		
+
 		for (String event : events) {
+
+			requiredWeight = new HashedMap();
+
 			String[] record = event.split(",");
 			if (record.length == 3) {
-								
-				eventType = new EventType(record[0].trim().toLowerCase(), Integer.parseInt(record[2]),Integer.parseInt(record[1]));
-			} else {
+
+				requiredWeight.put(VALUE, Double.parseDouble(record[1]));
 				eventType = new EventType(record[0].trim().toLowerCase(),
-						Integer.parseInt(record[1].trim()));
+						Integer.parseInt(record[2]), requiredWeight);
+			} else {
+
+				if (!record[1].contains("#")) {
+
+					requiredWeight.put(VALUE, Double.parseDouble(record[1]));
+					eventType = new EventType(record[0].trim().toLowerCase(),
+							requiredWeight);
+				} else {
+					String[] weightage = record[1].split(":");
+					for (String weights : weightage) {
+						String[] weight = weights.split("#");
+
+						requiredWeight.put(weight[0].toString().trim(),
+								Double.parseDouble(weight[1]));
+					}
+
+					eventType = new EventType(record[0].trim().toLowerCase(),
+							requiredWeight);
+				}
 			}
 
 			requiredEvent.put(record[0].toLowerCase(), eventType);
-
 		}
+
 		return requiredEvent;
 
 	}

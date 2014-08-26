@@ -7,9 +7,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -61,7 +59,7 @@ public class UserEventTransformation implements Serializable {
 										+ DELIMITER_PROPERTY
 										+ userEvent.getRegionId()
 										+ DELIMITER_PROPERTY
-										+ userEvent.getMovieid()
+										+ userEvent.getItemid()
 										+ DELIMITER_PROPERTY
 										+ date
 										+ DELIMITER_PROPERTY
@@ -115,7 +113,7 @@ public class UserEventTransformation implements Serializable {
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setMovieid(UUIDType.instance.compose(
+						userEvent.setItemid(UUIDType.instance.compose(
 								column.getValue()).toString());
 
 				}
@@ -137,13 +135,25 @@ public class UserEventTransformation implements Serializable {
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userEvent.setDate(new Date(TrendRecommendationUtil
-								.getFormattedDate(TimestampType.instance.compose(column.getValue()).getTime())));
-				} else if (column.getKey()
-						.compareToIgnoreCase(UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
-					
+						userEvent
+								.setDate(new Date(
+										TrendRecommendationUtil
+												.getFormattedDate(TimestampType.instance
+														.compose(
+																column.getValue())
+														.getTime())));
+				} else if (column.getKey().compareToIgnoreCase(
+						UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
+
 					if (null != column.getValue())
-						userEvent.setPlayPercentage(ByteBufferUtil.toDouble(column.getValue()));
+						userEvent.setPlayPercentage(ByteBufferUtil
+								.toDouble(column.getValue()));
+				} else if (column.getKey().compareToIgnoreCase(
+						UserEventSummary.RATE_SCORE.getColumn()) == 0) {
+
+					if (null != column.getValue())
+						userEvent.setRatescore(ByteBufferUtil.toDouble(column
+								.getValue()));
 				}
 
 			}

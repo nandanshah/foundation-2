@@ -33,6 +33,10 @@ public class UserEvtSummaryService implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -5095480949340422140L;
+	private static final String COUNT = "count";
+	private static final String WEIGHT = "weight";
+	private static final String VALUE = "value";
+
 	private Map<String, EventType> requiredEvent;
 	private Iterator<UserEvent> userEventIterator;
 	private UserEvent userEvent;
@@ -64,7 +68,7 @@ public class UserEvtSummaryService implements Serializable {
 
 	public JavaRDD<UserSummary> calculateUserSummary(
 			JavaPairRDD<String, UserEvent> userEventRDD) {
-		
+
 		logger.info("User Event Summary Service: Grouping records on the basis of user");
 		// It will group by key which is stated as
 		// trendid#regionid#itemid#date#user#eventtype
@@ -74,10 +78,8 @@ public class UserEvtSummaryService implements Serializable {
 		// groupedUserEventRDDByEvent will have key as:
 		// trendid#regionid#itemid#date#user
 		logger.info("User Event Summary Service: Calculating daily count on the basis of user");
-		JavaPairRDD<String, Map<String, Integer>> groupedUserEventRDDByEvent = calculateDailyEventCountbyUser(groupedUserEventRDD);
-		
-		
-		
+		JavaPairRDD<String, Map<String, Map<String, Double>>> groupedUserEventRDDByEvent = calculateDailyEventCountbyUser(groupedUserEventRDD);
+
 		// It will group by key which is trendid#regionid#itemid#date#user.
 		// Below
 		// function calculates event count by date & Item. It will return
@@ -85,14 +87,13 @@ public class UserEvtSummaryService implements Serializable {
 		// with collection of map
 		// which contains each map object with event id and its count.
 		logger.info("User Event Summary Service: Grouping the items with all  the events");
-		JavaPairRDD<String, Iterable<Map<String, Integer>>> groupedEventCountRDD = groupedUserEventRDDByEvent
+		JavaPairRDD<String, Iterable<Map<String, Map<String, Double>>>> groupedEventCountRDD = groupedUserEventRDDByEvent
 				.distinct().groupByKey();
 
 		logger.info("User Event Summary Service: Combining all the events of item with its count into single record");
 		JavaRDD<UserSummary> userSummaryRDD = combineAllEventOfRecord(groupedEventCountRDD);
 
 		return userSummaryRDD;
-		
 
 	}
 
@@ -109,49 +110,44 @@ public class UserEvtSummaryService implements Serializable {
 	 *            map which contains each map object with event id and it count.
 	 * @return User Event Summary.
 	 */
-	
+
 	private JavaRDD<UserSummary> combineAllEventOfRecord(
-			JavaPairRDD<String, Iterable<Map<String, Integer>>> groupedEventCountByDateRDD) {
+			JavaPairRDD<String, Iterable<Map<String, Map<String, Double>>>> groupedEventCountByDateRDD) {
 
 		JavaRDD<UserSummary> dayScoreRDD = groupedEventCountByDateRDD
-				.map(new Function<Tuple2<String, Iterable<Map<String, Integer>>>, UserSummary>() {
+				.map(new Function<Tuple2<String, Iterable<Map<String, Map<String, Double>>>>, UserSummary>() {
 					/**
 					 * 
 					 */
 					private static final long serialVersionUID = 4230933280991379283L;
-					Iterator<Map<String, Integer>> eventsWithCount;
+					Iterator<Map<String, Map<String, Double>>> eventsWithCount;
 					EventType eventType;
 					UserSummary userSummary;
 
-					Map<String, Integer> eventAggregate;
+					Map<String, Double> eventAggregate;
+
 					public UserSummary call(
-							Tuple2<String, Iterable<Map<String, Integer>>> record)
+							Tuple2<String, Iterable<Map<String, Map<String, Double>>>> record)
 							throws Exception {
 
 						eventAggregate = new HashMap<>();
 						double dailyScore = 0;
 						eventsWithCount = record._2.iterator();
 						while (eventsWithCount.hasNext()) {
-							for (Entry<String, Integer> eventWithCount : eventsWithCount
+							for (Entry<String, Map<String, Double>> eventWithCount : eventsWithCount
 									.next().entrySet()) {
 								eventAggregate.put(eventWithCount.getKey(),
-										eventWithCount.getValue());
-								eventType = requiredEvent.get(eventWithCount
-										.getKey());
+										eventWithCount.getValue().get(COUNT));
 
-								if (null != eventType) {
-									// calculation of day score based on the
-									// weight specified for each event.
-									dailyScore += (((eventType.getWeight() / 100.0) * eventWithCount
-											.getValue()));
-								}
+								dailyScore += eventWithCount.getValue().get(
+										WEIGHT);
+
 							}
 						}
 						String[] keys = record._1.split(DELIMITER_PROPERTY);
-						userSummary = new UserSummary(
-								keys[0], keys[1], keys[2], Long
-										.parseLong(keys[3]),keys[4], eventAggregate,
-								dailyScore);
+						userSummary = new UserSummary(keys[0], keys[1],
+								keys[2], Long.parseLong(keys[3]), keys[4],
+								eventAggregate, dailyScore);
 						return userSummary;
 					}
 				});
@@ -164,11 +160,11 @@ public class UserEvtSummaryService implements Serializable {
 	 * records shown as below: 1. insert into
 	 * usereventsummarytable(id,tenantid,regionid,userid, eventtype,
 	 * movieid,timestamp,avp,flag,date) values (
-	 * 0BA3ECD3-51A8-4B52-BDC0-00C628649B4D,1,1,1,3,122,1404111596,{'watchperc':'0'},1,'2014-06-30')
-	 * ; 2. insert into usereventsummarytable(id,tenantid,regionid,userid,
+	 * 0BA3ECD3-51A8-4B52-BDC0-00C628649B4D,1,1,1,3,122,1404111596,{'watchperc':'0'},1,'2014-06-30'
+	 * ) ; 2. insert into usereventsummarytable(id,tenantid,regionid,userid,
 	 * eventtype, movieid,timestamp,avp,flag,date) values (
-	 * 8EB93354-1B9E-4BB9-B87A-E113D02986F5,1,1,1,3,122,1404111596,{'watchperc':'20'},1,'2014-06-30')
-	 * ;
+	 * 8EB93354-1B9E-4BB9-B87A-E113D02986F5,1,1,1,3,122,1404111596,{'watchperc':'20'},1,'2014-06-30'
+	 * ) ;
 	 * 
 	 * Same as above records it will have progress till 100 if watch completes.
 	 * We need to emit count as 1 only when threshold(in watch consider
@@ -185,10 +181,10 @@ public class UserEvtSummaryService implements Serializable {
 	 *         user id from key and emit key(trendid#regionid#itemid#date#user)
 	 *         with its count.
 	 */
-	private JavaPairRDD<String, Map<String, Integer>> calculateDailyEventCountbyUser(
+	private JavaPairRDD<String, Map<String, Map<String, Double>>> calculateDailyEventCountbyUser(
 			JavaPairRDD<String, Iterable<UserEvent>> groupedUserEventRDDByUser) {
-		JavaPairRDD<String, Map<String, Integer>> groupedUserEventRDDByEvent = groupedUserEventRDDByUser
-				.mapToPair(new PairFunction<Tuple2<String, Iterable<UserEvent>>, String, Map<String, Integer>>() {
+		JavaPairRDD<String, Map<String, Map<String, Double>>> groupedUserEventRDDByEvent = groupedUserEventRDDByUser
+				.mapToPair(new PairFunction<Tuple2<String, Iterable<UserEvent>>, String, Map<String, Map<String, Double>>>() {
 
 					/**
 			 * 
@@ -196,25 +192,26 @@ public class UserEvtSummaryService implements Serializable {
 					private static final long serialVersionUID = 3747974274073364215L;
 					EventType recordEventType;
 					String primaryKey;
-					Map<String, Integer> eventAggregate;
+					Map<String, Map<String, Double>> eventAggregate;
 
 					@SuppressWarnings("unchecked")
-					public Tuple2<String, Map<String, Integer>> call(
+					public Tuple2<String, Map<String, Map<String, Double>>> call(
 							Tuple2<String, Iterable<UserEvent>> records)
 							throws Exception {
-						int count = 0;
+						Map<String, Double> count;
 						boolean thresholdFlag = false;
 						eventAggregate = new HashedMap();
 						String[] keys = records._1.split(DELIMITER_PROPERTY);
 
 						recordEventType = requiredEvent.get(keys[5]);
-						
+
 						thresholdFlag = checkForThreshold(recordEventType);
 						if (thresholdFlag) {
 							count = processingDataWithThreshold(records,
 									recordEventType);
 						} else {
-							count = processingDataWithoutThreshold(records);
+							count = processingDataWithoutThreshold(records,
+									recordEventType);
 
 						}
 						primaryKey = keys[0] + DELIMITER_PROPERTY + keys[1]
@@ -222,7 +219,7 @@ public class UserEvtSummaryService implements Serializable {
 								+ DELIMITER_PROPERTY + keys[3]
 								+ DELIMITER_PROPERTY + keys[4];
 						eventAggregate.put(keys[5], count);
-						return new Tuple2<String, Map<String, Integer>>(
+						return new Tuple2<String, Map<String, Map<String, Double>>>(
 								primaryKey, eventAggregate);
 
 					}
@@ -236,19 +233,19 @@ public class UserEvtSummaryService implements Serializable {
 	 * not.
 	 * 
 	 */
-	private int processingDataWithThreshold(
+	private Map<String, Double> processingDataWithThreshold(
 			Tuple2<String, Iterable<UserEvent>> records,
 			EventType eventTypeWithThreshold) {
 		double thresholdValue = 0;
-		int count = 0;
+		Map<String, Double> countWeight = new HashedMap();
 		UserEvent maxThresholdUserEvent = null;
 		userEventIterator = records._2.iterator();
-		
+
 		thresholdValue = eventTypeWithThreshold.getThreshold();
-		
+
 		while (userEventIterator.hasNext()) {
 			userEvent = userEventIterator.next();
-			
+
 			if (-1 != userEvent.getPlayPercentage()) {
 				maxThresholdUserEvent = userEvent;
 				break;
@@ -256,41 +253,68 @@ public class UserEvtSummaryService implements Serializable {
 		}
 		while (userEventIterator.hasNext()) {
 			userEvent = userEventIterator.next();
-						
+
 			if (-1 != userEvent.getPlayPercentage()) {
-				
-					if (maxThresholdUserEvent.getPlayPercentage() < userEvent.getPlayPercentage()) {
-						maxThresholdUserEvent = userEvent;
-					}
-				
+
+				if (maxThresholdUserEvent.getPlayPercentage() < userEvent
+						.getPlayPercentage()) {
+					maxThresholdUserEvent = userEvent;
+				}
 			}
-			
-			
 		}
-		
+
 		if (null != maxThresholdUserEvent) {
 			if (thresholdValue < maxThresholdUserEvent.getPlayPercentage()) {
-				count = 1;
+				countWeight.put(COUNT, 1.0);
+				countWeight.put(WEIGHT, (1 * eventTypeWithThreshold.getWeight()
+						.get(VALUE)) / 100);
 			}
 		}
-		return count;
+
+		return countWeight;
 	}
 
 	/**
 	 * This function will provide the logic to deal with non progressive events.
 	 * 
 	 */
-	private int processingDataWithoutThreshold(
-			Tuple2<String, Iterable<UserEvent>> records) {
-		int count = 0;
+	private Map<String, Double> processingDataWithoutThreshold(
+			Tuple2<String, Iterable<UserEvent>> records, EventType eventType) {
 
+		Map<String, Double> countWeight = new HashedMap();
+		int rateScore = 0;
+		boolean rateEventFlag = false;
 		userEventIterator = records._2.iterator();
 
 		while (userEventIterator.hasNext()) {
-			userEventIterator.next();
-			count += 1;
+
+			UserEvent userEvent = userEventIterator.next();
+
+			if (userEvent.getRatescore() >= 0) {
+
+				rateEventFlag = true;
+				rateScore = (int) userEvent.getRatescore();
+			} else {
+				break;
+			}
 		}
-		return count;
+
+		if (rateEventFlag == false) {
+
+			countWeight.put(COUNT, 1.0);
+			countWeight.put(WEIGHT,
+					(1 * eventType.getWeight().get(VALUE)) / 100);
+
+		} else {
+
+			countWeight.put(COUNT, 1.0);
+			countWeight
+					.put(WEIGHT,
+							(1 * eventType.getWeight().get(
+									String.valueOf(rateScore)) / 100));
+		}
+
+		return countWeight;
 	}
 
 	private boolean checkForThreshold(EventType event) {
