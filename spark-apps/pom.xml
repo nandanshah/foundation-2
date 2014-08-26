@@ -143,6 +143,9 @@
 					<resource>
 						<directory>src/main/resources/local</directory>
 					</resource>
+					<resource>
+						<directory>${user.dir}/commons/src/main/resources/local</directory>
+					</resource>
 				</resources>
 			</build>
 		</profile>
@@ -156,6 +159,9 @@
 					<resource>
 						<directory>src/main/resources/persistent</directory>
 					</resource>
+					 <resource>
+                                                <directory>${user.dir}/commons/src/main/resources/persistent</directory>
+                                        </resource>
 				</resources>
 			</build>
 		</profile>
@@ -169,6 +175,9 @@
 					<resource>
 						<directory>src/main/resources/dev</directory>
 					</resource>
+					 <resource>
+                                                <directory>${user.dir}/commons/src/main/resources/dev</directory>
+                                        </resource>
 				</resources>
 			</build>
 		</profile>
