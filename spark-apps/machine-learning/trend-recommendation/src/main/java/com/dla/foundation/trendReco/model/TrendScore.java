@@ -11,11 +11,12 @@ public class TrendScore implements Serializable {
 	String tenantId;
 	String regionId;
 	String itemId;
+	String reason;
 
 	double trendScore;
 	double normalizedScore;
 
-	public TrendScore(String tenantId, String regionId, String itemId, double trend,
+	public TrendScore(String tenantId, String regionId, String itemId, String reason, double trend,
 			long timestamp) {
 		super();
 		this.tenantId = tenantId;
@@ -23,6 +24,7 @@ public class TrendScore implements Serializable {
 		this.itemId = itemId;
 		this.trendScore = trend;
 		this.timestamp = timestamp;
+		this.reason = reason;
 	}
 
 	public long getTimestamp() {
@@ -39,6 +41,10 @@ public class TrendScore implements Serializable {
 
 	public String getItemId() {
 		return itemId;
+	}
+
+	public String getReason() {
+		return reason;
 	}
 
 	public double getTrendScore() {

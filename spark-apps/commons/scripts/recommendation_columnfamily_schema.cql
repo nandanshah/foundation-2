@@ -4,12 +4,12 @@ use fis;
 
 // Schema for trend
 
-create table if not exists common_daily_eventsummary_per_useritem(periodid timeuuid ,tenantid uuid,regionid uuid,itemid uuid,profileid uuid,eventtypeaggregate  map<text,int>,dayscore double,date timestamp,eventrequired int,primary key (periodid,tenantid,regionid,itemid,profileid));
+create table if not exists common_daily_eventsummary_per_useritem(periodid timeuuid ,tenantid uuid,regionid uuid,itemid uuid,profileid uuid,eventtypeaggregate  map<text,double>,dayscore double,date timestamp,eventrequired int,primary key (periodid,tenantid,regionid,itemid,profileid));
 
 create index if not exists index_common_daily_eventsummary_per_useritem_event_required on common_daily_eventsummary_per_useritem (eventrequired);
 create index if not exists index_common_daily_eventsummary_per_useritem_date on common_daily_eventsummary_per_useritem (date);
 
-create table if not exists trend_daily_eventsummary(periodid timeuuid ,tenantid uuid,regionid uuid,itemid uuid,eventtypeaggregate  map<text,int>,dayscore double,date timestamp,eventrequired int,primary key (periodid,tenantid,regionid,itemid));
+create table if not exists trend_daily_eventsummary(periodid timeuuid ,tenantid uuid,regionid uuid,itemid uuid,eventtypeaggregate  map<text,double>,dayscore double,date timestamp,eventrequired int,primary key (periodid,tenantid,regionid,itemid));
 
 create index if not exists index_trend_daily_eventsummary_event_required on trend_daily_eventsummary (eventrequired);
 create index if not exists index_trend_daily_eventsummary_date on trend_daily_eventsummary (date);

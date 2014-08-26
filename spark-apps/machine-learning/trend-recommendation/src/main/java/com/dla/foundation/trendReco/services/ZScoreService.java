@@ -32,6 +32,8 @@ public class ZScoreService implements Serializable, ITrendScore {
 	 */
 	private static final long serialVersionUID = 7875760927306722697L;
 	private static final Logger logger = Logger.getLogger(ZScoreService.class);
+	private static final String TRENDING = "trending";
+	private static final String REASON_NA = "NA";
 	/**
 	 * 
 	 */
@@ -40,6 +42,10 @@ public class ZScoreService implements Serializable, ITrendScore {
 	// period for which data will be taken to calcualte average and standard
 	// deviation from the current trend.
 	private int daysForHistoricTrend;
+
+	public void setCurrentTrendDate(long currentTrendDate) {
+		this.currentTrendDate = currentTrendDate;
+	}
 
 	public long getCurrentTrendDate() {
 		return currentTrendDate;
@@ -121,16 +127,18 @@ public class ZScoreService implements Serializable, ITrendScore {
 						if (null != itemDayScore) {
 							double zscore = getZScore(average,
 									standardDeviation, currentTrendItemDayScore);
-							if (zscore >= 0) {
+							if (zscore > 0) {
 								itemTrendScore = new TrendScore(itemDayScore
 										.getTenantId(), itemDayScore
 										.getRegionId(), itemDayScore
-										.getItemId(), zscore, currentTrendDate);
+										.getItemId(),TRENDING,
+										zscore, currentTrendDate);
 							} else {
 								itemTrendScore = new TrendScore(itemDayScore
 										.getTenantId(), itemDayScore
 										.getRegionId(), itemDayScore
-										.getItemId(), 0, currentTrendDate);
+										.getItemId(), REASON_NA,
+										zscore, currentTrendDate);
 							}
 						}
 						return itemTrendScore;

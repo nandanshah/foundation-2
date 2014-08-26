@@ -13,11 +13,11 @@ public class UserSummary implements Serializable {
 	private String itemId;
 	private long timestamp;
 	private String userId;
-	private Map<String, Integer> eventTypeAggregate;
+	private Map<String, Double> eventTypeAggregate;
 	private double dayScore;
 
 	public UserSummary(String tenantId, String regionId, String itemId, long timestamp,
-			String userId, Map<String, Integer> eventTypeAggregate,
+			String userId, Map<String, Double> eventTypeAggregate,
 			double dayScore) {
 		super();
 		this.tenantId = tenantId;
@@ -54,7 +54,7 @@ public class UserSummary implements Serializable {
 		return userId;
 	}
 
-	public Map<String, Integer> getEventTypeAggregate() {
+	public Map<String, Double> getEventTypeAggregate() {
 		return eventTypeAggregate;
 	}
 
@@ -82,7 +82,7 @@ public class UserSummary implements Serializable {
 		this.userId = userId;
 	}
 
-	public void setEventTypeAggregate(Map<String, Integer> eventTypeAggregate) {
+	public void setEventTypeAggregate(Map<String, Double> eventTypeAggregate) {
 		this.eventTypeAggregate = eventTypeAggregate;
 	}
 

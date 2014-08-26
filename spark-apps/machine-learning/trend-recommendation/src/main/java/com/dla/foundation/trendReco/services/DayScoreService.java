@@ -61,21 +61,21 @@ public class DayScoreService implements Serializable {
 					Iterator<UserSummary> userSummaryIterator;
 					UserSummary userSummary;
 					DayScore dayScore;
-					Map<String, Integer> eventAggregate;
+					Map<String, Double> eventAggregate;
 
 					@Override
 					public DayScore call(
 							Tuple2<String, Iterable<UserSummary>> records)
 							throws Exception {
 
-						int count = 0;
+						double count = 0;
 						double dayScoreCount = 0;
 						String[] keys = records._1.split(DELIMITER_PROPERTY);
-						eventAggregate = new HashMap<String, Integer>();
+						eventAggregate = new HashMap<String, Double>();
 						userSummaryIterator = records._2.iterator();
 						while (userSummaryIterator.hasNext()) {
 							userSummary = userSummaryIterator.next();
-							for (Entry<String, Integer> event : userSummary
+							for (Entry<String, Double> event : userSummary
 									.getEventTypeAggregate().entrySet()) {
 								if (eventAggregate.containsKey(event.getKey())) {
 									count = eventAggregate.get(event.getKey());

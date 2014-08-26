@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.cassandra.db.marshal.DoubleType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
@@ -46,7 +47,7 @@ public class TrendRecoPostprocessing implements Serializable {
 	private static final long serialVersionUID = -6629019652932514108L;
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
 	private static final Integer EVENTREQUIRED = 1;
-	private static final String TRENDING = "trending";
+
 
 	public static JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> processingForDayScore(
 			JavaRDD<DayScore> dayScoreEventRDD) {
@@ -59,7 +60,7 @@ public class TrendRecoPostprocessing implements Serializable {
 					Map<String, ByteBuffer> primaryKey;
 					List<ByteBuffer> otherColumns;
 					TimestampType timestampType;
-					Map<String, Integer> eventTypeAggregate;
+					Map<String, Double> eventTypeAggregate;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
 							DayScore eventWithDayScore) throws Exception {
@@ -81,7 +82,7 @@ public class TrendRecoPostprocessing implements Serializable {
 								.getColumn(), UUIDType.instance
 								.fromString(eventWithDayScore.getItemId()));
 						otherColumns.add(MapType.getInstance(UTF8Type.instance,
-								Int32Type.instance).decompose(
+								DoubleType.instance).decompose(
 								eventTypeAggregate));
 						otherColumns.add(ByteBufferUtil.bytes(eventWithDayScore
 								.getDayScore()));
@@ -134,7 +135,8 @@ public class TrendRecoPostprocessing implements Serializable {
 								.getTrendScore()));
 						otherColumns.add(ByteBufferUtil.bytes(itemTrendScore
 								.getNormalizedScore()));
-						otherColumns.add(ByteBufferUtil.bytes(TRENDING));
+						otherColumns.add(ByteBufferUtil.bytes(itemTrendScore.
+								getReason()));
 						otherColumns.add(timestampType.decompose(new Date(
 								itemTrendScore.getTimestamp()))); 
 						otherColumns.add(ByteBufferUtil.bytes(EVENTREQUIRED)); 
@@ -184,7 +186,7 @@ public class TrendRecoPostprocessing implements Serializable {
 								.getColumn(), UUIDType.instance
 								.fromString(userSummary.getUserId()));
 						otherColumns.add(MapType.getInstance(UTF8Type.instance,
-								Int32Type.instance).decompose(
+								DoubleType.instance).decompose(
 								userSummary.getEventTypeAggregate()));
 						otherColumns.add(ByteBufferUtil.bytes(userSummary
 								.getDayScore()));

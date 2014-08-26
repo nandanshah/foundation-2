@@ -41,7 +41,7 @@ public class TrendClientTest {
 		
 		assertNotNull(cassandra);
 		ResultSet dayScoreResult = cassandra.getRows("fis",
-				"dailyeventsummaryperuseritem");
+				"common_daily_eventsummary_per_useritem");
 		double sum = 0;
 		for (Row row : dayScoreResult) {
 			try {
@@ -56,10 +56,10 @@ public class TrendClientTest {
 			}
 
 		}
-		assertEquals(2.0, sum, 0);
+		assertEquals(2.5, sum, 0);
 
 		ResultSet trendScoreResult = cassandra.getRows("fis",
-				"trendreco");
+				"trend_reco");
 		
 		for (Row row : trendScoreResult) {
 			

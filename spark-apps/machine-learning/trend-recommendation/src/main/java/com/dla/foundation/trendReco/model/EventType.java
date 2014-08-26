@@ -10,15 +10,15 @@ public class EventType implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String eventType;
 	private double threshold;
-	private int weight;
+	private Map<String, Double> weight;
 
 	
-	public EventType(String eventType, int weight) {
+	public EventType(String eventType, Map<String, Double> weight) {
 		this(eventType,-1, weight);
 	}
 	
 	public EventType(String eventType,
-			double threshold, int weight) {
+			double threshold, Map<String, Double> weight) {
 		super();
 		
 		this.eventType = eventType;
@@ -34,7 +34,7 @@ public class EventType implements Serializable {
 		return threshold;
 	}
 
-	public int getWeight() {
+	public Map<String, Double> getWeight() {
 		return weight;
 	}
 

@@ -18,6 +18,8 @@ public class UserEvent implements Serializable {
 	private String tenantId;
 	private String regionId;
 	private double playPercentage=-1;
+	private double rateScore=-1;
+	
 	public double getPlayPercentage() {
 		return playPercentage;
 	}
@@ -25,13 +27,21 @@ public class UserEvent implements Serializable {
 	public void setPlayPercentage(double playPercentage) {
 		this.playPercentage = playPercentage;
 	}
+	
+	public double getRatescore() {
+		return rateScore;
+	}
 
-	public String getMovieid() {
+	public void setRatescore(double rateScore) {
+		this.rateScore = rateScore;
+	}
+
+	public String getItemid() {
 		return itemId;
 	}
 
-	public void setMovieid(String movieid) {
-		this.itemId = movieid;
+	public void setItemid(String itemid) {
+		this.itemId = itemid;
 	}
 
 	public String getUserId() {

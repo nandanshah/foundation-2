@@ -13,11 +13,11 @@ public class DayScore implements Serializable {
 	private long timestamp;
 	private String tenantId;
 	private String regionId;
-	private Map<String, Integer> eventTypeAggregate;
+	private Map<String, Double> eventTypeAggregate;
 	private double dayScore;
 
 	public DayScore(String tenantId, String regionId, long timestamp, String movieId,
-			Map<String, Integer> eventTypeAggregate, double dayScore) {
+			Map<String, Double> eventTypeAggregate, double dayScore) {
 	
 		this.itemId = movieId;
 		this.timestamp = timestamp;
@@ -28,7 +28,7 @@ public class DayScore implements Serializable {
 	}
 
 	public DayScore(String tenantId, String regionId, String movieId,
-			Map<String, Integer> eventTypeAggregate, double dayScore) {
+			Map<String, Double> eventTypeAggregate, double dayScore) {
 		this(tenantId, regionId, -1, movieId, eventTypeAggregate, dayScore);
 	}
 
@@ -61,7 +61,7 @@ public class DayScore implements Serializable {
 	}
 
 	public DayScore(String tenantId, String regionId, String movieId, long timestamp,
-			Map<String, Integer> eventTypeAggregate) {
+			Map<String, Double> eventTypeAggregate) {
 		this(tenantId, regionId, timestamp, movieId, eventTypeAggregate, 0);
 
 	}
@@ -83,11 +83,11 @@ public class DayScore implements Serializable {
 		return regionId;
 	}
 
-	public Map<String, Integer> getEventTypeAggregate() {
+	public Map<String, Double> getEventTypeAggregate() {
 		return eventTypeAggregate;
 	}
 
-	public void setEventTypeAggregate(Map<String, Integer> eventTypeAggregate) {
+	public void setEventTypeAggregate(Map<String, Double> eventTypeAggregate) {
 		this.eventTypeAggregate = eventTypeAggregate;
 	}
 

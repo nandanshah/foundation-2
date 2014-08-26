@@ -161,6 +161,16 @@ public class TrendScoreDriver implements Serializable {
 				trendScoreCalculator(sparkContext, cassandraSparkConnector,
 						zScoreService, trendScoreCassandraProp,
 						trendScoreConfig);
+				
+				Date input_date_trend_score = DateUtils.addDays(
+						TrendRecommendationUtil.getDate(trendScoreProp
+								.getValue(PropKeys.CURRENT_TREND_DATE
+										.getValue()), DATE_FORMAT), 1);
+
+				trendScoreProp.writeToCassandra(PropKeys.CURRENT_TREND_DATE
+						.getValue(), TrendRecommendationUtil.getDate(
+						input_date_trend_score, DATE_FORMAT));
+				
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -179,15 +189,6 @@ public class TrendScoreDriver implements Serializable {
 				trendScoreReCalculator(sparkContext, cassandraSparkConnector,
 						zScoreService, trendScoreCassandraProp,
 						trendScoreConfig);
-
-				Date input_date_trend_score = DateUtils.addDays(
-						TrendRecommendationUtil.getDate(trendScoreProp
-								.getValue(PropKeys.CURRENT_TREND_DATE
-										.getValue()), DATE_FORMAT), 1);
-
-				trendScoreProp.writeToCassandra(PropKeys.CURRENT_TREND_DATE
-						.getValue(), TrendRecommendationUtil.getDate(
-						input_date_trend_score, DATE_FORMAT));
 
 			} else {
 				throw new Exception(
@@ -297,6 +298,7 @@ public class TrendScoreDriver implements Serializable {
 		for (Date date : dates) {
 			trendScoreConfig.startDate = date;
 			trendScoreConfig.endDate = date;
+			zScoreService.setCurrentTrendDate(date.getTime());
 			trendScoreCalculator(sparkContext, cassandraSparkConnector,
 					zScoreService, trendScoreCassandraProp, trendScoreConfig);
 		}
@@ -360,7 +362,7 @@ public class TrendScoreDriver implements Serializable {
 
 	public static void main(String[] args) {
 		TrendScoreDriver trendRecoSer = new TrendScoreDriver();
-		if (args.length == 2) {
+		if (args.length == 1) {
 			trendRecoSer.runTrendScoreDriver(args[0]);
 		} else {
 			System.err.println("Please provide the path of property file");
