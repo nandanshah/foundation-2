@@ -11,75 +11,75 @@
                    },
                    "properties":
                    {
-                       "SocialScore":
+                       "socialScore":
                        {
                            "type": "double", "index" : "no"
                        },
-						"SocialScoreReason":
+						"socialScoreReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "TrendScore":
+                       "trendScore":
                        {
                            "type": "double", "index" : "no"
                        },
-						"TrendScoreReason":
+						"trendScoreReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "PopularityScore":
+                       "popularityScore":
                        {
                            "type": "double", "index" : "no"
                        },
-						"PopularityScoreReason":
+						"popularityScoreReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "FPScore":
+                       "fpScore":
                        {
                            "type": "double", "index" : "no"
                        },
-						"FPScoreReason":
+						"fpScoreReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "NewReleaseScore":
+                       "newReleaseScore":
                        {
                            "type": "double", "index" : "no"
                        },
-						"NewReleaseScoreReason":
+						"newReleaseScoreReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "RecoByFoundation":
+                       "recoByFoundation":
                        {
                            "type": "double", "index" : "no"
                        },
-						"RecoByFoundationReason":
+						"recoByFoundationReason":
                        {
                            "type": "string", "index" : "no"
                        },
-                       "UserId":
+                       "userId":
                        {
                            "type": "string", "index" : "not_analyzed"
                        },
-                       "MediaItemId":
+                       "mediaItemId":
                        {
                            "type": "string", "index" : "not_analyzed"
                        },
-						"RegionId":
+						"regionId":
                        {
                            "type": "double", "index" : "not_analyzed"
                        },
-						"LocaleId":
+						"localeId":
                        {
                            "type": "double", "index" : "not_analyzed"
                        },
-						"Enabled":
+						"enabled":
                        {
                            "type": "integer", "index" : "not_analyzed"
                        },
-						"Tx":
+						"tx":
 						{
                           "properties" : {
                                  "Seek" : {"type" : "double", "index" : "no"},

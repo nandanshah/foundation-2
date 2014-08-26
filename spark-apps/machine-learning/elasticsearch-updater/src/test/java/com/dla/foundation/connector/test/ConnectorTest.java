@@ -34,12 +34,13 @@ public class ConnectorTest {
 	    cassandra.connect();
 		executeCommands();
 	}
-	
+	@ignore
 	@Test
 	public void userRecoTest() throws IOException, InterruptedException {
 		
 		reader = new CassandraEntityReader();
-		reader.runUserRecoDriver("src/test/resources/appTest.properties", "src/test/resources/userRecoTest.properties", "src/test/resources/elasticSearchTest.properties");	
+		String current_dir = System.getProperty("user.dir");
+		reader.runUserRecoDriver(current_dir+"/../../commons/src/test/resources/common.properties");	
 		
 		boolean exists= repository.createESIndex("d979ca35-b58d-434b-b2d6-ea0316bcc9b7", esHost);
 		assertEquals(exists, true);

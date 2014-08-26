@@ -12,7 +12,7 @@ public class ESEntity implements Serializable {
 	public String id;
 	public String regionId;
 	Date date;
-	public String tenantID;
+	public String tenantId;
 	
 	
 	public String getId() {
@@ -22,10 +22,10 @@ public class ESEntity implements Serializable {
 		this.id = id;
 	}
 	public String getTenantId() {
-		return tenantID;
+		return tenantId;
 	}
 	public void setTenantId(String tenantId) {
-		this.tenantID = tenantId;
+		this.tenantId = tenantId;
 	}
 	public String getRegionId() {
 		return regionId;
