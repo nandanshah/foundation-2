@@ -53,7 +53,7 @@ public class TrendRecoFilter implements Filter {
 			nodeIpList = phandler.getValue(CommonPropKeys.cs_hostList);	
 			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);
 			csContext.connect(nodeIpList);
-			ResultSet rs = csContext.getRows(dataKeyspace, "eventmetadata");
+			ResultSet rs = csContext.getRows(dataKeyspace, "eo_event_metadata_event_type");
 			List<Row> rows = rs.all();
 			for (Row row : rows) {
 				trendEventRequiredMap.put(EventType.valueOf(row.getString(EVENTTYPE_COL_NAME)),row.getInt(EVENTREQUIRED_COL_NAME));

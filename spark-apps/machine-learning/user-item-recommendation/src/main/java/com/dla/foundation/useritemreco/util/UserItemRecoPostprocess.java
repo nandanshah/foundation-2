@@ -53,7 +53,7 @@ public class UserItemRecoPostprocess implements Serializable {
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
 						Map<String, Score> scores = record.getScores();
-						primaryKey.put(userItemRecoCF.ID.getColumn(),
+						primaryKey.put(userItemRecoCF.PERIOD_ID.getColumn(),
 								ByteBufferUtil.bytes(UUIDs.startOf(record
 										.getDate().getTime())));
 						primaryKey.put(userItemRecoCF.TENANT.getColumn(),
@@ -122,7 +122,7 @@ public class UserItemRecoPostprocess implements Serializable {
 
 						scores = record.getItemSummary().getScores();
 						primaryKey.put(
-								userItemRecoCF.ID.getColumn(),
+								userItemRecoCF.PERIOD_ID.getColumn(),
 								ByteBufferUtil.bytes(UUIDs.startOf(record
 										.getItemSummary().getDate().getTime())));
 						primaryKey.put(userItemRecoCF.TENANT.getColumn(),
