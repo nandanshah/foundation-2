@@ -29,27 +29,23 @@ public class ConnectorDriver
     	DeleteESType deleteTypes= new DeleteESType();
     	//String app_mode=null;
     	
-    	try {
-			//PropertiesHandler phandler = new PropertiesHandler(args[0]);
-			
-			//app_mode= phandler.getValue("app.mode");
-			ESWriter.init(args[0]);
-			logger.info("Deleting user reco type from all indexes");
-			deleteTypes.deleteType(args[0]);
-			//if(app_mode.equals("insert")){
-				logger.info("Satrting Connector- Reading records from Cassandra and writing to ES");
-				userReco = new CassandraEntityReader();
-	    		userReco.runUserRecoDriver(args[0]);
-	    	//}
-			
-			//else if (app_mode.equals("delete")){
-				/*logger.info("Deleting user reco type from all indexes");
-				deleteTypes.deleteType(args[2]);*/
-			//}
-			
-		} 
-    	catch (IOException e) {
-    		logger.fatal("Error getting properties file", e);
-    	}
+    	//app_mode= phandler.getValue("app.mode");
+		ESWriter.init(args[0]);
+		/*logger.info("Deleting user reco type from all indexes");
+		deleteTypes.deleteType(args[0]);*/
+		//if(app_mode.equals("insert")){
+			logger.info("Satrting Connector- Reading records from Cassandra and writing to ES");
+			try {
+				userReco.runUserRecoDriver(args[0]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		//}
+		
+		//else if (app_mode.equals("delete")){
+			/*logger.info("Deleting user reco type from all indexes");
+			deleteTypes.deleteType(args[2]);*/
+		//}
     }
  }

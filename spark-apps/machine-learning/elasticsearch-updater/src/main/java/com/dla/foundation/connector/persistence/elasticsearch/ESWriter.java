@@ -34,6 +34,7 @@ public class ESWriter {
 	final static String reco_type_index = "catalog";
 	final static String	reco_type_name = "reco_type";
 	final static String reco_type_id = "_show";
+	final static String catalogIndex = "catalog";
 	
 	public static void init(String commonFilePath){
 		try {
@@ -41,7 +42,7 @@ public class ESWriter {
 			phandler=  new PropertiesHandler(commonFilePath);
 			esHost="http://"+phandler.getValue(PropKeys.ES_HOST.getValue())+":"+phandler.getValue(PropKeys.ES_PORT.getValue())+"/";
 			repository=new ElasticSearchRepo(esHost);
-			checkRecoTypeFromJSON("catalog","reco_type");
+			checkRecoTypeFromJSON(reco_type_index,reco_type_name);
 			type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
 			createIndex= Boolean.parseBoolean(StaticProps.CREATE_INDEX.getValue());
 			buffer_threshold=Integer.parseInt(StaticProps.COUNT_THRESHHOLD.getValue());
@@ -81,7 +82,7 @@ public class ESWriter {
 	
 	private void processData(String index, String id, String parentId, Object entity) throws Exception {
 		JSONObject obj=null;
-		boolean deleted;
+		//boolean deleted;
 		ObjectMapper mapper = new ObjectMapper();
 		String entityJson= null;
 	
@@ -91,19 +92,30 @@ public class ESWriter {
 		if(bulkEvents==null)
 			bulkEvents = new StringBuilder();
 		
-		if(createIndex){
-			if(!indexes.contains(index)){
+		/*if(createIndex){
+			if(!indexes.contains(index)){		// index = catalog 
 				deleted= repository.deleteESIndexIfExists(index, esHost);
 			if(deleted)
 				repository.createESIndex(index, esHost);
 			indexes.add(index);
 			repository.addESSchemaMapping(index, type, schemaFilePath, esHost);
 		   }
+		}*/
+		if(createIndex){
+			boolean indexExists = repository.checkESIndexIfExists(catalogIndex, esHost);
+			if(indexExists)
+			{
+				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
+			}
+			else
+			{
+				repository.createESIndex(catalogIndex, esHost);
+			}
 		}
 		if(parentId!=null)
-			obj= getObj(index, type, id, "create", parentId);
+			obj= getObj(catalogIndex, type, id, "create", parentId);
 		else
-			obj= getObj(index, type, String.valueOf(id), "create", null);
+			obj= getObj(catalogIndex, type, String.valueOf(id), "create", null);
 		entityJson = mapper.writeValueAsString(entity);
 			
 		if(obj!=null & entityJson!=null)
@@ -138,6 +150,7 @@ public class ESWriter {
 		boolean indexExists = repository.checkESIndexIfExists(indexName, esHost);
 		
 			if(!indexExists){
+				logger.debug("Creating index "+ indexName);
 				repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
 				indexes.add(indexName);
 				repository.addESSchemaMapping(indexName, indexType, "src/main/resources/Reco_type.json", esHost);
@@ -154,7 +167,7 @@ public class ESWriter {
 				
 				try {
 					reco_type = (RecoType)repository.getItem(indexName, indexType, "_show");
-					//md.mapToMediaItem(, target);
+					logger.debug("recotype in json"+reco_type);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
