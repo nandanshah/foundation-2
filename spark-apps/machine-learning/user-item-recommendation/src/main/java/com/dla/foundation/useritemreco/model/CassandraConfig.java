@@ -13,13 +13,12 @@ public class CassandraConfig {
 	private String outputPartitioner;
 	private String inputIpList;
 	private String outputIpList;
-	private String coreServiceKeyspace;
 
 	public CassandraConfig(String inputKeyspace, String outputKeyspace,
-			String coreServiceKeyspace, String inputColumnfamily,
-			String outputColumnfamily, String pageRowSize, String outputQuery,
-			String inputRpcPort, String inputPartitioner,
-			String outputPartitioner, String inputIpList, String outputIpList) {
+			String inputColumnfamily, String outputColumnfamily,
+			String pageRowSize, String outputQuery, String inputRpcPort,
+			String inputPartitioner, String outputPartitioner,
+			String inputIpList, String outputIpList) {
 		super();
 		this.inputKeyspace = inputKeyspace;
 		this.outputKeyspace = outputKeyspace;
@@ -32,20 +31,16 @@ public class CassandraConfig {
 		this.outputPartitioner = outputPartitioner;
 		this.inputIpList = inputIpList;
 		this.outputIpList = outputIpList;
-		this.coreServiceKeyspace = coreServiceKeyspace;
+
 	}
 
 	public CassandraConfig(String inputKeyspace, String outputKeyspace,
-			String coreServiceKeyspace, String inputColumnfamily,
-			String outputColumnfamily, String pageRowSize, String outputQuery) {
-		this(inputKeyspace, outputKeyspace, coreServiceKeyspace,
-				inputColumnfamily, outputColumnfamily, pageRowSize,
-				outputQuery, null, null, null, null, null);
+			String inputColumnfamily, String outputColumnfamily,
+			String pageRowSize, String outputQuery) {
+		this(inputKeyspace, outputKeyspace, inputColumnfamily,
+				outputColumnfamily, pageRowSize, outputQuery, null, null, null,
+				null, null);
 
-	}
-
-	public String getCoreServiceKeyspace() {
-		return coreServiceKeyspace;
 	}
 
 	public String getInputKeyspace() {

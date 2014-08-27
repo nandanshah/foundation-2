@@ -87,14 +87,14 @@ public class UserEventSummaryDriver implements Serializable {
 			// initializing spark-cassandra connector
 			logger.info("initializing spark-cassandra connector");
 			CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
-					TrendRecommendationUtil
-							.getList(CommonPropKeys.cs_hostList.getValue(),
-									IP_SEPARATOR),
-					TrendRecoProp.PARTITIONER,
+					TrendRecommendationUtil.getList(userSumProp
+							.getValue(CommonPropKeys.cs_hostList.getValue()),
+							","), TrendRecoProp.PARTITIONER,
 					userSumProp.getValue(CommonPropKeys.cs_rpcPort.getValue()),
 					TrendRecommendationUtil.getList(userSumProp
 							.getValue(CommonPropKeys.cs_hostList.getValue()),
 							","), TrendRecoProp.PARTITIONER);
+
 			runUserEvtSummaryDriver(sparkContext, cassandraSparkConnector,
 					userSumProp);
 
@@ -124,7 +124,7 @@ public class UserEventSummaryDriver implements Serializable {
 
 			Map<String, EventType> requiredEventType = TrendRecommendationUtil
 					.getRequiredEvent(userSumProp
-							.getValue(PropKeys.EVENT_REQUIRED.getValue())); 
+							.getValue(PropKeys.EVENT_REQUIRED.getValue()));
 
 			logger.info("initializing  user Summary service with required events");
 			// initializing user Summary service with required events
@@ -134,11 +134,10 @@ public class UserEventSummaryDriver implements Serializable {
 			logger.info("initializing cassandra config for  user Summary service");
 			// initializing cassandra config for user Summary service
 			CassandraConfig userSummCassandraProp = new CassandraConfig(
-					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
+					userSumProp.getValue(CommonPropKeys.cs_platformKeyspace
 							.getValue()),
 					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
-							.getValue()),
-					TrendRecoProp.USER_EVENT_SUM_INP_CF,
+							.getValue()), TrendRecoProp.USER_EVENT_SUM_INP_CF,
 					TrendRecoProp.USER_EVENT_SUM_OUT_CF,
 					userSumProp.getValue(CommonPropKeys.cs_pageRowSize
 							.getValue()), USER_SUMM_QUERY_PROPERTY);
@@ -157,7 +156,7 @@ public class UserEventSummaryDriver implements Serializable {
 				userEvtSummaryCalculator(sparkContext, cassandraSparkConnector,
 						userSummaryService, userSummaryConfig,
 						userSummCassandraProp);
-				
+
 				Date input_date_user_event = DateUtils.addDays(
 						TrendRecommendationUtil.getDate(userSumProp
 								.getValue(PropKeys.INPUT_DATE.getValue()),
@@ -166,7 +165,9 @@ public class UserEventSummaryDriver implements Serializable {
 				userSumProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
 						TrendRecommendationUtil.getDate(input_date_user_event,
 								DATE_FORMAT));
-				
+
+				userSumProp.close();
+
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module of user summary");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(

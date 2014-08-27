@@ -52,31 +52,38 @@ public class ItemTransformation implements Serializable {
 							for (Entry<String, ByteBuffer> column : priamryKeyColumns
 									.entrySet()) {
 
-								if (column
-										.getKey()
-										.compareToIgnoreCase(
-												regionTenantInfo
-														.get(UserItemRecoProp.ITEM_LEVEL_TENANT_ID)) == 0) {
-									if (null != column.getValue())
-										tenantId = UUIDType.instance.compose(
-												column.getValue()).toString();
-
-								} else if (column
-										.getKey()
-										.compareToIgnoreCase(
-												regionTenantInfo
-														.get(UserItemRecoProp.ITEM_LEVEL_REGION_ID)) == 0) {
-									if (null != column.getValue())
-										regionId = UUIDType.instance.compose(
-												column.getValue()).toString();
-
-								} else if (column.getKey().compareToIgnoreCase(
+								if (column.getKey().compareToIgnoreCase(
 										userItemRecoCF.ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										itemId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
 								}
+
+							}
+						}
+						
+						Map<String, ByteBuffer> otherColumns = record._2;
+						for (Entry<String, ByteBuffer> column : otherColumns
+								.entrySet()) {
+
+							if (column
+									.getKey()
+									.compareToIgnoreCase(
+											regionTenantInfo
+													.get(UserItemRecoProp.ITEM_LEVEL_TENANT_ID)) == 0) {
+								if (null != column.getValue())
+									tenantId = UUIDType.instance.compose(
+											column.getValue()).toString();
+
+							} else if (column
+									.getKey()
+									.compareToIgnoreCase(
+											regionTenantInfo
+													.get(UserItemRecoProp.ITEM_LEVEL_REGION_ID)) == 0) {
+								if (null != column.getValue())
+									regionId = UUIDType.instance.compose(
+											column.getValue()).toString();
 
 							}
 						}

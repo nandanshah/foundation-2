@@ -171,6 +171,9 @@ public class TrendScoreDriver implements Serializable {
 						.getValue(), TrendRecommendationUtil.getDate(
 						input_date_trend_score, DATE_FORMAT));
 				
+				trendScoreProp.close();
+				
+				
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(

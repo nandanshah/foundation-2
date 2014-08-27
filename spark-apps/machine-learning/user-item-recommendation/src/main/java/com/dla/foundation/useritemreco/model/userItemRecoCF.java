@@ -12,7 +12,7 @@ public enum userItemRecoCF {
 			"socialscorereason"), PIO_SCORE("recobyfoundationscore"), PIO_SCORE_REASON(
 			"recoByfoundationreason"), DATE("date"), EVENT_REQUIRED(
 			"eventrequired"), PREFERRED_REGION("preferredregion"), ACCOUNT(
-			"accountid"), PIO_DATE("lastrecofetched"), PERIOD_ID("periodid");
+			"accountid"), PIO_DATE("lastrecofetched"), PERIOD_ID("periodid"),TENANT_ID("tenant_id");
 	private String column;
 
 	private userItemRecoCF(String s) {
