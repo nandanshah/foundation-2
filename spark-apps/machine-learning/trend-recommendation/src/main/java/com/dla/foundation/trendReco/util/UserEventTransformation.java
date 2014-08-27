@@ -150,10 +150,11 @@ public class UserEventTransformation implements Serializable {
 								.toDouble(column.getValue()));
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.RATE_SCORE.getColumn()) == 0) {
-
-					if (null != column.getValue())
-						userEvent.setRatescore(ByteBufferUtil.toDouble(column
+										
+					if (null != column.getValue()) {
+						userEvent.setRatescore(ByteBufferUtil.toInt(column
 								.getValue()));
+					}
 				}
 
 			}

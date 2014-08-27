@@ -287,13 +287,11 @@ public class UserEvtSummaryService implements Serializable {
 		userEventIterator = records._2.iterator();
 
 		while (userEventIterator.hasNext()) {
-
 			UserEvent userEvent = userEventIterator.next();
-
 			if (userEvent.getRatescore() >= 0) {
 
 				rateEventFlag = true;
-				rateScore = (int) userEvent.getRatescore();
+				rateScore = userEvent.getRatescore();
 			} else {
 				break;
 			}
@@ -306,7 +304,7 @@ public class UserEvtSummaryService implements Serializable {
 					(1 * eventType.getWeight().get(VALUE)) / 100);
 
 		} else {
-
+			
 			countWeight.put(COUNT, 1.0);
 			countWeight
 					.put(WEIGHT,
