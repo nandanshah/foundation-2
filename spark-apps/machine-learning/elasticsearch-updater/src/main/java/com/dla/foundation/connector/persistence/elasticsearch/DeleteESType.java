@@ -1,8 +1,11 @@
 package com.dla.foundation.connector.persistence.elasticsearch;
 
 import java.io.IOException;
+
 import org.apache.log4j.Logger;
+
 import com.dla.foundation.analytics.utils.PropertiesHandler;
+import com.dla.foundation.connector.util.PropKeys;
 
 /*
  * This class will be invoked when running app in delete mode. It will delete 'user_reco' type 
@@ -19,8 +22,8 @@ public class DeleteESType {
 	private void init(String propertiesFilePath){
 		try {
 			phandler=  new PropertiesHandler(propertiesFilePath);
-			esHost= phandler.getValue("urlHost");
-			userRecoType=phandler.getValue("delete.user.reco.type");
+			esHost= "http://"+phandler.getValue(PropKeys.ES_HOST.getValue())+":"+phandler.getValue(PropKeys.ES_PORT.getValue())+"/";//phandler.getValue("urlHost");
+			userRecoType=	ESWriter.reco_type.getPassive();//phandler.getValue("delete.user.reco.type");
 			repository= new ElasticSearchRepo(esHost);
 		} catch (IOException e) {
 			logger.error("Error in reading from properties file while deleting reco types");
@@ -34,7 +37,8 @@ public class DeleteESType {
 			repository.deleteItem(urlString);
 			logger.info("User Reco Type " +userRecoType+ " deleted from ES");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in deletiing - handled softly");
+			//e.printStackTrace();
 		}
 	}
 	

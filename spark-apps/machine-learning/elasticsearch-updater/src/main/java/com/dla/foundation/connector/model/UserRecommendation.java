@@ -9,26 +9,27 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 2898274449817898426L;
-	private String userid;
+	private String userId;
 	private String parentItemId;
+	private int enabled;
 	private double socialScore;
 	private double trendScore;
 	private double popularScore;
 	private double fpScore;
 	private double newScore;
 	private double recoByFoundation;
-	private String trendreason;
-	private String socialreason;
-	private String popularityreason;
-	private String fpreason;
-	private String recoByfoundationreason;
-	private String newreason;
+	private String trendReason;
+	private String socialReason;
+	private String popularityReason;
+	private String fpReason;
+	private String recoByfoundationReason;
+	private String newReason;
 	
-	public String getUserid() {
-		return userid;
+	public String getUserId() {
+		return userId;
 	}
-	public void setUserid(String userid) {
-		this.userid = userid;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	public String getParentItemId() {
 		return parentItemId;
@@ -36,6 +37,14 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public void setParentItemId(String parentItemId) {
 		this.parentItemId = parentItemId;
 	}
+	
+	public int getEnabled() {
+		return enabled;
+	}
+	public void setEnabled(int enabled) {
+		this.enabled = enabled;
+	}
+	
 	public double getSocialScore() {
 		return socialScore;
 	}
@@ -74,46 +83,53 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	}
 
 	public String getTrendreason() {
-		return trendreason;
+		return trendReason;
 	}
 	public void setTrendreason(String trendreason) {
-		this.trendreason = trendreason;
+		this.trendReason = trendreason;
 	}
 	public String getSocialreason() {
-		return socialreason;
+		return socialReason;
 	}
 	public void setSocialreason(String socialreason) {
-		this.socialreason = socialreason;
+		this.socialReason = socialreason;
 	}
 	public String getPopularityreason() {
-		return popularityreason;
+		return popularityReason;
 	}
 	public void setPopularityreason(String popularityreason) {
-		this.popularityreason = popularityreason;
+		this.popularityReason = popularityreason;
 	}
 	public String getFpreason() {
-		return fpreason;
+		return fpReason;
 	}
 	public void setFpreason(String fpreason) {
-		this.fpreason = fpreason;
+		this.fpReason = fpreason;
 	}
 	public String getRecoByfoundationreason() {
-		return recoByfoundationreason;
+		return recoByfoundationReason;
 	}
 	public void setRecoByfoundationreason(String recoByfoundationreason) {
-		this.recoByfoundationreason = recoByfoundationreason;
+		System.out.println("recoByFoundation"+recoByfoundationreason);
+		this.recoByfoundationReason = recoByfoundationreason;
 	}
 	@Override
 	public String toString() {
-		return "UserRecommendation [userid=" + userid + ", parentItemId="
+		return "UserRecommendation [userId=" + userId + ", parentItemId="
 				+ parentItemId + ", socialScore=" + socialScore
 				+ ", trendScore=" + trendScore + ", popularScore="
 				+ popularScore + ", fpScore=" + fpScore + ", newScore="
 				+ newScore + ", recoByFoundation=" + recoByFoundation
-				+ ", trendreason=" + trendreason + ", socialreason="
-				+ socialreason + ", popularityreason=" + popularityreason
-				+ ", fpreason=" + fpreason + ", recoByfoundationreason="
-				+ recoByfoundationreason + "]";
+				+ ", trendReason=" + trendReason + ", socialReason="
+				+ socialReason + ", popularityReason=" + popularityReason
+				+ ", fpReason=" + fpReason + ", recoByfoundationReason="
+				+ recoByfoundationReason + "]";
+	}
+	public String getNewReason() {
+		return newReason;
+	}
+	public void setNewReason(String newReason) {
+		this.newReason = newReason;
 	}
 	
 }

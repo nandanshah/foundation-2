@@ -8,6 +8,10 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.dla.foundation.analytics.utils.PropertiesHandler;
+import com.dla.foundation.connector.model.RecoType;
+import com.dla.foundation.connector.util.PropKeys;
+import com.dla.foundation.connector.util.StaticProps;
+import com.dla.foundation.services.contentdiscovery.entities.MediaItem;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /* This  class will write the transformed records to ES using Bulk API
@@ -24,18 +28,33 @@ public class ESWriter {
 	private static List<String> indexes= new ArrayList<String>();
 	private static PropertiesHandler phandler= null;
 	private static ElasticSearchRepo repository=null;
-	
+
 	final private static Logger logger = Logger.getLogger(ESWriter.class);
+	public static RecoType reco_type;
+	final static String reco_type_index = "catalog";
+	final static String	reco_type_name = "reco_type";
+	final static String reco_type_id = "_show";
 	
-	public static void init(String esFilePath){
+	public static void init(String commonFilePath){
 		try {
-			phandler=  new PropertiesHandler(esFilePath);
-			esHost= phandler.getValue("urlHost");
-			type=phandler.getValue("insert.type");
-			createIndex= Boolean.parseBoolean(phandler.getValue("create.index"));
-			buffer_threshold=Integer.parseInt(phandler.getValue("count.threshold"));
-			schemaFilePath=phandler.getValue("schemaPath");
+			
+			phandler=  new PropertiesHandler(commonFilePath);
+			esHost="http://"+phandler.getValue(PropKeys.ES_HOST.getValue())+":"+phandler.getValue(PropKeys.ES_PORT.getValue())+"/";
 			repository=new ElasticSearchRepo(esHost);
+			checkRecoTypeFromJSON("catalog","reco_type");
+			type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
+			createIndex= Boolean.parseBoolean(StaticProps.CREATE_INDEX.getValue());
+			buffer_threshold=Integer.parseInt(StaticProps.COUNT_THRESHHOLD.getValue());
+			if(type.equals("user_reco_1"))
+				schemaFilePath=StaticProps.SCHEMA_PATH1.getValue();
+			else
+				{
+					if(type.equals("user_reco_2"))
+						schemaFilePath=StaticProps.SCHEMA_PATH2.getValue();
+					else
+						logger.error("reco_type is invalid");
+				}
+			
 		} catch (IOException e) {
 			logger.fatal("Error in reading from properties file");
 		}
@@ -105,7 +124,7 @@ public class ESWriter {
 		indexobj.put(operType, obj);
 		return indexobj;
 	}
-	
+
 	public void postBulkData(String json) {
 		try {
 			repository.doHttpRequest(esHost+"_bulk", json, "POST", true);
@@ -114,4 +133,47 @@ public class ESWriter {
 		}
 		
 	}
+	
+	public static void checkRecoTypeFromJSON(String indexName,String indexType){
+		boolean indexExists = repository.checkESIndexIfExists(indexName, esHost);
+		
+			if(!indexExists){
+				repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
+				indexes.add(indexName);
+				repository.addESSchemaMapping(indexName, indexType, "src/main/resources/Reco_type.json", esHost);
+				reco_type = new RecoType("user_reco_1", "user_reco_2");
+				try {
+					
+					repository.addItem(esHost+indexName+"/"+indexType+"/"+"_show", reco_type);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					logger.error("Error adding json item for active passive reco-type");
+				}
+			}
+			else{
+				
+				try {
+					reco_type = (RecoType)repository.getItem(indexName, indexType, "_show");
+					//md.mapToMediaItem(, target);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		
+	}
+	
+	public static void swapRecoType(){
+		String active = reco_type.getActive();
+		String passive = reco_type.getPassive();
+		reco_type.setActive(passive);
+		reco_type.setPassive(active);
+		try {
+			repository.updateItem(esHost + reco_type_index + "/" + reco_type_name +"/"+reco_type_id, reco_type);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

@@ -9,7 +9,6 @@ public class DateUtil {
 		Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         Date yesterday = cal.getTime();
-       
 		cal.setTimeInMillis(yesterday.getTime());
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
