@@ -66,7 +66,7 @@ public class AccountTransformation implements Serializable {
 							for (Entry<String, ByteBuffer> column : otherColumns
 									.entrySet()) {
 								if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.TENANT.getColumn()) == 0) {
+										userItemRecoCF.TENANT_ID.getColumn()) == 0) {
 									if (null != column.getValue())
 										tenantId = UUIDType.instance.compose(
 												column.getValue()).toString();

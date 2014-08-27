@@ -65,6 +65,7 @@ public class UserItemRecoDriver implements Serializable {
 				DATE_FORMAT), 1);
 		userItemRecoProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
 				UserItemRecommendationUtil.getDate(input_date, DATE_FORMAT));
+		userItemRecoProp.close();
 	}
 
 	/**
@@ -101,9 +102,8 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig userItemSummaryCassandraProp = new CassandraConfig(
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				UserItemRecoProp.INPUT_CF_PROFILE, UserItemRecoProp.OUTPUT_CF,
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize),
 				USER_ITEM_LEVEL_QUERY_PROPERTY);
@@ -162,9 +162,8 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig scoreSummaryCassandraProp = new CassandraConfig(
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				UserItemRecoProp.INPUT_CF_ITEM,
 				UserItemRecoProp.OUTPUT_CF_ITEM,
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize.getValue()),
@@ -213,23 +212,24 @@ public class UserItemRecoDriver implements Serializable {
 		logger.info("reading from profile column family");
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraProfileRDD = cassandraSparkConnector
 				.read(profileConf, sparkContext,
-						userItemSummaryCassandraProp.getCoreServiceKeyspace(),
+						userItemSummaryCassandraProp.getInputKeyspace(),
 						userItemSummaryCassandraProp.getInputColumnfamily(),
 						userItemSummaryCassandraProp.getPageRowSize());
 
 		logger.info("transforming profile column family");
 		JavaPairRDD<String, String> profileRDD = ProfileTransformation
 				.getProfile(cassandraProfileRDD, userItemPreferredRegionInfo);
-
+		
 		logger.info("filtering profile column family");
 		JavaPairRDD<String, String> filteredProfileRDD = Filter
 				.filterStringPair(profileRDD);
+		
 
 		logger.info("reading from account column family");
 		Configuration accountConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraAccountRDD = cassandraSparkConnector
 				.read(accountConf, sparkContext,
-						userItemSummaryCassandraProp.getCoreServiceKeyspace(),
+						userItemSummaryCassandraProp.getInputKeyspace(),
 						accountColumnFamily,
 						userItemSummaryCassandraProp.getPageRowSize());
 
@@ -237,10 +237,12 @@ public class UserItemRecoDriver implements Serializable {
 		JavaPairRDD<String, String> accountRDD = AccountTransformation
 				.getAccount(cassandraAccountRDD);
 
+	
 		logger.info("filtering account column family");
 		JavaPairRDD<String, String> filteredAccountRDD = Filter
 				.filterStringPair(accountRDD);
-
+		
+		
 		logger.info("joining account & profile column family");
 		JavaPairRDD<String, String> profileWithTenantRDD = UserItemRecommendationUtil
 				.mergeTenant(filteredProfileRDD, filteredAccountRDD);
@@ -284,17 +286,18 @@ public class UserItemRecoDriver implements Serializable {
 		logger.info("reading item column family");
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraItemRDD = cassandraSparkConnector
 				.read(conf, sparkContext,
-						scoreSummaryCassandraProp.getCoreServiceKeyspace(),
+						scoreSummaryCassandraProp.getInputKeyspace(),
 						scoreSummaryCassandraProp.getInputColumnfamily(),
 						scoreSummaryCassandraProp.getPageRowSize());
 
 		logger.info("transforming item column family");
 		JavaPairRDD<String, String> itemRDD = ItemTransformation.getItem(
 				cassandraItemRDD, itemRegionTenantInfo);
-
+		
 		logger.info("filtering record of item column family");
 		JavaPairRDD<String, String> filteredItemRDD = Filter
 				.filterStringPair(itemRDD);
+		
 		logger.info("invoking item summary Calc");
 		JavaRDD<ItemSummary> scoreSummaryRDD = itemSummaryCalc
 				.calculateScoreSummary(sparkContext, cassandraSparkConnector,

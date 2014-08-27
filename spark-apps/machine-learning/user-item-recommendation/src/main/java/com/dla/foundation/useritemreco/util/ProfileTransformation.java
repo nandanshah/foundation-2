@@ -90,7 +90,7 @@ public class ProfileTransformation implements Serializable {
 						if (null != profileId && null != regionId) {
 							primaryKey = accountId;
 							return new Tuple2<String, String>(primaryKey,
-									profileId + DELIMITER + regionId);
+									regionId + DELIMITER + profileId);
 						}
 						return null;
 
