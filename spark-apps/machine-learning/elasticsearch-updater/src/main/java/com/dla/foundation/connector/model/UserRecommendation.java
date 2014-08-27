@@ -9,7 +9,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 2898274449817898426L;
-	private String userId;
+	private String profileId;
 	private String parentItemId;
 	private int enabled;
 	private double socialScore;
@@ -25,11 +25,11 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	private String recoByfoundationReason;
 	private String newReason;
 	
-	public String getUserId() {
-		return userId;
+	public String getprofileId() {
+		return profileId;
 	}
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setprofileId(String profileId) {
+		this.profileId = profileId;
 	}
 	public String getParentItemId() {
 		return parentItemId;
@@ -115,7 +115,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "UserRecommendation [userId=" + userId + ", parentItemId="
+		return "UserRecommendation [profileId=" + profileId + ", parentItemId="
 				+ parentItemId + ", socialScore=" + socialScore
 				+ ", trendScore=" + trendScore + ", popularScore="
 				+ popularScore + ", fpScore=" + fpScore + ", newScore="
