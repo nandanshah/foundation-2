@@ -73,7 +73,7 @@ public class PropertiesHandlerTest {
 
 	@Test
 	public void readFromCSTest() {
-		ResultSet rs = csContext.getRows("fis", "sparkappprop", "sparkappname",
+		ResultSet rs = csContext.getRows("fis", "eo_spark_app_prop", "sparkappname",
 				"gs");
 		String hostValue = rs.one()
 				.getMap("properties", String.class, String.class).get("host");
