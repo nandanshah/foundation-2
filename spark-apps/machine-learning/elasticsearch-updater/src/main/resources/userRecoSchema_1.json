@@ -69,11 +69,11 @@
                        },
 						"regionId":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "string", "index" : "not_analyzed"
                        },
 						"localeId":
                        {
-                           "type": "double", "index" : "not_analyzed"
+                           "type": "string", "index" : "not_analyzed"
                        },
 						"enabled":
                        {
