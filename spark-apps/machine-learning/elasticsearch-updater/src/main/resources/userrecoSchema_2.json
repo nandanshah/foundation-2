@@ -3,7 +3,7 @@
                {
                    "_parent":
                    {
-                       "type": "mediaitem"
+                       "type": "media_item"
                    },
                    "_routing":
                    {
@@ -59,7 +59,7 @@
                        {
                            "type": "string", "index" : "no"
                        },
-                       "userId":
+                       "profileId":
                        {
                            "type": "string", "index" : "not_analyzed"
                        },

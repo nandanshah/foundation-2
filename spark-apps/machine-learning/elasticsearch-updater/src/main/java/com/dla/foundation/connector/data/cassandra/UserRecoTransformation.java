@@ -49,9 +49,9 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 					public Tuple2<String, ESEntity> call(Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)	throws Exception {
 						String primaryKey = "";
 						userReco = getUserReco(record);
-						es_writer.writeToES(userReco.getTenantId(), userReco.getUserId(), userReco.getParentItemId(), userReco);
+						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getParentItemId(), userReco);
 						if (null != userReco) {
-								if(null!=userReco.getUserId()){
+								if(null!=userReco.getprofileId()){
 								primaryKey = primaryKey.concat("");
 								if (0 != "".compareTo(primaryKey)) {
 	
@@ -77,7 +77,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns.entrySet()) {
 				if (column.getKey().toLowerCase().compareTo(UserRecoSummary.USER.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setUserId(UUIDType.instance.compose(column.getValue()).toString());
+						userReco.setprofileId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
