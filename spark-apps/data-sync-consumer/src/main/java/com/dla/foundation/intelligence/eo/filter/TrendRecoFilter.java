@@ -48,7 +48,7 @@ public class TrendRecoFilter implements Filter {
 
 		PropertiesHandler phandler;
 		try {
-			csContext = new CassandraContext();
+			csContext = new CassandraContext(null);
 			phandler = new PropertiesHandler(propertiesFilePath);
 			nodeIpList = phandler.getValue(CommonPropKeys.cs_hostList);	
 			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);

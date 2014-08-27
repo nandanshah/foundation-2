@@ -49,9 +49,9 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 					public Tuple2<String, ESEntity> call(Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)	throws Exception {
 						String primaryKey = "";
 						userReco = getUserReco(record);
-						es_writer.writeToES(userReco.getTenantId(), userReco.getUserid(), userReco.getParentItemId(), userReco);
+						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getParentItemId(), userReco);
 						if (null != userReco) {
-								if(null!=userReco.getUserid()){
+								if(null!=userReco.getprofileId()){
 								primaryKey = primaryKey.concat("");
 								if (0 != "".compareTo(primaryKey)) {
 	
@@ -77,7 +77,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns.entrySet()) {
 				if (column.getKey().toLowerCase().compareTo(UserRecoSummary.USER.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setUserid(UUIDType.instance.compose(column.getValue()).toString());
+						userReco.setprofileId(UUIDType.instance.compose(column.getValue()).toString());
 
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
@@ -98,25 +98,41 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 		if (otherColumns != null) {
 
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
+				userReco.setEnabled(1);
 				if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TRENDSCORE.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setTrendScore(ByteBufferUtil.toDouble(column.getValue()));
+						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+							userReco.setTrendScore(0);
+						else
+							userReco.setTrendScore(ByteBufferUtil.toDouble(column.getValue()));
 					}
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.POPULARITYSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setPopularScore(ByteBufferUtil.toDouble((column.getValue())));
-
+						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+							userReco.setPopularScore(0);
+						else
+							userReco.setPopularScore(ByteBufferUtil.toDouble((column.getValue())));
+						
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setSocialScore(ByteBufferUtil.toDouble((column.getValue())));
+						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+							userReco.setSocialScore(0);
+						else
+							userReco.setSocialScore(ByteBufferUtil.toDouble((column.getValue())));
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.FPSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setFpScore(ByteBufferUtil.toDouble((column.getValue())));
+						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+							userReco.setFpScore(0);
+						else
+							userReco.setFpScore(ByteBufferUtil.toDouble((column.getValue())));
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.NEWSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setNewScore(ByteBufferUtil.toDouble((column.getValue())));
+						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+							userReco.setNewScore(0);
+						else
+							userReco.setNewScore(ByteBufferUtil.toDouble((column.getValue())));
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue()){
@@ -147,6 +163,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.RECOBYFOUNDATIONREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
+						System.out.println("reco col value"+ByteBufferUtil.string(column.getValue()));
 						userReco.setRecoByfoundationreason(ByteBufferUtil.string(column.getValue()));
 								
 					}

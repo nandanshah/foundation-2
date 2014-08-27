@@ -14,9 +14,8 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 
-import com.dla.foundation.connector.persistence.elasticsearch.ElasticSearchRepo;
-import com.dla.foundation.connector.persistence.elasticsearch.ElasticSearchResult;
-import com.dla.foundation.connector.model.*;
+import com.dla.foundation.connector.model.RecoType;
+import com.dla.foundation.connector.model.UserRecommendation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*
@@ -137,6 +136,12 @@ public class ElasticSearchRepo {
 		return string;
 	}
 
+	public ElasticSearchResult updateItem(String urlString, Object entity) throws IOException{
+		deleteItem(urlString);
+		ElasticSearchResult es= addItem(urlString, entity);
+		return es;
+	}
+	
 	public UserRecommendation getUserRecoItem(String index, String type, String id, String parent_id) throws IOException {
 		
 		URL url = generateUrl(index, type, id, parent_id);
@@ -206,4 +211,68 @@ public class ElasticSearchRepo {
 		httpConnection.disconnect();
 		return result;
 	}
+	
+	public boolean checkESIndexIfExists(String indexName, String urlHost) {
+		try {
+			URL url =new URL(urlHost + indexName);
+			//logger.info("Creating " + indexName + " index in ES:" + url+ "\n");
+			
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setRequestMethod("PUT");
+			httpConnection.setRequestProperty("Content-Type", "application/json");
+			if(httpConnection.getResponseCode() ==400)
+			{   return true;
+			} else if(httpConnection.getResponseCode() ==200)
+				return false;
+			
+		}  catch (IOException e) {
+			System.out.println("Error while creating index:");
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public ElasticSearchResult addItem(String urlString, Object entity) throws IOException{
+		System.out.println("url"+urlString);
+		URL url = new URL(urlString);
+		System.out.println("urlstring"+urlString);
+		ObjectMapper mapper = new ObjectMapper();
+		HttpURLConnection conn = null;
+		conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("POST");
+		conn.setDoOutput(true);
+		
+		String entityJson = mapper.writeValueAsString(entity);
+		logger.info("addItem: " + entityJson);
+		try (OutputStream outputStream = conn.getOutputStream()) {
+		
+			mapper.writeValue(outputStream, entity);
+		}
+		ElasticSearchResult esResult;
+		try (InputStream inputStream = conn.getInputStream()) {
+				esResult = mapper.readValue(inputStream, ElasticSearchResult.class);
+		}
+
+		return esResult;
+	}
+	public RecoType getItem(String index, String type, String id) throws IOException {
+		URL url = generateUrl(index, type, id, null);
+		HttpURLConnection conn;
+
+		conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestMethod("GET");
+
+		ObjectMapper mapper = new ObjectMapper();
+		RecoTypeResult uResult=null;	
+				
+		try (InputStream inputStream = conn.getInputStream()) {
+			uResult = mapper.readValue(inputStream, RecoTypeResult.class);
+
+		} catch (FileNotFoundException e) {
+				return null;
+		}
+		
+		return uResult._source;
+	}
+	
 }

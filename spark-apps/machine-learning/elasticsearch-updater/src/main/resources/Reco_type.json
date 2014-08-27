@@ -1,0 +1,21 @@
+{
+               "reco_type":
+               {
+                   "_routing":
+                   {
+                       "required": true
+                   },
+                   "properties":
+                   {
+                       "active":
+                       {
+                           "type": "string", "index" : "no"
+                       },
+                       "passive":
+                       {
+                           "type": "string", "index" : "no"
+                       }
+                    }
+                  }
+}
+                       
