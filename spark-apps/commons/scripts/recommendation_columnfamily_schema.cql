@@ -23,8 +23,8 @@ create index if not exists index_trend_reco_date on trend_reco (date);
 
 create table if not exists fnp_reco(periodid timeuuid,tenantid uuid,regionid uuid,itemid uuid,fnpscore double,normalizedfnpscore double,fnpscorereason text,eventrequired int,date timestamp, primary key (periodid,tenantid,regionid,itemid));
 
-create index if not exists index_f&p_reco_event_required on fnp_reco (eventrequired);
-create index if not exists index_f&p_reco_date on fnp_reco (date);
+create index if not exists index_fnp_reco_event_required on fnp_reco (eventrequired);
+create index if not exists index_fnp_reco_date on fnp_reco (date);
 
 
 
@@ -58,7 +58,7 @@ create index if not exists user_item_reco_date on user_item_reco (date);
 
 // Schema for social
 
-create table if not exists social_friends_info( profileid uuid,friendprofileid uuid , relation text, primary key(profileid,friendid));
+create table if not exists social_friends_info( profileid uuid,friendprofileid uuid , relation text, primary key(profileid,friendprofileid));
 
 create table if not exists social_profile(id uuid, name text, username text, location text, gender text, country text, timezone text, primary key(id));
 
@@ -74,7 +74,7 @@ create table  pio_user_reco ( tenantid uuid, regionid uuid, profileid uuid, item
               recobyfoundationreason text, eventrequired int,primary key(profileid,itemid));
 
 create index if not exists pio_user_reco_event_required on pio_user_reco (eventrequired);
-create index if not exists pio_user_reco_date on pio_user_reco (date);
+create index if not exists pio_user_reco_date on pio_user_reco (lastrecofetched);
 
 
 // Schema for EO 
@@ -110,4 +110,9 @@ insert into eo_event_metadata (id, eventtype , required ) VALUES ( ea06c052-15c5
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 5a1fba63-abc1-41f0-af0c-31a6a6a49581, 'UserItemRent', 1) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( e1df2f93-e422-4477-8501-a19f418140a5, 'UserItemPurchase', 1) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 5c0cf1b4-5571-4f6c-81f5-167ce7032a8f, 'UserItemImpression', 1) ;
+
+insert into eo_spark_app_prop(sparkappname,properties) values('useritemreco',{'input_date':'2014-06-30'});
+insert into eo_spark_app_prop(sparkappname,properties) values('userevent',{'event_required':'WATCH,90,60|Like,40|Rate,1#-25:2#-10:3#50:4#75:5#100','input_date':'2014-06-29','recalculation_start_date':'2014-06-26','recalculation_end_date':'2014-06-29','recalculation_period':'5','incremental_flag':'false'});
+insert into eo_spark_app_prop(sparkappname,properties) values('dailyeventsummary',{'input_date':'2014-06-29','recalculation_start_date':'2014-06-26','recalculation_end_date':'2014-06-29','recalculation_period':'5','incremental_flag':'false'});
+insert into eo_spark_app_prop(sparkappname,properties) values('trendscore',{'current_trend_date':'2014-06-26','recalculation_start_date':'2014-06-26','recalculation_end_date':'2014-06-29','zscore_period':'30','incremental_flag':'false'});
 

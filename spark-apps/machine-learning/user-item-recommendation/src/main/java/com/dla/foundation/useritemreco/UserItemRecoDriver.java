@@ -103,6 +103,7 @@ public class UserItemRecoDriver implements Serializable {
 		CassandraConfig userItemSummaryCassandraProp = new CassandraConfig(
 				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
 				UserItemRecoProp.INPUT_CF_PROFILE, UserItemRecoProp.OUTPUT_CF,
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize),
 				USER_ITEM_LEVEL_QUERY_PROPERTY);
@@ -163,6 +164,7 @@ public class UserItemRecoDriver implements Serializable {
 		CassandraConfig scoreSummaryCassandraProp = new CassandraConfig(
 				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
 				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
 				UserItemRecoProp.INPUT_CF_ITEM,
 				UserItemRecoProp.OUTPUT_CF_ITEM,
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize.getValue()),
@@ -211,7 +213,7 @@ public class UserItemRecoDriver implements Serializable {
 		logger.info("reading from profile column family");
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraProfileRDD = cassandraSparkConnector
 				.read(profileConf, sparkContext,
-						userItemSummaryCassandraProp.getInputKeyspace(),
+						userItemSummaryCassandraProp.getCoreServiceKeyspace(),
 						userItemSummaryCassandraProp.getInputColumnfamily(),
 						userItemSummaryCassandraProp.getPageRowSize());
 
@@ -227,7 +229,7 @@ public class UserItemRecoDriver implements Serializable {
 		Configuration accountConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraAccountRDD = cassandraSparkConnector
 				.read(accountConf, sparkContext,
-						userItemSummaryCassandraProp.getInputKeyspace(),
+						userItemSummaryCassandraProp.getCoreServiceKeyspace(),
 						accountColumnFamily,
 						userItemSummaryCassandraProp.getPageRowSize());
 
@@ -282,7 +284,7 @@ public class UserItemRecoDriver implements Serializable {
 		logger.info("reading item column family");
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraItemRDD = cassandraSparkConnector
 				.read(conf, sparkContext,
-						scoreSummaryCassandraProp.getInputKeyspace(),
+						scoreSummaryCassandraProp.getCoreServiceKeyspace(),
 						scoreSummaryCassandraProp.getInputColumnfamily(),
 						scoreSummaryCassandraProp.getPageRowSize());
 
