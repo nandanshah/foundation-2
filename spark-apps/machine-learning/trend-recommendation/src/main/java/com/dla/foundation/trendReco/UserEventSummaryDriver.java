@@ -51,7 +51,6 @@ public class UserEventSummaryDriver implements Serializable {
 	private static final String TRUE = "true";
 	private static final String FALSE = "false";
 	private static final String DATE_FORMAT = "yyyy-MM-dd";
-	private static final String IP_SEPARATOR = ",";
 
 	private static final Logger logger = Logger
 			.getLogger(UserEventSummaryDriver.class);
@@ -166,7 +165,6 @@ public class UserEventSummaryDriver implements Serializable {
 						TrendRecommendationUtil.getDate(input_date_user_event,
 								DATE_FORMAT));
 
-				userSumProp.close();
 
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module of user summary");
@@ -209,6 +207,8 @@ public class UserEventSummaryDriver implements Serializable {
 			logger.error(e.getMessage());
 			throw new Exception(e.getMessage());
 
+		} finally {
+			userSumProp.close();
 		}
 
 	}
