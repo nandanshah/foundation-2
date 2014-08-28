@@ -19,8 +19,7 @@ public enum CommonPropKeys {
 	spark_host("spark_host"), spark_port("spark_port"),
 
 	// PIO common properties
-	pio_host("pio_host"), pio_port("pio_port"), pio_appkey("pio_appkey"), pio_engine(
-			"pio_engine"), 
+	pio_host("pio_host"), pio_port("pio_port"),
 
 	// Elastic search common properties
 	es_host("es_host"), es_httpPort("es_httpPort"), es_transportPort(

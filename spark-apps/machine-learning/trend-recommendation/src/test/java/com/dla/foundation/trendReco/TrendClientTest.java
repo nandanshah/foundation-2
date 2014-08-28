@@ -63,7 +63,7 @@ public class TrendClientTest {
 		
 		for (Row row : trendScoreResult) {
 			
-				if (row.getUUID("id").toString() == "366e8400-fef2-11e3-8080-808080808080") {
+				if (row.getUUID("periodid").toString() == "366e8400-fef2-11e3-8080-808080808080") {
 
 					assertEquals(0.5, row.getDouble("trendscore"), 0);
 				}
