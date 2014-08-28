@@ -92,6 +92,15 @@ public class UserEventTransformation implements Serializable {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns
 					.entrySet()) {
 
+
+
+			}
+		}
+		Map<String, ByteBuffer> otherColumns = record._2;
+		if (otherColumns != null) {
+
+			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
+				
 				if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
@@ -116,15 +125,7 @@ public class UserEventTransformation implements Serializable {
 						userEvent.setItemid(UUIDType.instance.compose(
 								column.getValue()).toString());
 
-				}
-
-			}
-		}
-		Map<String, ByteBuffer> otherColumns = record._2;
-		if (otherColumns != null) {
-
-			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column.getKey().compareToIgnoreCase(
+				}else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
 					if (null != column.getValue()) {
 						userEvent.setEventType(ByteBufferUtil.string(

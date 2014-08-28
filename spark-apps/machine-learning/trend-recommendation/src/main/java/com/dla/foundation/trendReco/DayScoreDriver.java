@@ -152,8 +152,7 @@ public class DayScoreDriver implements Serializable {
 				dailyEventSumProp.writeToCassandra(PropKeys.INPUT_DATE
 						.getValue(), TrendRecommendationUtil.getDate(
 						input_date_daily_event, DATE_FORMAT));
-
-				
+								
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -192,6 +191,8 @@ public class DayScoreDriver implements Serializable {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			throw new Exception(e.getMessage());
+		} finally {
+			dailyEventSumProp.close();
 		}
 	}
 

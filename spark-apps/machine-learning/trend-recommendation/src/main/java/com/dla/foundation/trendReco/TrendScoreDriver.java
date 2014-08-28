@@ -93,6 +93,7 @@ public class TrendScoreDriver implements Serializable {
 							trendScoreProp.getValue(CommonPropKeys.cs_hostList
 									.getValue()), ","),
 					TrendRecoProp.PARTITIONER);
+					
 			runTrendScoreDriver(sparkContext, cassandraSparkConnector,
 					trendScoreProp);
 
@@ -170,7 +171,7 @@ public class TrendScoreDriver implements Serializable {
 				trendScoreProp.writeToCassandra(PropKeys.CURRENT_TREND_DATE
 						.getValue(), TrendRecommendationUtil.getDate(
 						input_date_trend_score, DATE_FORMAT));
-				
+												
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -221,6 +222,8 @@ public class TrendScoreDriver implements Serializable {
 		} catch (Exception e) {
 			logger.error(e);
 			throw new Exception(e);
+		} finally {
+			trendScoreProp.close();
 		}
 	}
 
