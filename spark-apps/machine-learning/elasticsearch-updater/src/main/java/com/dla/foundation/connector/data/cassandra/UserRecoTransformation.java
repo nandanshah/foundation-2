@@ -49,7 +49,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 					public Tuple2<String, ESEntity> call(Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)	throws Exception {
 						String primaryKey = "";
 						userReco = getUserReco(record);
-						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getParentItemId(), userReco);
+						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getmediaItemId(), userReco);
 						if (null != userReco) {
 								if(null!=userReco.getprofileId()){
 								primaryKey = primaryKey.concat("");
@@ -72,16 +72,17 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 			throws NumberFormatException, CharacterCodingException, ParseException {
 
 		UserRecommendation userReco = new UserRecommendation();
+		userReco.id = null;
 		Map<String, ByteBuffer> priamryKeyColumns = record._1();
 		if (priamryKeyColumns != null) {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns.entrySet()) {
 				if (column.getKey().toLowerCase().compareTo(UserRecoSummary.USER.getColumn()) == 0) {
 					if (null != column.getValue())
 						userReco.setprofileId(UUIDType.instance.compose(column.getValue()).toString());
-
+						
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						userReco.setParentItemId(UUIDType.instance.compose(column.getValue()).toString());
+						userReco.setmediaItemId(UUIDType.instance.compose(column.getValue()).toString());
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
 						userReco.setTenantId(UUIDType.instance.compose(column.getValue()).toString());
@@ -94,6 +95,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 			
 			}
 		}
+		userReco.id = userReco.getmediaItemId()+ "-" +userReco.getprofileId()  ;
 		Map<String, ByteBuffer> otherColumns = record._2;
 		if (otherColumns != null) {
 

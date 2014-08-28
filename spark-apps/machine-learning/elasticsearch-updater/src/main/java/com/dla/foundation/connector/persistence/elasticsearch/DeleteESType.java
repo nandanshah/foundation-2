@@ -37,8 +37,7 @@ public class DeleteESType {
 			repository.deleteItem(urlString);
 			logger.info("User Reco Type " +userRecoType+ " deleted from ES");
 		} catch (Exception e) {
-			logger.error("Error in deletiing - handled softly");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
