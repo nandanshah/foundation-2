@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.dla.foundation.analytics.utils.CassandraContext;
 import com.dla.foundation.connector.data.cassandra.CassandraEntityReader;
 import com.dla.foundation.connector.model.UserRecommendation;
+import com.dla.foundation.connector.persistence.elasticsearch.ESWriter;
 import com.dla.foundation.connector.persistence.elasticsearch.ElasticSearchRepo;
 
 public class ConnectorTest {
@@ -46,9 +47,9 @@ public class ConnectorTest {
 		boolean exists= repository.createESIndex("d979ca35-b58d-434b-b2d6-ea0316bcc9b7", esHost);
 		assertEquals(exists, true);
 		
-		UserRecommendation ur= repository.getUserRecoItem("d979ca35-b58d-434b-b2d6-ea0316bcc9a6", "user_reco_1", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9-c979ca35-b58d-434b-b2d6-ea0316bcc9a8", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
+		UserRecommendation ur= repository.getUserRecoItem("d979ca35-b58d-434b-b2d6-ea0316bcc9a6", ESWriter.reco_type.getActive(), "c979ca35-b58d-434b-b2d6-ea0316bcc9a9-c979ca35-b58d-434b-b2d6-ea0316bcc9a8", "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
 		assertNotNull(ur);
-		assertEquals(ur.getParentItemId(), "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
+		assertEquals(ur.getmediaItemId(), "c979ca35-b58d-434b-b2d6-ea0316bcc9a9");
 		
 	}
 	
