@@ -55,11 +55,13 @@ public class CassandraEntityReader implements Serializable{
 		Configuration conf= new Configuration();
 	
 		long day_timestamp = DateUtil.getPreviousDay();
-        String filterClause =  "flag =1 and date = "+ day_timestamp;
+        String filterClause =  "eventrequired =1 and date = "+ day_timestamp;
+        logger.info("filterClause" + filterClause);
 		cassandraRDD = cassandraSparkConnector.read(conf, sparkContext,
 				userRecoConfig.getInputKeyspace(),
 				userRecoConfig.getInputColumnfamily(),
 				userRecoConfig.getPageRowSize(), filterClause); 
+		logger.info("cassandraRDD count"+cassandraRDD.count());;
 		transformData(cassandraRDD);
 	}
 
