@@ -33,4 +33,4 @@ echo -e "Submitting Spark Application, trend-recommendation-UserEventSummaryDriv
 $SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.UserEventSummaryDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
 
 echo -e "Submitting Spark Application, trend-recommendation-DayScoreDriver, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib//trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
