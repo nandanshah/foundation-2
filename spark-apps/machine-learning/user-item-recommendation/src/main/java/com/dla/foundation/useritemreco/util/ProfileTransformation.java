@@ -29,8 +29,7 @@ public class ProfileTransformation implements Serializable {
 	private static final String DELIMITER = "#";
 
 	public static JavaPairRDD<String, String> getProfile(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
-			final Map<String, String> userItemPreferredRegion) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
 
 		JavaPairRDD<String, String> profileRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -77,8 +76,7 @@ public class ProfileTransformation implements Serializable {
 								if (column
 										.getKey()
 										.compareToIgnoreCase(
-												userItemPreferredRegion
-														.get(UserItemRecoProp.PROFILE_LEVEL_PREFERRED_REGION_ID)) == 0) {
+												UserItemRecoProp.PROFILE_LEVEL_PREFERRED_REGION_ID) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();

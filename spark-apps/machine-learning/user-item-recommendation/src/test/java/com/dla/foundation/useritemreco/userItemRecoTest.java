@@ -42,8 +42,7 @@ public class userItemRecoTest {
 
 		userItemRecoDriver.runUserItemRecoDriver(current_dir
 				+ "/../../commons/src/test/resources/common.properties");
-		ResultSet userItemResult = cassandra.getRows("fis",
-				"user_item_reco");
+		ResultSet userItemResult = cassandra.getRows("fis", "user_item_reco");
 		for (Row row : userItemResult) {
 			try {
 				if (0 == row
