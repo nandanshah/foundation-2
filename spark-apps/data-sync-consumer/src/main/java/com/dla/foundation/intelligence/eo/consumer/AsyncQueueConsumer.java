@@ -9,16 +9,12 @@ import com.dla.foundation.intelligence.eo.filter.FilterException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
-import com.rabbitmq.client.BlockedListener;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.ExceptionHandler;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
-import com.rabbitmq.client.TopologyRecoveryException;
 
 /**
  * Asynchronous queue listener. 
