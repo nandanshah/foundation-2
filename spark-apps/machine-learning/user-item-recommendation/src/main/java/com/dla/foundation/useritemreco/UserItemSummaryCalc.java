@@ -46,7 +46,7 @@ public class UserItemSummaryCalc implements Serializable {
 	private String scoreSummaryCF;
 	private String pageRowSize;
 	private Date inputDate;
-	Map<String, String> otherAppsInfo;
+
 	String socialCF;
 	String pioCF;
 
@@ -54,14 +54,13 @@ public class UserItemSummaryCalc implements Serializable {
 			.getLogger(UserItemSummaryCalc.class);
 
 	public UserItemSummaryCalc(String itemLevelCFKeyspace,
-			String scoreSummaryCF, String pageRowSize, Date inputDate,
-			Map<String, String> otherAppsInfo) {
+			String scoreSummaryCF, String pageRowSize, Date inputDate) {
 		super();
 		this.itemLevelCFKeyspace = itemLevelCFKeyspace;
 		this.scoreSummaryCF = scoreSummaryCF;
 		this.pageRowSize = pageRowSize;
 		this.inputDate = inputDate;
-		this.otherAppsInfo = otherAppsInfo;
+
 	}
 
 	/**
@@ -121,8 +120,7 @@ public class UserItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
 			JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> joinedSocial) {
-		pioCF = otherAppsInfo
-				.get(UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION);
+		pioCF = UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION;
 		Configuration pioConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraPioRDD = cassandraSparkConnector
 				.read(pioConf, sparkContext, itemLevelCFKeyspace, pioCF,
@@ -144,8 +142,7 @@ public class UserItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
 			JavaPairRDD<String, UserItemSummary> filteredUserItem) {
-		socialCF = otherAppsInfo
-				.get(UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION);
+		socialCF = UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION;
 
 		Configuration socialConf = new Configuration();
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraSocialRDD = cassandraSparkConnector
@@ -156,8 +153,6 @@ public class UserItemSummaryCalc implements Serializable {
 		logger.info("transforming social column family");
 		JavaPairRDD<String, UserItemSummary> socialRDD = RecoTransformations
 				.getTransformations(cassandraSocialRDD);
-
-		//
 
 		logger.info("filtering social");
 
@@ -199,73 +194,38 @@ public class UserItemSummaryCalc implements Serializable {
 						combinedItem = combinedUserItem.getItemSummary();
 						combinedScores = combinedItem.getScores();
 						if (record._2._1._2.isPresent()) {
-							if (record._2._2.isPresent()) // both are present
-							{
 
-								socialUserItem = record._2._1._2.get();
-								socialItem = socialUserItem.getItemSummary();
-								socialScores = socialItem.getScores();
+							socialUserItem = record._2._1._2.get();
+							socialItem = socialUserItem.getItemSummary();
+							socialScores = socialItem.getScores();
 
-								pioUserItem = record._2._2.get();
-								pioItem = pioUserItem.getItemSummary();
-								pioScores = pioItem.getScores();
+							socialScoreInfo = socialScores
+									.get(ScoreType.SOCIAL_TYPE.getColumn());
+						} else {
+							socialScoreInfo.setType(ScoreType.SOCIAL_TYPE
+									.getColumn());
+							socialScoreInfo.setScoreReason(NOT_AVAILABLE);
+							socialScoreInfo.setScore(0);
+						}
 
-								socialScoreInfo = socialScores
-										.get(ScoreType.SOCIAL_TYPE.getColumn());
-								pioScoreInfo = pioScores.get(ScoreType.PIO_TYPE
-										.getColumn());
+						if (record._2._2.isPresent()) {
 
-							} else // social present PIO missing
-							{
-								socialUserItem = record._2._1._2.get();
-								socialItem = socialUserItem.getItemSummary();
-								socialScores = socialItem.getScores();
+							pioUserItem = record._2._2.get();
+							pioItem = pioUserItem.getItemSummary();
+							pioScores = pioItem.getScores();
 
-								pioScoreInfo.setType(ScoreType.PIO_TYPE
-										.getColumn());
-								pioScoreInfo.setScoreReason(NOT_AVAILABLE);
-								pioScoreInfo.setScore(0);
-								pioScores.put(pioScoreInfo.getType(),
-										pioScoreInfo);
+							pioScoreInfo = pioScores.get(ScoreType.PIO_TYPE
+									.getColumn());
 
-								socialScoreInfo = socialScores
-										.get(ScoreType.SOCIAL_TYPE.getColumn());
+						} else {
 
-							}
+							pioScoreInfo.setType(ScoreType.PIO_TYPE.getColumn());
+							pioScoreInfo.setScoreReason(NOT_AVAILABLE);
+							pioScoreInfo.setScore(0);
+							pioScores.put(pioScoreInfo.getType(), pioScoreInfo);
 
 						}
 
-						else {
-							if (record._2._2.isPresent()) // PIO present social
-															// absent
-							{
-								pioUserItem = record._2._2.get();
-								pioItem = pioUserItem.getItemSummary();
-								pioScores = pioItem.getScores();
-								pioScoreInfo = pioScores.get(ScoreType.PIO_TYPE
-										.getColumn());
-
-								socialScoreInfo.setType(ScoreType.SOCIAL_TYPE
-										.getColumn());
-								socialScoreInfo.setScoreReason(NOT_AVAILABLE);
-								socialScoreInfo.setScore(0);
-
-							} else // both social & PIO absent
-							{
-								socialScoreInfo.setType(ScoreType.SOCIAL_TYPE
-										.getColumn());
-								socialScoreInfo.setScoreReason(NOT_AVAILABLE);
-								socialScoreInfo.setScore(0);
-
-								pioScoreInfo.setType(ScoreType.PIO_TYPE
-										.getColumn());
-								pioScoreInfo.setScoreReason(NOT_AVAILABLE);
-								pioScoreInfo.setScore(0);
-								pioScores.put(pioScoreInfo.getType(),
-										pioScoreInfo);
-
-							}
-						}
 						combinedScores.put(socialScoreInfo.getType(),
 								socialScoreInfo);
 						combinedScores.put(pioScoreInfo.getType(), pioScoreInfo);
@@ -410,7 +370,8 @@ public class UserItemSummaryCalc implements Serializable {
 						String primaryKey = null;
 						UserItemSummary otherColumns = null;
 						primaryKey = record.getItemSummary().getTenantId()
-								+ "#" + record.getItemSummary().getRegionId();
+								+ "#" + record.getItemSummary().getRegionId()
+								+ "#" + record.getItemSummary().getItemId();
 						otherColumns = record;
 
 						return new Tuple2<String, UserItemSummary>(primaryKey,

@@ -29,8 +29,7 @@ public class ItemTransformation implements Serializable {
 	private static final String DELIMITER_PROPERTY = "#";
 
 	public static JavaPairRDD<String, String> getItem(
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD,
-			final Map<String, String> regionTenantInfo) {
+			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
 
 		JavaPairRDD<String, String> itemRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, String>() {
@@ -70,8 +69,7 @@ public class ItemTransformation implements Serializable {
 							if (column
 									.getKey()
 									.compareToIgnoreCase(
-											regionTenantInfo
-													.get(UserItemRecoProp.ITEM_LEVEL_TENANT_ID)) == 0) {
+											UserItemRecoProp.ITEM_LEVEL_TENANT_ID) == 0) {
 								if (null != column.getValue())
 									tenantId = UUIDType.instance.compose(
 											column.getValue()).toString();
@@ -79,8 +77,7 @@ public class ItemTransformation implements Serializable {
 							} else if (column
 									.getKey()
 									.compareToIgnoreCase(
-											regionTenantInfo
-													.get(UserItemRecoProp.ITEM_LEVEL_REGION_ID)) == 0) {
+											UserItemRecoProp.ITEM_LEVEL_REGION_ID) == 0) {
 								if (null != column.getValue())
 									regionId = UUIDType.instance.compose(
 											column.getValue()).toString();

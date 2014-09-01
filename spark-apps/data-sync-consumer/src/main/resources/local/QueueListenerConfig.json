@@ -7,7 +7,7 @@
 	"exchange_type" : "topic",
 	"queue_config" : [
 		{
-			"queue_name" : "queue_1",
+			"queue_name" : "AsyncCassandraQ",
 		 	"queue_type" : "async",
 		 	"queue_updater" : "com.dla.foundation.intelligence.eo.updater.CassandraUpdater",
 		 	"updater_filters" : "com.dla.foundation.intelligence.eo.filter.UserEventConversionFilter,com.dla.foundation.intelligence.eo.filter.TrendRecoFilter,com.dla.foundation.intelligence.eo.filter.DateSetterFilter",
