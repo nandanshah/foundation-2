@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
+import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
@@ -46,13 +47,13 @@ public class SyncQueueConsumer implements Runnable {
 			factory.setUsername(myConfig.getUsername());
 			factory.setPassword(myConfig.getPassword());
 			connection = factory.newConnection();
+			connection.addBlockedListener(new BlockedListenerLogger());
 			syncChannel = connection.createChannel();
-			syncChannel.exchangeDeclare(myConfig.getExchangeName(), myConfig.getExchangeType());
-			String queueName = syncChannel.queueDeclare().getQueue();
-			syncChannel.queueBind(queueName, myConfig.getExchangeName(), myConfig.getBind_key());
+			syncChannel.exchangeDeclarePassive(myConfig.getExchangeName());
+			syncChannel.queueDeclarePassive(myConfig.getName());
 			syncChannel.basicQos(1);
 			consumer = new QueueingConsumer(syncChannel);
-			syncChannel.basicConsume(queueName, false, consumer);
+			syncChannel.basicConsume(myConfig.getName(), false, consumer);
 			logger.info("Started Sync queue listener, bound using key: " + myConfig.getBind_key());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
