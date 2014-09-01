@@ -11,7 +11,6 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.connector.model.RecoType;
 import com.dla.foundation.connector.util.PropKeys;
 import com.dla.foundation.connector.util.StaticProps;
-import com.dla.foundation.services.contentdiscovery.entities.MediaItem;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /* This  class will write the transformed records to ES using Bulk API
@@ -36,22 +35,23 @@ public class ESWriter {
 	final static String reco_type_id = "_show";
 	final static String catalogIndex = "catalog";
 	
-	public static void init(String commonFilePath){
+	public static void init(String commonFilePath, String path){
 		try {
 			
 			phandler=  new PropertiesHandler(commonFilePath);
 			esHost="http://"+phandler.getValue(PropKeys.ES_HOST.getValue())+":"+phandler.getValue(PropKeys.ES_PORT.getValue())+"/";
 			repository=new ElasticSearchRepo(esHost);
-			checkRecoTypeFromJSON(reco_type_index,reco_type_name);
-			type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
+			checkRecoTypeFromJSON(reco_type_index,reco_type_name,path);
+				type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
+		
 			createIndex= Boolean.parseBoolean(StaticProps.CREATE_INDEX.getValue());
 			buffer_threshold=Integer.parseInt(StaticProps.COUNT_THRESHHOLD.getValue());
 			if(type.equals("user_reco_1"))
-				schemaFilePath=StaticProps.SCHEMA_PATH1.getValue();
+				schemaFilePath=path+StaticProps.SCHEMA_PATH1.getValue();
 			else
 				{
 					if(type.equals("user_reco_2"))
-						schemaFilePath=StaticProps.SCHEMA_PATH2.getValue();
+						schemaFilePath=path+StaticProps.SCHEMA_PATH2.getValue();
 					else
 						logger.error("reco_type is invalid");
 				}
@@ -102,7 +102,7 @@ public class ESWriter {
 		   }
 		}*/
 		if(createIndex){
-			boolean indexExists = repository.checkESIndexIfExists(catalogIndex, esHost);
+			boolean indexExists = repository.checkESIndexIfExists(catalogIndex+"/"+reco_type.getPassive(), esHost);
 			if(indexExists)
 			{
 				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
@@ -110,6 +110,7 @@ public class ESWriter {
 			else
 			{
 				repository.createESIndex(catalogIndex, esHost);
+				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
 			}
 		}
 		if(parentId!=null)
@@ -146,14 +147,14 @@ public class ESWriter {
 		
 	}
 	
-	public static void checkRecoTypeFromJSON(String indexName,String indexType){
-		boolean indexExists = repository.checkESIndexIfExists(indexName, esHost);
+	public static void checkRecoTypeFromJSON(String indexName,String indexType,String path){
+		boolean indexExists = repository.checkESIndexIfExists(indexName+"/"+indexType+"/"+"_show", esHost);
 		
 			if(!indexExists){
 				logger.debug("Creating index "+ indexName);
 				repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
 				indexes.add(indexName);
-				repository.addESSchemaMapping(indexName, indexType, "src/main/resources/Reco_type.json", esHost);
+				repository.addESSchemaMapping(indexName, indexType, path+StaticProps.SCHEMA_PATH3.getValue(), esHost);
 				reco_type = new RecoType("user_reco_1", "user_reco_2");
 				try {
 					

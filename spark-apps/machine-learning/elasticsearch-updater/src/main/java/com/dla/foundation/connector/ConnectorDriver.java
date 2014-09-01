@@ -8,27 +8,28 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.connector.data.cassandra.CassandraEntityReader;
 import com.dla.foundation.connector.persistence.elasticsearch.DeleteESType;
 import com.dla.foundation.connector.persistence.elasticsearch.ESWriter;
+import com.google.protobuf_spark.TextFormat.ParseException;
 
 public class ConnectorDriver 
 {
 	private static Logger logger = Logger.getLogger(ConnectorDriver.class);
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws java.text.ParseException
     {
-      if(args.length==1){
+      if(args.length==2){
     	 ConnectorDriver driver= new ConnectorDriver();
     	 driver.run(args);
       }
       else
-    	  System.err.println("USAGE: ConnectorDriver takes 1 argument of common propertis file");
+    	  System.err.println("USAGE: ConnectorDriver takes 2 arguments:common propertis file, common schema path ");
     }
     
     
-    public void run(String[] args){
+    public void run(String[] args) throws java.text.ParseException{
     	CassandraEntityReader userReco= new CassandraEntityReader();
     	//DeleteESType deleteTypes= new DeleteESType();
     	
-		ESWriter.init(args[0]);
+		ESWriter.init(args[0],args[1]);
 		//logger.info("Deleting user reco type from all indexes");
 		//deleteTypes.deleteType(args[0]);
 

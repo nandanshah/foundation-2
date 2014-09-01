@@ -30,5 +30,5 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, elasticsearch-updater, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --class com.dla.foundation.connector.ConnectorDriver --master $SPARK_CLUSTER $SH_DIR/../lib/elasticsearch-updater-1.0.0.jar $SH_DIR/../conf/common.properties --deploy-mode client --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --class com.dla.foundation.connector.ConnectorDriver --master $SPARK_CLUSTER $SH_DIR/../lib/elasticsearch-updater-1.0.0.jar $SH_DIR/../conf/common.properties $SH_DIR/../conf/ --deploy-mode client --jars $JAR_LIST
 
