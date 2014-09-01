@@ -38,18 +38,15 @@ public class ItemSummaryCalc implements Serializable {
 	private static final String NOT_AVAILABLE = "NA";
 	private static final String DELIMITER = "#";
 	private String itemLevelCFKeyspace;
-	private Map<String, String> itemLevelRecommendationCF;
 	private String pageRowSize;
 	private Date inputDate;
 	private static final Logger logger = Logger
 			.getLogger(ItemSummaryCalc.class);
 
-	public ItemSummaryCalc(String itemLevelCFKeyspace,
-			Map<String, String> itemLevelColumnFamilies, String pageRowSize,
+	public ItemSummaryCalc(String itemLevelCFKeyspace, String pageRowSize,
 			Date inputDate) {
 		super();
 		this.itemLevelCFKeyspace = itemLevelCFKeyspace;
-		this.itemLevelRecommendationCF = itemLevelColumnFamilies;
 		this.pageRowSize = pageRowSize;
 		this.inputDate = UserItemRecommendationUtil.processInputDate(inputDate);
 	}
@@ -209,8 +206,7 @@ public class ItemSummaryCalc implements Serializable {
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, String> itemRDD) throws Exception {
-		String trendCF = itemLevelRecommendationCF
-				.get(UserItemRecoProp.ITEM_LEVEL_TREND_CF);
+		String trendCF = UserItemRecoProp.ITEM_LEVEL_TREND_CF;
 		if (null != trendCF && "" != trendCF) {
 			Configuration conf = new Configuration();
 			logger.info("reading trend column family");
@@ -250,8 +246,7 @@ public class ItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> itemTrendRDD)
 			throws Exception {
-		String popularityCF = itemLevelRecommendationCF
-				.get(UserItemRecoProp.ITEM_LEVEL_POPULARITY_CF);
+		String popularityCF = UserItemRecoProp.ITEM_LEVEL_POPULARITY_CF;
 
 		if (null != popularityCF && "" != popularityCF) {
 			Configuration conf = new Configuration();
@@ -281,8 +276,7 @@ public class ItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopRDD)
 			throws Exception {
-		String fpCF = itemLevelRecommendationCF
-				.get(UserItemRecoProp.ITEM_LEVEL_FNP_CF);
+		String fpCF = UserItemRecoProp.ITEM_LEVEL_FNP_CF;
 
 		if (null != fpCF && "" != fpCF) {
 			Configuration conf = new Configuration();
@@ -311,8 +305,7 @@ public class ItemSummaryCalc implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> itemTrendPopFpRDD)
 			throws Exception {
-		String newCF = itemLevelRecommendationCF
-				.get(UserItemRecoProp.ITEM_LEVEL_NEW_RELEASE_CF);
+		String newCF = UserItemRecoProp.ITEM_LEVEL_NEW_RELEASE_CF;
 
 		if (null != newCF && "" != newCF) {
 			Configuration conf = new Configuration();

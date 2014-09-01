@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,23 +48,35 @@ public class UserItemRecoDriver implements Serializable {
 
 	public void runUserItemRecoDriver(String commonPropFilePath)
 			throws Exception {
-		PropertiesHandler userItemRecoProp = new PropertiesHandler(
-				commonPropFilePath, UserItemRecoProp.USER_ITEM_RECO_APP_NAME);
-		logger.info("initializing application level property ");
-		logger.info("initializing spark context ");
-		JavaSparkContext sparkContext = initSparkContext(userItemRecoProp);
-		logger.info("initializing cassandra spark connector ");
-		CassandraSparkConnector cassandraSparkConnector = initCassandraSparkConn(userItemRecoProp);
-		logger.info("invoking item summary");
-		runItemSummary(userItemRecoProp, sparkContext, cassandraSparkConnector);
-		logger.info("invoking user item summary");
-		runUserItemSummary(userItemRecoProp, sparkContext, cassandraSparkConnector);
-		Date input_date = DateUtils.addDays(UserItemRecommendationUtil.getDate(
-				userItemRecoProp.getValue(PropKeys.INPUT_DATE.getValue()),
-				DATE_FORMAT), 1);
-		userItemRecoProp.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
-				UserItemRecommendationUtil.getDate(input_date, DATE_FORMAT));
-		userItemRecoProp.close();
+		PropertiesHandler userItemRecoProp = null;
+		try {
+			userItemRecoProp = new PropertiesHandler(commonPropFilePath,
+					UserItemRecoProp.USER_ITEM_RECO_APP_NAME);
+			logger.info("initializing application level property ");
+			logger.info("initializing spark context ");
+			JavaSparkContext sparkContext = initSparkContext(userItemRecoProp);
+			logger.info("initializing cassandra spark connector ");
+			CassandraSparkConnector cassandraSparkConnector = initCassandraSparkConn(userItemRecoProp);
+			logger.info("invoking item summary");
+			runItemSummary(userItemRecoProp, sparkContext,
+					cassandraSparkConnector);
+			logger.info("invoking user item summary");
+			runUserItemSummary(userItemRecoProp, sparkContext,
+					cassandraSparkConnector);
+			Date input_date = DateUtils.addDays(UserItemRecommendationUtil
+					.getDate(userItemRecoProp.getValue(PropKeys.INPUT_DATE
+							.getValue()), DATE_FORMAT), 1);
+			userItemRecoProp
+					.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
+							UserItemRecommendationUtil.getDate(input_date,
+									DATE_FORMAT));
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+			throw new Exception(e.getMessage());
+
+		} finally {
+			userItemRecoProp.close();
+		}
 	}
 
 	/**
@@ -83,9 +94,9 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("initializing query for user item level summary");
 		final String USER_ITEM_LEVEL_QUERY_PROPERTY = "UPDATE "
-				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue())
-				+ "." + UserItemRecoProp.OUTPUT_CF + " SET "
-				+ userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
+				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()) + "." + UserItemRecoProp.OUTPUT_CF
+				+ " SET " + userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
 				+ userItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
 				+ userItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
 				+ userItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
@@ -102,26 +113,28 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig userItemSummaryCassandraProp = new CassandraConfig(
-				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				UserItemRecoProp.INPUT_CF_PROFILE, UserItemRecoProp.OUTPUT_CF,
+				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace
+						.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()), UserItemRecoProp.INPUT_CF_PROFILE,
+				UserItemRecoProp.OUTPUT_CF,
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize),
 				USER_ITEM_LEVEL_QUERY_PROPERTY);
 
 		String scoreSummaryCF = UserItemRecoProp.ITEM_LEVEL_SCORE_SUMMARY_CF;
-		Map<String, String> userItemReco = getUserItemRecoInfo();
+
 		UserItemSummaryCalc userItemSummaryService = new UserItemSummaryCalc(
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				scoreSummaryCF,
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				UserItemRecommendationUtil.getDate(
-						userItemRecoProp.getValue(PropKeys.INPUT_DATE.getValue()),
-						DATE_FORMAT), userItemReco);
-		Map<String, String> userItemPreferredRegionInfo = getUserPreferredRegion();
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()), scoreSummaryCF,
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()), UserItemRecommendationUtil.getDate(
+						userItemRecoProp.getValue(PropKeys.INPUT_DATE
+								.getValue()), DATE_FORMAT));
+
 		logger.info("invoking user item summary calculator");
 		runUserItemSummaryCalculator(sparkContext, cassandraSparkConnector,
 				userItemSummaryCassandraProp, userItemSummaryService,
-				UserItemRecoProp.ACCOUNT_CF, userItemPreferredRegionInfo);
+				UserItemRecoProp.ACCOUNT_CF);
 
 	}
 
@@ -130,7 +143,8 @@ public class UserItemRecoDriver implements Serializable {
 				commonPropFilePath, UserItemRecoProp.USER_ITEM_RECO_APP_NAME);
 		JavaSparkContext sparkContext = initSparkContext(userItemRecoProp);
 		CassandraSparkConnector cassandraSparkConnector = initCassandraSparkConn(userItemRecoProp);
-		runUserItemSummary(userItemRecoProp, sparkContext, cassandraSparkConnector);
+		runUserItemSummary(userItemRecoProp, sparkContext,
+				cassandraSparkConnector);
 	}
 
 	/**
@@ -147,9 +161,9 @@ public class UserItemRecoDriver implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector) throws Exception {
 		logger.info("initializing query for item level summary");
 		final String ITEM_LEVEL_SUMMARY_QUERY_PROPERTY = "UPDATE "
-				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue())
-				+ "." + UserItemRecoProp.OUTPUT_CF_ITEM + " SET "
-				+ userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
+				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()) + "." + UserItemRecoProp.OUTPUT_CF_ITEM
+				+ " SET " + userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
 				+ userItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
 				+ userItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
 				+ userItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
@@ -162,30 +176,29 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig scoreSummaryCassandraProp = new CassandraConfig(
-				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace.getValue()),
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				UserItemRecoProp.INPUT_CF_ITEM,
+				userItemRecoProp.getValue(CommonPropKeys.cs_platformKeyspace
+						.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()), UserItemRecoProp.INPUT_CF_ITEM,
 				UserItemRecoProp.OUTPUT_CF_ITEM,
-				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize.getValue()),
-				ITEM_LEVEL_SUMMARY_QUERY_PROPERTY);
+				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize
+						.getValue()), ITEM_LEVEL_SUMMARY_QUERY_PROPERTY);
 
 		logger.info("fetching all item level column families");
-		Map<String, String> itemLevelRecommendationCF = getItemLevelColumnFamilies();
 
 		logger.info("initializing item summary Calc");
 		ItemSummaryCalc ItemSummaryCalc = new ItemSummaryCalc(
-				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace.getValue()),
-				itemLevelRecommendationCF,
-				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize.getValue()),
-				UserItemRecommendationUtil.getDate(
-						userItemRecoProp.getValue(PropKeys.INPUT_DATE.getValue()),
-						DATE_FORMAT));
+				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
+						.getValue()),
+				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize
+						.getValue()), UserItemRecommendationUtil.getDate(
+						userItemRecoProp.getValue(PropKeys.INPUT_DATE
+								.getValue()), DATE_FORMAT));
 
 		logger.info("invoking item summary calculator");
-		Map<String, String> itemRegionTenantInfo = getRegionTenantInfo();
+
 		runItemSummaryCalculator(sparkContext, cassandraSparkConnector,
-				scoreSummaryCassandraProp, ItemSummaryCalc,
-				itemRegionTenantInfo);
+				scoreSummaryCassandraProp, ItemSummaryCalc);
 
 	}
 
@@ -204,9 +217,8 @@ public class UserItemRecoDriver implements Serializable {
 	private void runUserItemSummaryCalculator(JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig userItemSummaryCassandraProp,
-			UserItemSummaryCalc userItemSummaryCalc,
-			String accountColumnFamily,
-			Map<String, String> userItemPreferredRegionInfo) throws Exception {
+			UserItemSummaryCalc userItemSummaryCalc, String accountColumnFamily)
+			throws Exception {
 		Configuration profileConf = new Configuration();
 
 		logger.info("reading from profile column family");
@@ -218,12 +230,11 @@ public class UserItemRecoDriver implements Serializable {
 
 		logger.info("transforming profile column family");
 		JavaPairRDD<String, String> profileRDD = ProfileTransformation
-				.getProfile(cassandraProfileRDD, userItemPreferredRegionInfo);
-		
+				.getProfile(cassandraProfileRDD);
+
 		logger.info("filtering profile column family");
 		JavaPairRDD<String, String> filteredProfileRDD = Filter
 				.filterStringPair(profileRDD);
-		
 
 		logger.info("reading from account column family");
 		Configuration accountConf = new Configuration();
@@ -237,12 +248,10 @@ public class UserItemRecoDriver implements Serializable {
 		JavaPairRDD<String, String> accountRDD = AccountTransformation
 				.getAccount(cassandraAccountRDD);
 
-	
 		logger.info("filtering account column family");
 		JavaPairRDD<String, String> filteredAccountRDD = Filter
 				.filterStringPair(accountRDD);
-		
-		
+
 		logger.info("joining account & profile column family");
 		JavaPairRDD<String, String> profileWithTenantRDD = UserItemRecommendationUtil
 				.mergeTenant(filteredProfileRDD, filteredAccountRDD);
@@ -279,8 +288,7 @@ public class UserItemRecoDriver implements Serializable {
 	private void runItemSummaryCalculator(JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig scoreSummaryCassandraProp,
-			ItemSummaryCalc itemSummaryCalc,
-			Map<String, String> itemRegionTenantInfo) throws Exception {
+			ItemSummaryCalc itemSummaryCalc) throws Exception {
 		Configuration conf = new Configuration();
 
 		logger.info("reading item column family");
@@ -291,13 +299,13 @@ public class UserItemRecoDriver implements Serializable {
 						scoreSummaryCassandraProp.getPageRowSize());
 
 		logger.info("transforming item column family");
-		JavaPairRDD<String, String> itemRDD = ItemTransformation.getItem(
-				cassandraItemRDD, itemRegionTenantInfo);
-		
+		JavaPairRDD<String, String> itemRDD = ItemTransformation
+				.getItem(cassandraItemRDD);
+
 		logger.info("filtering record of item column family");
 		JavaPairRDD<String, String> filteredItemRDD = Filter
 				.filterStringPair(itemRDD);
-		
+
 		logger.info("invoking item summary Calc");
 		JavaRDD<ItemSummary> scoreSummaryRDD = itemSummaryCalc
 				.calculateScoreSummary(sparkContext, cassandraSparkConnector,
@@ -311,52 +319,6 @@ public class UserItemRecoDriver implements Serializable {
 				scoreSummaryCassandraProp.getOutputColumnfamily(),
 				scoreSummaryCassandraProp.getOutputQuery(),
 				cassandraScoreSummaryRDD);
-	}
-
-	/**
-	 * This functio fetch item level column family from property file
-	 * 
-	 * @param scoreSummaryProp
-	 * @return
-	 * @throws IOException
-	 */
-	private Map<String, String> getItemLevelColumnFamilies() throws IOException {
-		Map<String, String> itemLevelColumnFamilies = new HashMap<String, String>();
-		itemLevelColumnFamilies.put(UserItemRecoProp.ITEM_LEVEL_TREND_CF,
-				UserItemRecoProp.ITEM_LEVEL_TREND_CF);
-		itemLevelColumnFamilies.put(UserItemRecoProp.ITEM_LEVEL_POPULARITY_CF,
-				UserItemRecoProp.ITEM_LEVEL_POPULARITY_CF);
-		itemLevelColumnFamilies.put(UserItemRecoProp.ITEM_LEVEL_FNP_CF,
-				UserItemRecoProp.ITEM_LEVEL_FNP_CF);
-		itemLevelColumnFamilies.put(UserItemRecoProp.ITEM_LEVEL_NEW_RELEASE_CF,
-				UserItemRecoProp.ITEM_LEVEL_NEW_RELEASE_CF);
-		return itemLevelColumnFamilies;
-	}
-
-	private Map<String, String> getUserItemRecoInfo() throws IOException {
-		Map<String, String> userItemReco = new HashMap<String, String>();
-		userItemReco.put(UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION,
-				UserItemRecoProp.USER_LEVEL_SOCIAL_RECOMMENDATION);
-		userItemReco.put(UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION,
-				UserItemRecoProp.USER_LEVEL_PIO_RECOMMENDATION);
-		return userItemReco;
-	}
-
-	private Map<String, String> getRegionTenantInfo() throws IOException {
-		Map<String, String> itemRegionTenantInfo = new HashMap<String, String>();
-		itemRegionTenantInfo.put(UserItemRecoProp.ITEM_LEVEL_REGION_ID,
-				UserItemRecoProp.ITEM_LEVEL_REGION_ID);
-		itemRegionTenantInfo.put(UserItemRecoProp.ITEM_LEVEL_TENANT_ID,
-				UserItemRecoProp.ITEM_LEVEL_TENANT_ID);
-		return itemRegionTenantInfo;
-	}
-
-	private Map<String, String> getUserPreferredRegion() throws IOException {
-		Map<String, String> userItemPreferredRegionInfo = new HashMap<String, String>();
-		userItemPreferredRegionInfo.put(
-				UserItemRecoProp.PROFILE_LEVEL_PREFERRED_REGION_ID,
-				UserItemRecoProp.PROFILE_LEVEL_PREFERRED_REGION_ID);
-		return userItemPreferredRegionInfo;
 	}
 
 	/**
