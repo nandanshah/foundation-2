@@ -7,13 +7,18 @@ import org.apache.log4j.Logger;
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
+import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
+import com.rabbitmq.client.BlockedListener;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.ConsumerCancelledException;
+import com.rabbitmq.client.ExceptionHandler;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
+import com.rabbitmq.client.TopologyRecoveryException;
 
 /**
  * Asynchronous queue listener. 
@@ -45,13 +50,13 @@ public class AsyncQueueConsumer implements Runnable {
 			factory.setUsername(myConfig.getUsername());
 			factory.setPassword(myConfig.getPassword());
 			connection = factory.newConnection();
+			connection.addBlockedListener(new BlockedListenerLogger());
 			asyncChannel = connection.createChannel();
-			asyncChannel.exchangeDeclare(myConfig.getExchangeName(), myConfig.getExchangeType());
-			String queueName = asyncChannel.queueDeclare().getQueue();
-			asyncChannel.queueBind(queueName, myConfig.getExchangeName(), myConfig.getBind_key());
+			asyncChannel.exchangeDeclarePassive(myConfig.getExchangeName());
+			asyncChannel.queueDeclarePassive(myConfig.getName());
 			asyncChannel.basicQos(1);
 			consumer = new QueueingConsumer(asyncChannel);
-			asyncChannel.basicConsume(queueName, false, consumer);
+			asyncChannel.basicConsume(myConfig.getName(), false, consumer);
 			logger.info("Started ASync queue listener, bound using key: " + myConfig.getBind_key());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
