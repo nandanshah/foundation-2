@@ -225,6 +225,7 @@ public class PropertiesHandler implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		csContext.close();
+		if(csContext!=null)
+			csContext.close();
 	}
 }
