@@ -77,7 +77,7 @@ public class ElasticSearchUpdater extends Updater {
 	@Override
 	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
 			TEntity event) {
-		//		bulk_events.getBulkEvent(event, es_service);
+		bulk_events.getBulkEvent(event, es_service);
 	}
 
 	@Override

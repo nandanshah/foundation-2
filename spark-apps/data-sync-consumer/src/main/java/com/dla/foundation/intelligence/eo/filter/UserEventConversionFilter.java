@@ -1,6 +1,6 @@
 package com.dla.foundation.intelligence.eo.filter;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
