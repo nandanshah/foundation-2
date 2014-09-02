@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,7 +39,7 @@ public class ConnectorTest {
 	}
 	@Ignore
 	@Test
-	public void userRecoTest() throws IOException, InterruptedException {
+	public void userRecoTest() throws IOException, InterruptedException, ParseException {
 		
 		reader = new CassandraEntityReader();
 		String current_dir = System.getProperty("user.dir");
