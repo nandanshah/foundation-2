@@ -54,7 +54,7 @@ public class DateUtil {
 			throws ParseException {
 
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
-		return simpleDateFormat.parse(date).getTime();
+		return getFormattedDate(simpleDateFormat.parse(date).getTime());
 	}
 
 	public static Date getDate(String date, String dateFormat)
