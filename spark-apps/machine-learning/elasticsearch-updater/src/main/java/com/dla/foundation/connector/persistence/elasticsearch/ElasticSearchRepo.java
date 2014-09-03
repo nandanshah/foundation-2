@@ -221,9 +221,9 @@ public class ElasticSearchRepo {
 			httpConnection.setRequestMethod("PUT");
 			httpConnection.setRequestProperty("Content-Type", "application/json");
 			if(httpConnection.getResponseCode() ==400)
-			{   return false;
+			{   return true;
 			} else if(httpConnection.getResponseCode() ==200)
-				return true;
+				return false;
 			
 		}  catch (IOException e) {
 			System.out.println("Error while creating index:");
