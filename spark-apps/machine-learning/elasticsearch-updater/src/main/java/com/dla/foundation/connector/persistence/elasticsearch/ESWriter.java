@@ -42,7 +42,11 @@ public class ESWriter {
 			esHost="http://"+phandler.getValue(PropKeys.ES_HOST.getValue())+":"+phandler.getValue(PropKeys.ES_PORT.getValue())+"/";
 			repository=new ElasticSearchRepo(esHost);
 			checkRecoTypeFromJSON(reco_type_index,reco_type_name,path);
-				type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
+			if(reco_type==null){
+				reco_type = new RecoType("user_reco_1","user_reco_2");
+				repository.addItem(esHost+reco_type_index+"/"+reco_type_name+"/"+reco_type_id, reco_type);
+			}
+			type= reco_type.getPassive();//phandler.getValue("insert.type");//reco_type.getPassive();
 		
 			createIndex= Boolean.parseBoolean(StaticProps.CREATE_INDEX.getValue());
 			buffer_threshold=Integer.parseInt(StaticProps.COUNT_THRESHHOLD.getValue());
@@ -109,16 +113,17 @@ public class ESWriter {
 			}
 			else
 			{
-				repository.createESIndex(catalogIndex, esHost);
-				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
+				repository.createESIndex(catalogIndex+"/"+reco_type.getPassive(), esHost);
+				repository.addESSchemaMapping(catalogIndex, reco_type.getPassive(), schemaFilePath, esHost);
 			}
 		}
 		if(parentId!=null)
 			obj= getObj(catalogIndex, type, id, "create", parentId);
 		else
 			obj= getObj(catalogIndex, type, String.valueOf(id), "create", null);
+		logger.info("------entity----- : "+entity);
 		entityJson = mapper.writeValueAsString(entity);
-			
+		logger.info("------entityJson----- : "+entityJson);
 		if(obj!=null & entityJson!=null)
 			bulkEvents.append(obj.toString()+"\n"+entityJson+"\n");
 		

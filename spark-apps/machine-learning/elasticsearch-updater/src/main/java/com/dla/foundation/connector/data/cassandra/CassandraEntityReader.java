@@ -49,6 +49,9 @@ public class CassandraEntityReader implements Serializable{
 		userRecoConfig= initializeCassandraConfig(commonFilePath);
 		//ESWriter.init(esFilePath); //As already initialized at start of app
 		readData();
+		
+		//Commenting for testing purpose
+		
 		Date input_date = DateUtils.addDays(
 				DateUtil.getDate(cassandraESProp
 						.getValue(PropKeys.INPUT_DATE.getValue()),
