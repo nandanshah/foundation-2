@@ -14,7 +14,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	private int enabled;
 	private double socialScore;
 	private double trendScore;
-	private double popularScore;
+	private double popularityScore;
 	private double fpScore;
 	private double newScore;
 	private double recoByFoundation;
@@ -57,11 +57,11 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public void setTrendScore(double trendScore) {
 		this.trendScore = trendScore;
 	}
-	public double getPopularScore() {
-		return popularScore;
+	public double getPopularityScore() {
+		return popularityScore;
 	}
-	public void setPopularScore(double popularScore) {
-		this.popularScore = popularScore;
+	public void setPopularityScore(double popularityScore) {
+		this.popularityScore = popularityScore;
 	}
 	public double getFpScore() {
 		return fpScore;
@@ -117,8 +117,8 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public String toString() {
 		return "UserRecommendation [profileId=" + profileId + ", mediaItemId="
 				+ mediaItemId + ", socialScore=" + socialScore
-				+ ", trendScore=" + trendScore + ", popularScore="
-				+ popularScore + ", fpScore=" + fpScore + ", newScore="
+				+ ", trendScore=" + trendScore + ", popularityScore="
+				+ popularityScore + ", fpScore=" + fpScore + ", newScore="
 				+ newScore + ", recoByFoundation=" + recoByFoundation
 				+ ", trendReason=" + trendReason + ", socialReason="
 				+ socialReason + ", popularityReason=" + popularityReason
