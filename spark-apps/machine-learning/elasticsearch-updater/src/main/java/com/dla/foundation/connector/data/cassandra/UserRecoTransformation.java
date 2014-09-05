@@ -111,9 +111,9 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.POPULARITYSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
-							userReco.setPopularScore(0);
+							userReco.setPopularityScore(0);
 						else
-							userReco.setPopularScore(ByteBufferUtil.toDouble((column.getValue())));
+							userReco.setPopularityScore(ByteBufferUtil.toDouble((column.getValue())));
 						
 				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
