@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
+import com.dla.foundation.intelligence.eo.filter.UnsupportedEventException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
@@ -62,18 +63,24 @@ public class AsyncQueueConsumer implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			QueueingConsumer.Delivery delivery;
+			QueueingConsumer.Delivery delivery = null;
 			try {
 				delivery = consumer.nextDelivery();
 				byte[] obj = delivery.getBody();
 				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
 				updater.updateAsyncEvent(fe);
-				//Default acknowledgment
-				asyncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+
 			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | IOException | FilterException e) {
+					| InterruptedException | FilterException e) {
 				logger.error(e.getMessage(), e);
+			} finally {
+				//Default acknowledgment
+				try {
+					asyncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		}
 	}
