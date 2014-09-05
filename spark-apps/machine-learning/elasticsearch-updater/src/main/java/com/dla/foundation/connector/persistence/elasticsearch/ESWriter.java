@@ -106,15 +106,11 @@ public class ESWriter {
 		   }
 		}*/
 		if(createIndex){
-			boolean indexExists = repository.checkESIndexIfExists(catalogIndex+"/"+reco_type.getPassive(), esHost);
-			if(indexExists)
-			{
-				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
-			}
-			else
+			boolean indexTypeExists = repository.checkESIndexTypeIfExists(catalogIndex+"/"+reco_type.getPassive()+"/_mapping", esHost);
+			if(!indexTypeExists)
 			{
 				repository.createESIndex(catalogIndex+"/"+reco_type.getPassive(), esHost);
-				repository.addESSchemaMapping(catalogIndex, reco_type.getPassive(), schemaFilePath, esHost);
+				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
 			}
 		}
 		if(parentId!=null)
