@@ -61,7 +61,7 @@
                        },
                        "profileId":
                        {
-                           "type": "string", "index" : "not_analyzed"
+                           "type": "string", "index" : "not_analyzed", "analyzer" : "keyword"
                        },
                        "mediaItemId":
                        {

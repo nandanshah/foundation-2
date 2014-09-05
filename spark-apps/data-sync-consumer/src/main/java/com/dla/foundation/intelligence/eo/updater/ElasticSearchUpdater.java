@@ -100,7 +100,7 @@ public class ElasticSearchUpdater extends Updater {
 				"must", new JSONArray().put(new JSONObject().put(
 						"match", new JSONObject().put("enabled", 1))))));
 		logger.info(filterJson.toString());
-		JSONObject userIdJ = new JSONObject().put("match", new JSONObject().put("userId", userId));
+		JSONObject userIdJ = new JSONObject().put("match", new JSONObject().put("profileId", userId));
 		filterJson.getJSONObject("query").getJSONObject("bool").getJSONArray("must").put(userIdJ);
 	}
 }
