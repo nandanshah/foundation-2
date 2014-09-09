@@ -9,11 +9,11 @@ import org.apache.spark.SparkFiles;
 import com.dla.foundation.DependencyLocator;
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.data.FoundationDataService;
-import com.dla.foundation.data.FoundationDataServiceImpl;
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.cassandra.CassandraContext;
+import com.dla.foundation.intelligence.eo.data.FISDataService;
+import com.dla.foundation.intelligence.eo.data.FISDataServiceImpl;
 import com.dla.foundation.intelligence.eo.filter.Filter;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
 
@@ -27,14 +27,14 @@ import com.dla.foundation.intelligence.eo.filter.FilterException;
 public class CassandraUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-	private static FoundationDataService dataService = null;
+	private static FISDataService dataService = null;
 	private String PROPERTIES_FILE_NAME = "common.properties";
 	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private CassandraContext dataContext;
 
 	public CassandraUpdater(DependencyLocator dependencyLocator) {
-		CassandraUpdater.dataService = dependencyLocator.get(FoundationDataService.class);
+		CassandraUpdater.dataService = dependencyLocator.get(FISDataService.class);
 	}
 
 	public CassandraUpdater() {
@@ -45,18 +45,25 @@ public class CassandraUpdater extends Updater {
 		String nodeIpList = null;
 		String dataKeyspace = null;
 
+		PropertiesHandler phandler = null;
 		try {
-			PropertiesHandler phandler = new PropertiesHandler(propertiesFilePath);
+			phandler = new PropertiesHandler(propertiesFilePath);
 			nodeIpList = phandler.getValue(CommonPropKeys.cs_hostList);	
 			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);
 			entityPackagePrefix = phandler.getValue(CommonPropKeys.cs_entityPackagePrefix);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
+		} finally {
+			try {
+				phandler.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		String[] nodeIps = nodeIpList.split(",");
 		dataContext = CassandraContext.create(entityPackagePrefix, dataKeyspace, nodeIps);
-		CassandraUpdater.dataService= new FoundationDataServiceImpl(dataContext);
+		CassandraUpdater.dataService= new FISDataServiceImpl(dataContext);
 		logger.info("Connected to Cassandra Cluster");
 	}
 

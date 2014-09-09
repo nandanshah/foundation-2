@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 
 import scala.NotImplementedError;
 
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.intelligence.eo.filter.Filter;
 import com.dla.foundation.intelligence.eo.filter.FilterException;

@@ -11,7 +11,7 @@ import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.data.entities.analytics.UserEvent;
+import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.intelligence.eo.filter.Filter;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
