@@ -1,5 +1,5 @@
-create keyspace if not exists n2 with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-use n2;
+create keyspace if not exists fis with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+use fis;
 create table if not exists userevent(id uuid, tenantid uuid, regionid uuid , profileid uuid, itemid uuid,accountid uuid,localeid uuid,deviceid uuid,sessionid uuid, eventtype text,timestamp bigint,devicetype text,searchtype text,searchstring text,resultpagenumber int,useraction text,rankofitem int,sourceofimpression text,playpercentage double,rentStartTimeStamp bigint,rentEndTimeStamp bigint,purchaseStartTimeStamp bigint, attributevaluepair map<text,varchar>, eventrequired int,date timestamp,ratescore int ,searchfilters map<text,varchar>,primary key (id));
 create index if not exists n2usereventeventrequired on userevent (eventrequired);
 create index if not exists n2usereventdate on userevent (date);
@@ -61,8 +61,6 @@ insert into userevent(id,tenantid,regionid,profileid, eventtype, itemid,timestam
 insert into userevent(id,tenantid,regionid,profileid, eventtype, itemid,timestamp,eventrequired,date,ratescore) values (C979CA35-B58D-434B-B2D6-BB0316BC11A3,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC912,'rate',C979CA35-B58D-434B-B2D6-EA0316BCC122,1403811596,1,'2014-06-28',1); 
 insert into userevent(id,tenantid,regionid,profileid, eventtype, itemid,timestamp,eventrequired,date,ratescore) values (C979CA35-B58D-434B-B2D6-BB0316BC11A4,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC911,'rate',C979CA35-B58D-434B-B2D6-EA0316BCC122,1403811596,1,'2014-06-29',3); 
 insert into userevent(id,tenantid,regionid,profileid, eventtype, itemid,timestamp,eventrequired,date,ratescore) values (C979CA35-B58D-434B-B2D6-BB0316BC11A5,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC912,'rate',C979CA35-B58D-434B-B2D6-EA0316BCC122,1403811596,1,'2014-06-26',5); 
-create keyspace if not exists fis with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-use fis;
 create table if not exists eo_spark_app_prop(sparkappname text, properties map<text,text>, primary key (sparkappname));
 insert into eo_spark_app_prop(sparkappname,properties) values('userevent',{'event_required':'WATCH,60,10|Like,40|Rate,1#-25:2#-10:3#50:4#75:5#100','input_date':'2014-06-29','recalculation_start_date':'2014-06-26','recalculation_end_date':'2014-06-29','recalculation_period':'5','incremental_flag':'false'});
 insert into eo_spark_app_prop(sparkappname,properties) values('dailyeventsummary',{'input_date':'2014-06-29','recalculation_start_date':'2014-06-26','recalculation_end_date':'2014-06-29','recalculation_period':'5','incremental_flag':'false'});

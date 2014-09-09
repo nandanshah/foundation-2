@@ -279,9 +279,14 @@ public class ZScoreService implements Serializable, ITrendScore {
 
 					public TrendScore call(TrendScore record) throws Exception {
 						double maxZscore = maxTrendScore.getTrendScore();
+						trendScore = record.getTrendScore();
 						if (maxZscore != 0) {
-							trendScore = record.getTrendScore();
-							record.setNormalizedScore((trendScore / maxZscore));
+							if (maxZscore > 0) {
+								record.setNormalizedScore((trendScore / maxZscore));
+							} else {
+								maxZscore = maxZscore * -1;
+								record.setNormalizedScore((trendScore / maxZscore));
+							}
 						} else {
 							record.setNormalizedScore(trendScore);
 						}
