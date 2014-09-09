@@ -121,7 +121,7 @@ public class UserEvent extends SimpleFoundationEntity {
 		userEvent.profileID = strToUUID(ue.visitorProfileId);
 		userEvent.purchaseStartTimestamp = strToLong(ue.startTimestamp);
 		userEvent.purchaseTimestamp = strToLong(ue.startTimestamp);
-		userEvent.rateScore = strToInt(ue.rateScore);
+		userEvent.rateScore = (ue.rateScore != null) ? Integer.parseInt(ue.rateScore) : -1;
 		userEvent.regionID = strToUUID(ue.currentRegionId);
 		userEvent.rentEndTimestamp = strToLong(ue.endTimestamp);
 		userEvent.rentStartTimestamp = strToLong(ue.startTimestamp);
