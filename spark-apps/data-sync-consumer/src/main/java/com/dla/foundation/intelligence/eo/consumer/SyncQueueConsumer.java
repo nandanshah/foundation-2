@@ -78,10 +78,16 @@ public class SyncQueueConsumer implements Runnable {
 				fe = (Event) updater.updateSyncEvent(fe);
 				//Push reply message to reply queue defined by producer.
 				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.toBytes());
-				syncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			} catch (ShutdownSignalException | ConsumerCancelledException
 					| InterruptedException | IOException | FilterException e) {
 				logger.error(e.getMessage(), e);
+			} finally {
+				//Default acknowledgment
+				try {
+					syncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		}
 	}

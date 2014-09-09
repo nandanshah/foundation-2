@@ -12,6 +12,13 @@
 		 	"queue_updater" : "com.dla.foundation.intelligence.eo.updater.CassandraUpdater",
 		 	"updater_filters" : "com.dla.foundation.intelligence.eo.filter.UserEventConversionFilter,com.dla.foundation.intelligence.eo.filter.TrendRecoFilter,com.dla.foundation.intelligence.eo.filter.DateSetterFilter",
 		 	"queue_bind_key" : "#.cassandra.async.event.message"
+		},
+		{
+			"queue_name" : "AsyncElasticSearchQ",
+		 	"queue_type" : "async",
+		 	"queue_updater" : "com.dla.foundation.intelligence.eo.updater.ElasticSearchUpdater",
+		 	"updater_filters" : "com.dla.foundation.intelligence.eo.filter.ESEventFilter",
+		 	"queue_bind_key" : "#.es.async.event.message"
 		}
 	]
 }

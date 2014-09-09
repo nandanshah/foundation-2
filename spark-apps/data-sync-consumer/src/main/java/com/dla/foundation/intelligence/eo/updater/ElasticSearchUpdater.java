@@ -5,8 +5,12 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.dla.foundation.analytics.utils.PropertiesHandler;
+import com.dla.foundation.data.entities.event.Event;
+import com.dla.foundation.data.entities.event.EventType;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
@@ -21,14 +25,15 @@ public class ElasticSearchUpdater extends Updater {
 
 	private static ElasticSearchUpdater instance;
 
-	private final String PROPERTIES_FILE_NAME = "ElasticSearch.properties";
-	private final String PROPERTIES_FILE_VAR = "espropertiesfile";
+	private final String PROPERTIES_FILE_NAME = "common.properties";
+	private final String PROPERTIES_FILE_VAR = "commonproperties";
 	final Logger logger = Logger.getLogger(this.getClass());
-	String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
-	PropertiesHandler phandler= null;
+	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
+	private PropertiesHandler phandler= null;
 
-	private ElasticSearchUpdater()
-	{
+	private JSONObject filterJson = new JSONObject();
+
+	private ElasticSearchUpdater() {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
@@ -37,7 +42,7 @@ public class ElasticSearchUpdater extends Updater {
 			es_service = new ESServiceImpl(phandler);
 			bulk_events= new BulkEventsProcessing(phandler);
 		} catch (IOException e) {
-			logger.error("IOException in updater");
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -77,11 +82,25 @@ public class ElasticSearchUpdater extends Updater {
 	@Override
 	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
 			TEntity event) {
-		//		bulk_events.getBulkEvent(event, es_service);
+		Event e = (Event) event;
+		if(e.eventType==EventType.ProfileDeleted) {
+			prepareFilter(e.visitorProfileId);
+			es_service.deleteUserReco(filterJson.toString());
+		}
 	}
 
 	@Override
 	public void close() {
 
+	}
+
+	private void prepareFilter(String userId) {
+		filterJson = new JSONObject();
+		filterJson.put("query", new JSONObject().put("bool", new JSONObject().put(
+				"must", new JSONArray().put(new JSONObject().put(
+						"match", new JSONObject().put("enabled", 1))))));
+		logger.info(filterJson.toString());
+		JSONObject userIdJ = new JSONObject().put("match", new JSONObject().put("profileId", userId));
+		filterJson.getJSONObject("query").getJSONObject("bool").getJSONArray("must").put(userIdJ);
 	}
 }

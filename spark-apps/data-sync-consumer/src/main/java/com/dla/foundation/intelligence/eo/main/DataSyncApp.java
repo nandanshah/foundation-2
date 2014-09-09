@@ -18,8 +18,10 @@ import com.dla.foundation.intelligence.eo.consumer.RMQQueueReceiver;
  */
 public class DataSyncApp {
 
-	final static Logger logger = Logger.getLogger(DataSyncApp.class);
-
+	private final static Logger logger = Logger.getLogger(DataSyncApp.class);
+	private final static String appName = "DataSyncConsumer";
+	private final static long batchDuration = 1000;
+	
 	public static void main( String[] args)	{
 
 		if(args.length < 1) {
@@ -33,14 +35,14 @@ public class DataSyncApp {
 		String[] jarList = null;
 		JavaStreamingContext ctx = null;
 		if(mode.equals("local")) {
-			ctx = new JavaStreamingContext(master,"DataSyncConsumer", new Duration(1000));
+			ctx = new JavaStreamingContext(master, appName, new Duration(batchDuration));
 		} else if(mode.equals("standalone")) {
 			master = args[1];
 			sparkHome = args[2];
 			jarList = args[3].split(",");
-			ctx = new JavaStreamingContext(master,"DataSyncConsumer", new Duration(1000),sparkHome,jarList);
+			ctx = new JavaStreamingContext(master, appName, new Duration(batchDuration), sparkHome, jarList);
 		} else if(mode.equals("submit")) {
-			ctx = new JavaStreamingContext(new SparkConf(),new Duration(1000));
+			ctx = new JavaStreamingContext(new SparkConf(), new Duration(batchDuration));
 		}
 
 		try {

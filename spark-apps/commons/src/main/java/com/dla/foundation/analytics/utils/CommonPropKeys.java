@@ -24,7 +24,8 @@ public enum CommonPropKeys {
 	// Elastic search common properties
 	es_host("es_host"), es_httpPort("es_httpPort"), es_transportPort(
 			"es_transportPort"), es_clusterName("es_clusterName"), es_destTimeStampCol(
-			"es_destTimeStampCol"),
+			"es_destTimeStampCol"), es_index_name("es_index_name"), es_movie_index_type("es_movie_index_type"),
+			es_userreco_index_type("es_userreco_index_type"),
 
 	// gigya common properties;
 	gigya_ApiKey("gigya_ApiKey"), gigya_SecretKey("gigya_SecretKey"), gigya_ApiScheme(
