@@ -32,10 +32,12 @@ public class DeleteESType {
 	
 	public  void deleteType(String filePath)  {
 		init(filePath);
-		String urlString= esHost + "_all" + "/" + userRecoType;
+		String urlString= esHost + ESWriter.catalogIndex + "/" + userRecoType;
 		try {
-			repository.deleteItem(urlString);
-			logger.info("User Reco Type " +userRecoType+ " deleted from ES");
+			if(repository.checkESIndexTypeIfExists(ESWriter.catalogIndex + "/" + userRecoType + "/"+"_mapping",esHost)){
+				repository.deleteItem(urlString);
+				logger.info("User Reco Type " +userRecoType+ " deleted from ES");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

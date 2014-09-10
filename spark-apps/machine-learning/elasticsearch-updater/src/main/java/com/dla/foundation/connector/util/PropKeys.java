@@ -2,7 +2,7 @@ package com.dla.foundation.connector.util;
 
 public enum PropKeys {
 
-	MODE_PROPERTY("spark_mode"), APP_NAME("app_name"), INPUT_KEYSPACE(
+	MODE_PROPERTY("spark_host"), APP_NAME("app_name"), INPUT_KEYSPACE(
 			"cs_fisKeyspace"), INPUT_COLUMNFAMILY("input_columnfamily"), INPUT_PARTITIONER(
 			"input_partitioner"), INPUT_RPC_PORT("cs_rpcPort"), OUTPUT_KEYSPACE(
 			"output_keyspace"), OUTPUT_COLUMNFAMILY("output_columnfamily"), OUTPUT_PARTITIONER(

@@ -1,5 +1,6 @@
 package com.dla.foundation.connector.persistence.elasticsearch;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,8 +12,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.dla.foundation.connector.model.RecoType;
 import com.dla.foundation.connector.model.UserRecommendation;
@@ -62,22 +65,22 @@ public class ElasticSearchRepo {
 
 	}
 	
-	public boolean deleteESIndexIfExists(String indexName, String urlHost) {
+	public boolean deleteESIndexTypeIfExists(String indexTypeName, String urlHost) {
 		boolean deleted=false;
 		try {
-			URL url =new URL(urlHost + indexName);
-			logger.info("Creating " + indexName + " index in ES:" + url+ "\n");
+			URL url =new URL(urlHost + indexTypeName);
+			logger.info("Creating " + indexTypeName + " index in ES:" + url+ "\n");
 			
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 			httpConnection.setRequestMethod("PUT");
 			httpConnection.setRequestProperty("Content-Type", "application/json");
 			if(httpConnection.getResponseCode() ==400)
 			{   deleted= true;
-				logger.info("Index exists so deleting");
+				logger.info("IndexType exists so deleting");
 				deleteItem(url.toString());
-				logger.info("Index deleted "+indexName);
+				logger.info("IndexType deleted "+indexTypeName);
 			} else if(httpConnection.getResponseCode() ==200)
-				logger.info("Index created " +indexName);
+				logger.info("IndexType created " +indexTypeName);
 			
 		}  catch (IOException e) {
 			System.out.println("Error while creating index:");
@@ -227,6 +230,29 @@ public class ElasticSearchRepo {
 			
 		}  catch (IOException e) {
 			System.out.println("Error while creating index:");
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean checkESIndexTypeIfExists(String indexTypename, String urlHost){
+		try {
+			URL url =new URL(urlHost + indexTypename);
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setRequestMethod("GET");
+			if(httpConnection.getResponseCode() ==200){
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+		                                    httpConnection.getInputStream()));
+		        String inputLine;
+		        while ((inputLine = in.readLine()) != null) {
+		            System.out.println(inputLine);
+		            if(inputLine.length()>2)
+		            	return true;
+		        }
+			}else if(httpConnection.getResponseCode() ==400)
+				return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;

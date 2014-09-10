@@ -27,11 +27,11 @@ public class ConnectorDriver
     
     public void run(String[] args) throws java.text.ParseException{
     	CassandraEntityReader userReco= new CassandraEntityReader();
-    	//DeleteESType deleteTypes= new DeleteESType();
+    	DeleteESType deleteTypes= new DeleteESType();
     	
 		ESWriter.init(args[0],args[1]);
-		//logger.info("Deleting user reco type from all indexes");
-		//deleteTypes.deleteType(args[0]);
+		logger.info("Deleting passive user reco i.e. "+ESWriter.reco_type.getPassive()+" from catalog index");
+		deleteTypes.deleteType(args[0]);
 
 		logger.info("Satrting Connector- Reading records from Cassandra and writing to ES");
 			try {
