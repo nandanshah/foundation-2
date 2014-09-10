@@ -133,7 +133,7 @@ public class UserEventSummaryDriver implements Serializable {
 			logger.info("initializing cassandra config for  user Summary service");
 			// initializing cassandra config for user Summary service
 			CassandraConfig userSummCassandraProp = new CassandraConfig(
-					userSumProp.getValue(CommonPropKeys.cs_platformKeyspace
+					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
 							.getValue()),
 					userSumProp.getValue(CommonPropKeys.cs_fisKeyspace
 							.getValue()), TrendRecoProp.USER_EVENT_SUM_INP_CF,
