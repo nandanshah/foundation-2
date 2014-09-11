@@ -1,5 +1,5 @@
 {
-	"rabbitmq_server_host" : "10.0.141.79",
+	"rabbitmq_server_host" : "10.77.161.92",
 	"rabbitmq_server_port" : 5672,
 	"rabbitmq_username" : "foundation_rmq_user",
 	"rabbitmq_password" : "abc123",
@@ -19,6 +19,12 @@
 		 	"queue_updater" : "com.dla.foundation.intelligence.eo.updater.ElasticSearchUpdater",
 		 	"updater_filters" : "com.dla.foundation.intelligence.eo.filter.ESEventFilter",
 		 	"queue_bind_key" : "#.es.async.event.message"
+		},
+		{
+			"queue_name" : "AsyncPredictionIOQ",
+		 	"queue_type" : "async",
+		 	"queue_updater" : "com.dla.foundation.intelligence.eo.updater.PIOUpdater",
+		 	"queue_bind_key" : "#.pio.async.event.message"
 		}
 	]
 }
