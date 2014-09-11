@@ -62,7 +62,7 @@ public class CassandraEntityReader implements Serializable{
 
 	private void readData() throws IOException, ParseException {
 		//PropertiesHandler appProp = new PropertiesHandler(filePath);
-		JavaSparkContext sparkContext = new JavaSparkContext(StaticProps.SPARK_MODE.getValue(),StaticProps.APP_NAME.getValue());
+		JavaSparkContext sparkContext = new JavaSparkContext(cassandraESProp.getValue(PropKeys.MODE_PROPERTY.getValue()),StaticProps.APP_NAME.getValue());
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD;
 		Configuration conf= new Configuration();
 	    
@@ -80,7 +80,7 @@ public class CassandraEntityReader implements Serializable{
 		logger.info("InputKeyspace" + userRecoConfig.getInputKeyspace());
 		logger.info("InputColumnfamily" + userRecoConfig.getInputColumnfamily());
 		
-		logger.info("cassandraRDD count"+cassandraRDD.count());;
+		logger.info("cassandraRDD count"+cassandraRDD.count());
 		transformData(cassandraRDD);
 	}
 

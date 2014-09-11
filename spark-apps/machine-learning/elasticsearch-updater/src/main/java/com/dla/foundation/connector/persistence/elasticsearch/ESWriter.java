@@ -106,15 +106,11 @@ public class ESWriter {
 		   }
 		}*/
 		if(createIndex){
-			boolean indexExists = repository.checkESIndexIfExists(catalogIndex+"/"+reco_type.getPassive(), esHost);
-			if(indexExists)
-			{
-				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
-			}
-			else
+			boolean indexTypeExists = repository.checkESIndexTypeIfExists(catalogIndex+"/"+reco_type.getPassive()+"/_mapping", esHost);
+			if(!indexTypeExists)
 			{
 				repository.createESIndex(catalogIndex+"/"+reco_type.getPassive(), esHost);
-				repository.addESSchemaMapping(catalogIndex, reco_type.getPassive(), schemaFilePath, esHost);
+				repository.addESSchemaMapping(catalogIndex, type, schemaFilePath, esHost);
 			}
 		}
 		if(parentId!=null)
@@ -153,12 +149,18 @@ public class ESWriter {
 	}
 	
 	public static void checkRecoTypeFromJSON(String indexName,String indexType,String path){
-		boolean indexExists = repository.checkESIndexIfExists(indexName+"/"+indexType+"/"+"_show", esHost);
+		boolean indexExists = repository.checkESIndexTypeIfExists(indexName+"/"+indexType+"/"+"_show", esHost);
 		
 			if(!indexExists){
 				logger.debug("Creating index "+ indexName);
-				repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
-				indexes.add(indexName);
+				boolean indexCreated = repository.createESIndex(indexName+"/"+indexType+"/"+"_show", esHost);
+				if(indexCreated)
+					indexes.add(indexName);
+				else
+				{
+					logger.info("Catalog deleted");
+					repository.createESIndex(indexName, esHost);
+				}
 				repository.addESSchemaMapping(indexName, indexType, path+StaticProps.SCHEMA_PATH3.getValue(), esHost);
 				reco_type = new RecoType("user_reco_1", "user_reco_2");
 				try {
