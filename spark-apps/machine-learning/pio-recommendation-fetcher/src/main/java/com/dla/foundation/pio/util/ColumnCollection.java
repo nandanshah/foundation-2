@@ -7,6 +7,7 @@ public class ColumnCollection implements Serializable {
 	public static final String ACCOUNT_ID ="accountid";
 	public static final String HOME_REGION_ID	 ="homeregionid";
 	public static final String TENANT_ID = "tenantid";
+	public static final String ACCOUNT_TENANT_ID = "tenant_id";
 	public static final String PROFILE_ID = "profileid";
 	public static final String ITEM_ID = "itemid";
 	public static final String LAST_MODIFIED = "lastrecofetched";

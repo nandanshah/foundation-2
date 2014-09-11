@@ -2,7 +2,9 @@ package com.dla.foundation.pio;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
 
@@ -42,7 +44,7 @@ public class RecommendationFetcher implements Serializable {
 
 		String port;
 
-		RECO_FETCH_TIMESTAMP = new Date(System.currentTimeMillis());
+		RECO_FETCH_TIMESTAMP = new Date(getFormattedDate(System.currentTimeMillis()));
 
 		logger.info(RecoFetcherConstants.APPNAME
 				+ " started fetching recommendations for tenantid "
@@ -101,6 +103,17 @@ public class RecommendationFetcher implements Serializable {
 
 	private String[] getCassnadraIPArray(String strCassnadraIP) {
 		return strCassnadraIP.split(CONFIG_DELIM);
+	}
+	
+
+	public static long getFormattedDate(long time) {
+		Calendar date = new GregorianCalendar();
+		date.setTimeInMillis(time);
+		date.set(Calendar.HOUR_OF_DAY, 0);
+		date.set(Calendar.MINUTE, 0);
+		date.set(Calendar.SECOND, 0);
+		date.set(Calendar.MILLISECOND, 0);
+		return date.getTimeInMillis();
 	}
 
 	public static void main(String[] args) throws IOException {
