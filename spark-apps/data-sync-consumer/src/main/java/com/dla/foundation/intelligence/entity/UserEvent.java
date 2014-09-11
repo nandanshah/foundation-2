@@ -1,4 +1,4 @@
-package com.dla.foundation.intelligence.eo.entity;
+package com.dla.foundation.intelligence.entity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -121,7 +121,7 @@ public class UserEvent extends SimpleFoundationEntity {
 		userEvent.profileID = strToUUID(ue.visitorProfileId);
 		userEvent.purchaseStartTimestamp = strToLong(ue.startTimestamp);
 		userEvent.purchaseTimestamp = strToLong(ue.startTimestamp);
-		userEvent.rateScore = (ue.rateScore != null) ? Integer.parseInt(ue.rateScore) : -1;
+		userEvent.rateScore = strToInt(ue.rateScore);
 		userEvent.regionID = strToUUID(ue.currentRegionId);
 		userEvent.rentEndTimestamp = strToLong(ue.endTimestamp);
 		userEvent.rentStartTimestamp = strToLong(ue.startTimestamp);
@@ -157,6 +157,6 @@ public class UserEvent extends SimpleFoundationEntity {
 	}
 	
 	private static Integer strToInt(String strId) {
-		return  (strId != null) ? Integer.parseInt(strId) : 0; 
+		return  (strId != null) ? Integer.parseInt(strId) : -1; 
 	}
 }

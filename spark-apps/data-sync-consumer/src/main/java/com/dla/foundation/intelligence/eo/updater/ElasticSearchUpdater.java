@@ -12,7 +12,6 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.data.entities.event.EventType;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
-import com.dla.foundation.data.persistence.elasticsearch.BulkEventsProcessing;
 import com.dla.foundation.data.persistence.elasticsearch.ESService;
 import com.dla.foundation.data.persistence.elasticsearch.ESServiceImpl;
 import com.dla.foundation.intelligence.eo.filter.Filter;
@@ -21,7 +20,6 @@ import com.dla.foundation.intelligence.eo.filter.FilterException;
 public class ElasticSearchUpdater extends Updater {
 
 	private static ESService es_service=null;
-	private static BulkEventsProcessing bulk_events=null;
 
 	private static ElasticSearchUpdater instance;
 
@@ -40,7 +38,6 @@ public class ElasticSearchUpdater extends Updater {
 		try {
 			phandler= new PropertiesHandler(propertiesFilePath);
 			es_service = new ESServiceImpl(phandler);
-			bulk_events= new BulkEventsProcessing(phandler);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 		}

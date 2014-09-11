@@ -5,33 +5,33 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.analytics.AnalyticsCollectionEvent;
 import com.dla.foundation.services.contentdiscovery.entities.MediaItem;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BulkEventsProcessing {
-	
+
 	private static StringBuilder bulkEvents = new StringBuilder();
 	private static int count=0;
-	private static int buffer_threshold;
-	PropertiesHandler phandler= null;
+	private final static int buffer_threshold = 5;
+	private PropertiesHandler phandler= null;
 	private static String index, movieType, userRecoType;
 	final private Logger logger = Logger.getLogger(BulkEventsProcessing.class);
 
 	public BulkEventsProcessing(PropertiesHandler handler){
 		phandler= handler;
 		try {
-			index=phandler.getValue("index_name");
-			movieType=phandler.getValue("movie_index_type");
-			userRecoType=phandler.getValue("userreco_index_type");
-			buffer_threshold=Integer.parseInt(phandler.getValue("count.threshold"));
+			index = phandler.getValue(CommonPropKeys.es_index_name);
+			movieType = phandler.getValue(CommonPropKeys.es_movie_index_type);
+			userRecoType = phandler.getValue(CommonPropKeys.es_userreco_index_type);
 		} catch (IOException e) {
-			logger.error("Error in reading from properties file");
+			logger.error(e.getMessage(), e);
 		}
-		
+
 	}
-	
+
 	public void getBulkEvent(AnalyticsCollectionEvent event, ESService es_service){
 		if(Integer.compare(buffer_threshold, count)==0){
 			logger.info("Posting events"+bulkEvents.toString());
@@ -42,11 +42,11 @@ public class BulkEventsProcessing {
 			try {
 				processEvent(event);
 			} catch (Exception e) {
-				logger.error("Error in processing bulk events");
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
-	
+
 	public void processEvent(AnalyticsCollectionEvent event) throws Exception {
 		JSONObject obj=null;
 		MediaItem movieItem= new MediaItem();
@@ -91,12 +91,12 @@ public class BulkEventsProcessing {
 		obj.put("_id", id);
 		if(parentId!=null)
 			obj.put("_parent", parentId);
-			
+
 		JSONObject indexobj= new JSONObject();
 		indexobj.put(operType, obj);
 		return indexobj;
 	}
-	
+
 	private JSONObject getUpdateObj(String key, String value){
 		JSONObject dataobj= new JSONObject();
 		dataobj.put(key, value);
