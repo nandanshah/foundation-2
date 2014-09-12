@@ -116,7 +116,7 @@ public class PIOUpdater extends Updater {
 
 				client.createUser(pioEvent.visitorProfileId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.ProfileDeleted) {
 
@@ -256,7 +256,7 @@ public class PIOUpdater extends Updater {
 	}
 
 	/**
-	 * This method intialize PIO client for specified tenant in valid.
+	 * This method intialize PIO client for specified tenant if tenant entry found in properties.
 	 * 
 	 * @param tenantId
 	 * @return PIO clinet if tenant valid otherwise returns with logging debug
