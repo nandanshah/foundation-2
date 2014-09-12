@@ -14,9 +14,6 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.dla.foundation.analytics.utils.CassandraContext;
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.data.entities.event.Event;
@@ -35,26 +32,28 @@ import com.dla.foundation.intelligence.eo.filter.FilterException;
 public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
-	private Client client;
+	private String APP_NAME = "pioRecoFetcher";
 	private String PROPERTIES_FILE_NAME = "common.properties";
 	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
 	private final int DEFAULT_API_PORT_NUM = 8000;
+	private Client client;
 
 	private PropertiesHandler phandler;
 	private String hostname;
 	private int port;
 	private String appURL;
+	private Map<String, String> tenantAppKeyMap;
 	private Map<String, Client> tenantClientMap;
 
 	public PIOUpdater() {
 
+		tenantClientMap = new HashMap<String, Client>();
 		if (propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
 		try {
-			phandler = new PropertiesHandler(propertiesFilePath,
-					"pioRecoFetcher");
+			phandler = new PropertiesHandler(propertiesFilePath, APP_NAME);
 			hostname = phandler.getValue(CommonPropKeys.pio_host);
 			try {
 				port = (Integer.parseInt(phandler
@@ -66,7 +65,7 @@ public class PIOUpdater extends Updater {
 				logger.error(e.getMessage(), e);
 			}
 			appURL = "http://" + hostname + ":" + port;
-			tenantClientMap = getTenants();
+			loadTenants();
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);
 		}
@@ -99,12 +98,18 @@ public class PIOUpdater extends Updater {
 	protected <TEntity extends SimpleFoundationEntity> void doUpdateAsyncEvent(
 			TEntity event) {
 		Event pioEvent = (Event) event;
-		String tenantId = ((Event) event).tenantId;
+		String tenantId = pioEvent.tenantId;
 		EventType eventType = pioEvent.eventType;
 
-		Client client = tenantClientMap.get(tenantId);
+		if (!tenantClientMap.containsKey(tenantId)) {
+			Client pioClient;
+			if ((pioClient = getClient(tenantId)) == null)
+				return;
+			tenantClientMap.put(tenantId, pioClient);
+		}
 
-		logger.info("using PIO client for tenantd id: '" + tenantId + "'");
+		client = tenantClientMap.get(tenantId);
+		logger.debug("using PIO client for tenantd id: '" + tenantId + "'");
 
 		try {
 			if (eventType == EventType.ProfileAdded) {
@@ -117,61 +122,61 @@ public class PIOUpdater extends Updater {
 
 				client.deleteUser(pioEvent.visitorProfileId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemPreview) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemPreview.getValue(),
 						pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemMoreInfo) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemMoreInfo.getValue(),
 						pioEvent.itemId);
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemShare) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemShare.getValue(),
 						pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemAddToWatchList) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemAddToWatchList.getValue(),
 						pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemPlayStart) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemPlayStart.getValue(),
 						pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemPurchase) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemPurchase.getValue(),
 						pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemRent) {
 
-				client.userActionItem(pioEvent.accountId,
+				client.userActionItem(pioEvent.visitorProfileId,
 						PIOMappingKeys.UserItemRent.getValue(), pioEvent.itemId);
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemRate) {
 
@@ -183,7 +188,8 @@ public class PIOUpdater extends Updater {
 							.getUserActionItemRequestBuilder("rate",
 									pioEvent.itemId).rate(
 									Integer.parseInt(rating)));
-					logger.info("Rate status: " + r.getStatus() + " with message: " + r.getMessage());
+					logger.debug("Rate status: " + r.getStatus()
+							+ " with message: " + r.getMessage());
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				} catch (UnidentifiedUserException e) {
@@ -195,7 +201,7 @@ public class PIOUpdater extends Updater {
 								pioEvent.visitorProfileId, "rate", rating);
 				userActionitemReq.rate(Integer.parseInt(rating));
 
-				logger.info(eventType + " event pushed in PIO succesfully");
+				logger.debug(eventType + " event pushed in PIO succesfully");
 
 			} else if (eventType == EventType.UserItemPlayPercentage) {
 
@@ -206,11 +212,11 @@ public class PIOUpdater extends Updater {
 					logger.warn("UserItemPlayPercentage event requires play percenatge >= 70 to push into PIO");
 
 				} else {
-					client.userActionItem(pioEvent.accountId,
+					client.userActionItem(pioEvent.visitorProfileId,
 							PIOMappingKeys.UserItemPlayPercentage.getValue(),
 							pioEvent.itemId);
 
-					logger.info(eventType + " event pushed in PIO succesfully");
+					logger.debug(eventType + " event pushed in PIO succesfully");
 				}
 
 			} else {
@@ -229,39 +235,46 @@ public class PIOUpdater extends Updater {
 	}
 
 	/**
-	 * This method reads tenants from n2.tenant and app keys from cassandra
-	 * dynamic properties table.
+	 * This method reads tenants from cassandra dynamic properties table.
 	 * 
-	 * @return Map with key as Tenant Id and value as PIO Client which
-	 *         initilized with corresponding app key for gievn tenant
+	 * @return properties map
 	 */
-	private Map<String, Client> getTenants() {
-		CassandraContext csContext = null;
-		Map<String, Client> tenantClientMap = new HashMap<String, Client>();
+	private void loadTenants() {
+		String appKey;
+		tenantAppKeyMap = new HashMap<String, String>();
 
+		Map<String, String> propMap = null;
 		try {
-			String[] csHostList = phandler.getValue(CommonPropKeys.cs_hostList)
-					.split(",");
-			csContext = new CassandraContext(null);
-			csContext.connect(csHostList);
-
-			String keyspace = phandler
-					.getValue(CommonPropKeys.cs_platformKeyspace);
-			String colFamily = "tenant";
-
-			ResultSet rs = csContext.getRows(keyspace, colFamily);
-			String appKey;
-			String tenantId;
-			for (Row row : rs) {
-				tenantId = row.getUUID("id").toString();
-				appKey = phandler.getValue(tenantId).split(",")[0];
-				Client client = new Client(appKey, appURL);
-				tenantClientMap.put(tenantId, client);
-			}
+			propMap = phandler.getPropMap();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return tenantClientMap;
+		for (String tenantId : propMap.keySet()) {
+			appKey = propMap.get(tenantId);
+			tenantAppKeyMap.put(tenantId, appKey);
+		}
+	}
+
+	/**
+	 * This method intialize PIO client for specified tenant in valid.
+	 * 
+	 * @param tenantId
+	 * @return PIO clinet if tenant valid otherwise returns with logging debug
+	 *         message.
+	 */
+	private Client getClient(String tenantId) {
+		Client client = null;
+		String appKey;
+
+		if (tenantAppKeyMap.containsKey(tenantId)) {
+			appKey = tenantAppKeyMap.get(tenantId).split(",")[0];
+			client = new Client(appKey, appURL);
+		} else {
+			logger.debug("Tenant entry for '" + tenantId
+					+ "' not found in properties. Skipped even handling.");
+			return null;
+		}
+		return client;
 	}
 
 	/**

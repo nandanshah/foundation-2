@@ -3,6 +3,8 @@ package com.dla.foundation.analytics.utils;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -41,7 +43,7 @@ public class PropertiesHandler implements Closeable {
 			propsInFile.load(input);
 		} catch (IOException e) {
 			throw e;
-		}finally {
+		} finally {
 			input.close();
 		}
 	}
@@ -160,6 +162,23 @@ public class PropertiesHandler implements Closeable {
 	}
 
 	/**
+	 * This method concatenate properties from file and cassandra and returns hashmap.
+	 * @return properties map
+	 * @throws IOException
+	 */
+	public Map<String, String> getPropMap() throws IOException {
+		Map<String, String> propMap = new HashMap<String, String>();
+
+		for (Object key : propsInFile.keySet()) {
+			propMap.put((String)key, (String)propsInFile.get(key));
+		}
+		for (String key : propsInCS.keySet()) {
+			propMap.put(key, propsInCS.get(key));
+		}
+		return propMap;
+	}
+
+	/**
 	 * This method will write key-value pair to given appname's properties map
 	 * in cassandra. It will update value if key exist otherwise will insert new
 	 * value.
@@ -225,7 +244,7 @@ public class PropertiesHandler implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		if(csContext!=null)
+		if (csContext != null)
 			csContext.close();
 	}
 }
