@@ -191,9 +191,9 @@ public class PIOUpdater extends Updater {
 					logger.debug("Rate status: " + r.getStatus()
 							+ " with message: " + r.getMessage());
 				} catch (NumberFormatException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				} catch (UnidentifiedUserException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 
 				UserActionItemRequestBuilder userActionitemReq = client
@@ -247,7 +247,7 @@ public class PIOUpdater extends Updater {
 		try {
 			propMap = phandler.getPropMap();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		for (String tenantId : propMap.keySet()) {
 			appKey = propMap.get(tenantId);
