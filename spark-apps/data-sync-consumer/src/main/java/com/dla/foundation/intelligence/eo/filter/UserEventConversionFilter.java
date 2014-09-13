@@ -1,8 +1,8 @@
 package com.dla.foundation.intelligence.eo.filter;
 
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
+import com.dla.foundation.intelligence.entity.UserEvent;
 
 /**
  * Use this filter to transform global Event into 
@@ -25,8 +25,13 @@ public class UserEventConversionFilter implements Filter {
 	@Override
 	public <TEntity extends SimpleFoundationEntity> TEntity doFilter(TEntity e)
 			throws FilterException {
-		Event ee = (Event) e;
-		UserEvent ue = UserEvent.copy(ee);
+		UserEvent ue = null;
+		try {
+			Event ee = (Event) e;
+			ue = UserEvent.copy(ee);
+		} catch (Exception e1) {
+			throw e1;
+		}
 		return (TEntity) ue;
 	}
 }

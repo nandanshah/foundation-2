@@ -4,14 +4,12 @@ import io.prediction.Client;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkFiles;
 
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.intelligence.eo.filter.Filter;
 import com.dla.foundation.intelligence.eo.filter.FilterException;
