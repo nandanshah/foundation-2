@@ -33,6 +33,7 @@ public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private String APP_NAME = "pioRecoFetcher";
+	private String ITEM_TYPE = "movie";
 	private String PROPERTIES_FILE_NAME = "common.properties";
 	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
@@ -65,7 +66,7 @@ public class PIOUpdater extends Updater {
 				logger.error(e.getMessage(), e);
 			}
 			appURL = "http://" + hostname + ":" + port;
-			loadTenants();
+			tenantAppKeyMap = phandler.getPropMap();
 		} catch (IOException e1) {
 			logger.error(e1.getMessage(), e1);
 		}
@@ -113,7 +114,6 @@ public class PIOUpdater extends Updater {
 
 		try {
 			if (eventType == EventType.ProfileAdded) {
-
 				client.createUser(pioEvent.visitorProfileId);
 
 				logger.debug(eventType + " event pushed in PIO succesfully");
@@ -121,6 +121,12 @@ public class PIOUpdater extends Updater {
 			} else if (eventType == EventType.ProfileDeleted) {
 
 				client.deleteUser(pioEvent.visitorProfileId);
+
+				logger.debug(eventType + " event pushed in PIO succesfully");
+
+			} else if (eventType == EventType.ItemAdded) {
+
+				client.createItem(pioEvent.itemId, new String[] { ITEM_TYPE });
 
 				logger.debug(eventType + " event pushed in PIO succesfully");
 
@@ -235,28 +241,8 @@ public class PIOUpdater extends Updater {
 	}
 
 	/**
-	 * This method reads tenants from cassandra dynamic properties table.
-	 * 
-	 * @return properties map
-	 */
-	private void loadTenants() {
-		String appKey;
-		tenantAppKeyMap = new HashMap<String, String>();
-
-		Map<String, String> propMap = null;
-		try {
-			propMap = phandler.getPropMap();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-		for (String tenantId : propMap.keySet()) {
-			appKey = propMap.get(tenantId);
-			tenantAppKeyMap.put(tenantId, appKey);
-		}
-	}
-
-	/**
-	 * This method intialize PIO client for specified tenant if tenant entry found in properties.
+	 * This method intialize PIO client for specified tenant if tenant entry
+	 * found in properties.
 	 * 
 	 * @param tenantId
 	 * @return PIO clinet if tenant valid otherwise returns with logging debug
@@ -271,7 +257,7 @@ public class PIOUpdater extends Updater {
 			client = new Client(appKey, appURL);
 		} else {
 			logger.debug("Tenant entry for '" + tenantId
-					+ "' not found in properties. Skipped even handling.");
+					+ "' not found in properties. Skipped event handling.");
 			return null;
 		}
 		return client;
