@@ -302,7 +302,7 @@ public class SparkPIOConnector implements Serializable {
 						Map<String, ByteBuffer> valueMap = dataFromCassandra
 								._2();
 						ByteBuffer tenantID = valueMap
-								.get(ColumnCollection.TENANT_ID);
+								.get(ColumnCollection.ACCOUNT_TENANT_ID);
 
 						return new Tuple2<String, String>(UUIDType.instance
 								.compose(accountID).toString(),
