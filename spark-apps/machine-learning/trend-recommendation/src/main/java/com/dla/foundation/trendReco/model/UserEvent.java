@@ -17,6 +17,7 @@ public class UserEvent implements Serializable {
 	private Date date;
 	private String tenantId;
 	private String regionId;
+	private long timestamp;
 	private double playPercentage=-1;
 	private int rateScore=-1;
 	
@@ -84,4 +85,11 @@ public class UserEvent implements Serializable {
 		this.regionId = regionId;
 	}
 
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
 }
