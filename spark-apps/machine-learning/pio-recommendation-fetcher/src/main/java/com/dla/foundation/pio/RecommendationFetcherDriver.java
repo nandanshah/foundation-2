@@ -90,7 +90,7 @@ public class RecommendationFetcherDriver implements Serializable {
 						cassandraConfig.accountColFamily,
 						cassandraConfig.pageRowSize,
 						new String[] { ColumnCollection.ID,
-								ColumnCollection.TENANT_ID });
+								ColumnCollection.ACCOUNT_TENANT_ID });
 
 		logger.info("Converting profile data read from Cassandra to profilePairRDD");
 		JavaPairRDD<String, String> profilePairRDD = sparkPIOConnector
