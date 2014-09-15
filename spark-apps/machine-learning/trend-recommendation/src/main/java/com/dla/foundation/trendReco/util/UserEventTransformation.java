@@ -103,27 +103,39 @@ public class UserEventTransformation implements Serializable {
 				
 				if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.TENANT.getColumn()) == 0) {
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent.setTenantId(UUIDType.instance.compose(
 								column.getValue()).toString());
+					} else {
+						return null;
+					}
 
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.REGION.getColumn()) == 0) {
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent.setRegionId(UUIDType.instance.compose(
 								column.getValue()).toString());
+					} else {
+						return null;
+					}
 
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.PROFILE.getColumn()) == 0) {
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent.setUserId(UUIDType.instance.compose(
 								column.getValue()).toString());
+					} else {
+						return null;
+					}
 
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.ITEM.getColumn()) == 0) {
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent.setItemid(UUIDType.instance.compose(
 								column.getValue()).toString());
+					} else {
+						return null;
+					}
 
 				}else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
@@ -131,11 +143,21 @@ public class UserEventTransformation implements Serializable {
 						userEvent.setEventType(ByteBufferUtil.string(
 								column.getValue()).toLowerCase());
 					} else {
-						userEvent.setEventType(null);
+						return null;
 					}
+					
+				}else if (column.getKey().compareToIgnoreCase(
+						UserEventSummary.TIMESTAMP.getColumn()) == 0) {
+					if (null != column.getValue()) {
+						userEvent.setTimestamp(ByteBufferUtil.toLong(
+								column.getValue()));
+					} else {
+						return null;
+					}
+					
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.DATE.getColumn()) == 0) {
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent
 								.setDate(new Date(
 										TrendRecommendationUtil
@@ -143,12 +165,16 @@ public class UserEventTransformation implements Serializable {
 														.compose(
 																column.getValue())
 														.getTime())));
+					} else {
+						return null;
+					}
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
 
-					if (null != column.getValue())
+					if (null != column.getValue()) {
 						userEvent.setPlayPercentage(ByteBufferUtil
 								.toDouble(column.getValue()));
+					}
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.RATE_SCORE.getColumn()) == 0) {
 										

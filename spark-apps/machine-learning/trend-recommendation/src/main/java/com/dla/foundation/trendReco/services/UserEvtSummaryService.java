@@ -268,7 +268,13 @@ public class UserEvtSummaryService implements Serializable {
 				countWeight.put(COUNT, 1.0);
 				countWeight.put(WEIGHT, (1 * eventTypeWithThreshold.getWeight()
 						.get(VALUE)) / 100);
+			} else {
+				countWeight.put(COUNT, 0.0);
+				countWeight.put(WEIGHT, 0.0);
 			}
+		} else {
+			countWeight.put(COUNT, 0.0);
+			countWeight.put(WEIGHT, 0.0);
 		}
 
 		return countWeight;
@@ -282,7 +288,8 @@ public class UserEvtSummaryService implements Serializable {
 			Tuple2<String, Iterable<UserEvent>> records, EventType eventType) {
 
 		Map<String, Double> countWeight = new HashedMap();
-		int rateScore = 0;
+		int rateScore = -1;
+		long maxTimestamp = 0;
 		boolean rateEventFlag = false;
 		userEventIterator = records._2.iterator();
 
@@ -291,7 +298,10 @@ public class UserEvtSummaryService implements Serializable {
 			if (userEvent.getRatescore() >= 0) {
 
 				rateEventFlag = true;
-				rateScore = userEvent.getRatescore();
+				if(maxTimestamp <= userEvent.getTimestamp()) {
+					maxTimestamp = userEvent.getTimestamp();
+					rateScore = userEvent.getRatescore();
+				}
 			} else {
 				break;
 			}
