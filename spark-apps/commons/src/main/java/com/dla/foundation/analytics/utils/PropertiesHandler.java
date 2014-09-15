@@ -161,7 +161,9 @@ public class PropertiesHandler implements Closeable {
 	}
 
 	/**
-	 * This method concatenate properties from file and cassandra and returns hashmap.
+	 * This method concatenate properties from file and cassandra and returns
+	 * hashmap.
+	 * 
 	 * @return properties map
 	 * @throws IOException
 	 */
@@ -169,10 +171,12 @@ public class PropertiesHandler implements Closeable {
 		Map<String, String> propMap = new HashMap<String, String>();
 
 		for (Object key : propsInFile.keySet()) {
-			propMap.put((String)key, (String)propsInFile.get(key));
+			propMap.put((String) key, (String) propsInFile.get(key));
 		}
-		for (String key : propsInCS.keySet()) {
-			propMap.put(key, propsInCS.get(key));
+		if (propsInCS != null) {
+			for (String key : propsInCS.keySet()) {
+				propMap.put(key, propsInCS.get(key));
+			}
 		}
 		return propMap;
 	}

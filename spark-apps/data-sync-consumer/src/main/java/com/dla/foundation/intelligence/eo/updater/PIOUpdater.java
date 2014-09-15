@@ -250,7 +250,7 @@ public class PIOUpdater extends Updater {
 			appKey = tenantAppKeyMap.get(tenantId).split(",")[0];
 			client = new Client(appKey, appURL);
 		} else {
-			logger.debug("Tenant entry for '" + tenantId
+			logger.error("Tenant entry for '" + tenantId
 					+ "' not found in properties. Skipped event handling.");
 			return null;
 		}
