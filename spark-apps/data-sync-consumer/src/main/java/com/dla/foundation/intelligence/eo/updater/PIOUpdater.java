@@ -124,12 +124,6 @@ public class PIOUpdater extends Updater {
 
 				logger.debug(eventType + " event pushed in PIO succesfully");
 
-			} else if (eventType == EventType.ItemAdded) {
-
-				client.createItem(pioEvent.itemId, new String[] { ITEM_TYPE });
-
-				logger.debug(eventType + " event pushed in PIO succesfully");
-
 			} else if (eventType == EventType.UserItemPreview) {
 
 				client.userActionItem(pioEvent.visitorProfileId,
