@@ -12,7 +12,7 @@ import com.datastax.driver.core.Row;
 import com.dla.foundation.analytics.utils.CassandraContext;
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
+import com.dla.foundation.intelligence.entity.UserEvent;
 import com.dla.foundation.data.entities.event.EventType;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 

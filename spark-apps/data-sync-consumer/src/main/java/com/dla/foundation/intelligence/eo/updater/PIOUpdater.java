@@ -33,7 +33,6 @@ public class PIOUpdater extends Updater {
 
 	final Logger logger = Logger.getLogger(this.getClass());
 	private String APP_NAME = "pioRecoFetcher";
-	private String ITEM_TYPE = "movie";
 	private String PROPERTIES_FILE_NAME = "common.properties";
 	private String PROPERTIES_FILE_VAR = "commonproperties";
 	private String propertiesFilePath = System.getProperty(PROPERTIES_FILE_VAR);
@@ -59,8 +58,8 @@ public class PIOUpdater extends Updater {
 			try {
 				port = (Integer.parseInt(phandler
 						.getValue(CommonPropKeys.pio_port)) != -1) ? Integer
-						.parseInt(phandler.getValue(CommonPropKeys.pio_port))
-						: DEFAULT_API_PORT_NUM;
+								.parseInt(phandler.getValue(CommonPropKeys.pio_port))
+								: DEFAULT_API_PORT_NUM;
 			} catch (NumberFormatException e) {
 				port = DEFAULT_API_PORT_NUM;
 				logger.error(e.getMessage(), e);
@@ -187,7 +186,7 @@ public class PIOUpdater extends Updater {
 					FutureAPIResponse r = client.userActionItemAsFuture(client
 							.getUserActionItemRequestBuilder("rate",
 									pioEvent.itemId).rate(
-									Integer.parseInt(rating)));
+											Integer.parseInt(rating)));
 					logger.debug("Rate status: " + r.getStatus()
 							+ " with message: " + r.getMessage());
 				} catch (NumberFormatException e) {
@@ -266,8 +265,8 @@ public class PIOUpdater extends Updater {
 	private enum PIOMappingKeys {
 		UserItemPreview("view"), UserItemMoreInfo("view"), UserItemShare("like"), UserItemAddToWatchList(
 				"view"), UserItemPlayStart("view"), UserItemPlayPercentage(
-				"view"), UserItemRent("conversion"), UserItemPurchase(
-				"conversion");
+						"view"), UserItemRent("conversion"), UserItemPurchase(
+								"conversion");
 
 		private String value;
 

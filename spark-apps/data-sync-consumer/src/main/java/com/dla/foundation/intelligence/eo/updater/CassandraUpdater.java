@@ -9,7 +9,7 @@ import org.apache.spark.SparkFiles;
 import com.dla.foundation.DependencyLocator;
 import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
+import com.dla.foundation.intelligence.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.persistence.cassandra.CassandraContext;
 import com.dla.foundation.intelligence.eo.data.FISDataService;
@@ -50,7 +50,7 @@ public class CassandraUpdater extends Updater {
 			phandler = new PropertiesHandler(propertiesFilePath);
 			nodeIpList = phandler.getValue(CommonPropKeys.cs_hostList);	
 			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);
-			entityPackagePrefix = phandler.getValue(CommonPropKeys.cs_entityPackagePrefix);
+			entityPackagePrefix = phandler.getValue(CommonPropKeys.cs_fisEntityPackagePrefix);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 		} finally {

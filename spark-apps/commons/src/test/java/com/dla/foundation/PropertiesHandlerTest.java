@@ -65,7 +65,7 @@ public class PropertiesHandlerTest {
 		try {
 			final String cs_entityPackagePrefix = "com.dla.foundation";
 			assertEquals(cs_entityPackagePrefix,
-					handler.getValue(CommonPropKeys.cs_entityPackagePrefix));
+					handler.getValue(CommonPropKeys.cs_platformEntityPackagePrefix));
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

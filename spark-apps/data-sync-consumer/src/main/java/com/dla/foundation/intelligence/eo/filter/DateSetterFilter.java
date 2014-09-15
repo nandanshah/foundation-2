@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
+import com.dla.foundation.intelligence.entity.UserEvent;
 import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
 /**

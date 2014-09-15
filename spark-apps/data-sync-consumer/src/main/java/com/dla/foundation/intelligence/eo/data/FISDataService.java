@@ -3,7 +3,7 @@ package com.dla.foundation.intelligence.eo.data;
 import java.util.UUID;
 
 import com.dla.foundation.data.PageResult;
-import com.dla.foundation.intelligence.eo.entity.UserEvent;
+import com.dla.foundation.intelligence.entity.UserEvent;
 
 public interface FISDataService {
 	
