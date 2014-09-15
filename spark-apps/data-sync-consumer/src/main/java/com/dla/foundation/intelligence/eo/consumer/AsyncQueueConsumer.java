@@ -5,16 +5,13 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.dla.foundation.data.entities.event.Event;
-import com.dla.foundation.intelligence.eo.filter.FilterException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * Asynchronous queue listener. 
@@ -69,8 +66,7 @@ public class AsyncQueueConsumer implements Runnable {
 				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
 				updater.updateAsyncEvent(fe);
-			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | FilterException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			} finally {
 				//Default acknowledgment

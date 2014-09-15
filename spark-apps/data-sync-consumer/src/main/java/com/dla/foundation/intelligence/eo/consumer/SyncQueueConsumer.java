@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.dla.foundation.data.entities.event.Event;
-import com.dla.foundation.intelligence.eo.filter.FilterException;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
@@ -13,9 +12,7 @@ import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.ShutdownSignalException;
 
 /**
  * Synchronous queue listener. 
@@ -78,8 +75,7 @@ public class SyncQueueConsumer implements Runnable {
 				fe = (Event) updater.updateSyncEvent(fe);
 				//Push reply message to reply queue defined by producer.
 				syncChannel.basicPublish("", props.getReplyTo(), replyProps, fe.toBytes());
-			} catch (ShutdownSignalException | ConsumerCancelledException
-					| InterruptedException | IOException | FilterException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			} finally {
 				//Default acknowledgment
