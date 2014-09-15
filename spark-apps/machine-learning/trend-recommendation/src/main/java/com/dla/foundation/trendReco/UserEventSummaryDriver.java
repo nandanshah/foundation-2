@@ -313,6 +313,7 @@ public class UserEventSummaryDriver implements Serializable {
 
 			for (int i = 0; i < dates.size(); i++) {
 				if (i + 1 == dates.size()) {
+					userSummaryConfig.startDate = dates.get(i);
 					userSummaryConfig.endDate = endDate;
 					userEvtSummaryCalculator(sparkContext, cassandraService,
 							userSummaryService, userSummaryConfig,
