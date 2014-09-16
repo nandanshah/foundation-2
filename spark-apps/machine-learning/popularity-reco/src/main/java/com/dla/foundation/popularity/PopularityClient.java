@@ -186,8 +186,8 @@ public class PopularityClient implements Serializable {
 				PopularityConstants.APP_NAME);
 		//
 		popularityClient.init(phanHandler);
-		// insert into eo_spark_app_prop(sparkappname,properties)
-		// values('popularityReco',{'executionMode':'incremental','date':'2014-06-27','fullcompute_start_date':'2014-06-27','fullcompute_end_date':'2014-06-30','last_execution':'0000-00-00'});
+//		 insert into eo_spark_app_prop(sparkappname,properties)
+//		 values('popularityReco',{'executionMode':'incremental','date':'2014-06-27','fullcompute_start_date':'2014-06-27','fullcompute_end_date':'2014-06-30','last_execution':'0000-00-00'});
 
 	}
 }
