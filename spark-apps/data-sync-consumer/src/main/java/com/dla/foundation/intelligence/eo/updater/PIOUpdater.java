@@ -36,28 +36,24 @@ public class PIOUpdater extends Updater {
 	private String appURL;
 	private String appKey;
 
-	public PIOUpdater() {
+	public PIOUpdater() throws Exception {
 
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
+		phandler = new PropertiesHandler(propertiesFilePath);
+		hostname = phandler.getValue(CommonPropKeys.pio_host);
 		try {
-			phandler = new PropertiesHandler(propertiesFilePath);
-			hostname = phandler.getValue(CommonPropKeys.pio_host);
-			try {
-				port = (Integer.parseInt(phandler.getValue(CommonPropKeys.pio_port)) != -1) ? Integer
-						.parseInt(phandler.getValue(CommonPropKeys.pio_port))
-						: DEFAULT_API_PORT_NUM;
-			} catch (NumberFormatException e) {
-				port = DEFAULT_API_PORT_NUM;
-				logger.error(e.getMessage(), e);
-			}
-			appURL = "http://" + hostname + ":" + port;
-			appKey = phandler.getValue(CommonPropKeys.pio_appkey);
-			client = new Client(appKey, appURL);
-		} catch (IOException e1) {
-			logger.error(e1.getMessage(), e1);
+			port = (Integer.parseInt(phandler.getValue(CommonPropKeys.pio_port)) != -1) ? Integer
+					.parseInt(phandler.getValue(CommonPropKeys.pio_port))
+					: DEFAULT_API_PORT_NUM;
+		} catch (NumberFormatException e) {
+			port = DEFAULT_API_PORT_NUM;
+			logger.error(e.getMessage(), e);
 		}
+		appURL = "http://" + hostname + ":" + port;
+		appKey = phandler.getValue(CommonPropKeys.pio_appkey);
+		client = new Client(appKey, appURL);
 	}
 
 	@Override

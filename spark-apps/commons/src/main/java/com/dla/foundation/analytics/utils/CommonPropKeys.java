@@ -10,8 +10,8 @@ public enum CommonPropKeys {
 	// cassandra common properties
 	cs_hostList("cs_hostList"), cs_rpcPort("cs_rpcPort"), cs_pageRowSize(
 			"cs_pageRowSize"), cs_fisKeyspace("cs_fisKeyspace"), cs_platformKeyspace(
-			"cs_platformEntityPackagePrefix"), cs_platformEntityPackagePrefix(
-			"cs_entityPackagePrefix"), cs_fisEntityPackagePrefix(
+			"cs_platformKeyspace"), cs_platformEntityPackagePrefix(
+			"cs_platformEntityPackagePrefix"), cs_fisEntityPackagePrefix(
 					"cs_fisEntityPackagePrefix"), cs_sparkAppPropCF("cs_sparkAppPropCF"), cs_sparkAppPropCol(
 			"cs_sparkAppPropCol"),cs_profileCF("cs_profileCF"), cs_accountCF(
 					"cs_accountCF"), cs_itemCF("cs_itemCF"),

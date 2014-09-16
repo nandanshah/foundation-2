@@ -1,6 +1,5 @@
 package com.dla.foundation.intelligence.eo.updater;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
@@ -31,19 +30,14 @@ public class ElasticSearchUpdater extends Updater {
 
 	private JSONObject filterJson = new JSONObject();
 
-	private ElasticSearchUpdater() {
+	private ElasticSearchUpdater() throws Exception {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
-
-		try {
-			phandler= new PropertiesHandler(propertiesFilePath);
-			es_service = new ESServiceImpl(phandler);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		phandler= new PropertiesHandler(propertiesFilePath);
+		es_service = new ESServiceImpl(phandler);
 	}
 
-	public static ElasticSearchUpdater getInstance() {
+	public static ElasticSearchUpdater getInstance() throws Exception {
 		if(instance==null) {
 			instance = new ElasticSearchUpdater();
 		}

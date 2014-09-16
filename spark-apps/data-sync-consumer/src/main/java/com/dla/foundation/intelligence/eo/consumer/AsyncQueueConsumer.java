@@ -31,29 +31,24 @@ public class AsyncQueueConsumer implements Runnable {
 	private Updater updater;
 	private QueueConfig myConfig;
 
-	public AsyncQueueConsumer(QueueConfig config, Updater updater) {
+	public AsyncQueueConsumer(QueueConfig config, Updater updater) throws IOException {
 		this.updater = updater;
 		this.myConfig = config;
 
 		factory = new ConnectionFactory();
-
-		try {
-			factory.setHost(myConfig.getRabbitMQServer());
-			factory.setPort(myConfig.getRabbitMQPort());
-			factory.setUsername(myConfig.getUsername());
-			factory.setPassword(myConfig.getPassword());
-			connection = factory.newConnection();
-			connection.addBlockedListener(new BlockedListenerLogger());
-			asyncChannel = connection.createChannel();
-			asyncChannel.exchangeDeclarePassive(myConfig.getExchangeName());
-			asyncChannel.queueDeclarePassive(myConfig.getName());
-			asyncChannel.basicQos(1);
-			consumer = new QueueingConsumer(asyncChannel);
-			asyncChannel.basicConsume(myConfig.getName(), false, consumer);
-			logger.info("Started ASync queue listener, bound using key: " + myConfig.getBind_key());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+		factory.setHost(myConfig.getRabbitMQServer());
+		factory.setPort(myConfig.getRabbitMQPort());
+		factory.setUsername(myConfig.getUsername());
+		factory.setPassword(myConfig.getPassword());
+		connection = factory.newConnection();
+		connection.addBlockedListener(new BlockedListenerLogger());
+		asyncChannel = connection.createChannel();
+		asyncChannel.exchangeDeclarePassive(myConfig.getExchangeName());
+		asyncChannel.queueDeclarePassive(myConfig.getName());
+		asyncChannel.basicQos(1);
+		consumer = new QueueingConsumer(asyncChannel);
+		asyncChannel.basicConsume(myConfig.getName(), false, consumer);
+		logger.info("Started ASync queue listener, bound using key: " + myConfig.getBind_key());
 	}
 
 	@Override
