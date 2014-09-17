@@ -40,7 +40,7 @@ public class TrendClientTest {
 				+ "/../../commons/src/test/resources/common.properties");
 
 		assertNotNull(cassandra);
-		ResultSet dayScoreResult = cassandra.getRows("fis",
+		ResultSet dayScoreResult = cassandra.getRows("fistest",
 				"common_daily_eventsummary_per_useritem");
 		double sum = 0;
 		for (Row row : dayScoreResult) {
@@ -57,20 +57,24 @@ public class TrendClientTest {
 		}
 		assertEquals(1.4, sum, 0);
 
-		ResultSet trendScoreResult = cassandra.getRows("fis", "trend_reco");
+		ResultSet trendScoreResult = cassandra.getRows("fistest", "trend_reco");
 
 		for (Row row : trendScoreResult) {
 
-			if (row.getUUID("periodid").toString() == "366e8400-fef2-11e3-8080-808080808080") {
+			if (row.getUUID("itemid").toString() == "c979ca35-b58d-434b-b2d6-ea0316bcc121") {
 
-				assertEquals(0.5, row.getDouble("trendscore"), 0);
+				assertEquals(1.0607, row.getDouble("trendscore"), 0);
+			}
+			if (row.getUUID("itemid").toString() == "c979ca35-b58d-434b-b2d6-ea0316bcc122") {
+
+				assertEquals(0.2142, row.getDouble("trendscore"), 0);
 			}
 		}
 	}
 
 	@After
 	public void afterClass() throws InterruptedException {
-		// cassandra.executeCommand("drop keyspace IF EXISTS fis;");
+		cassandra.executeCommand("drop keyspace IF EXISTS fistest;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}

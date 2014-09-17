@@ -1,5 +1,5 @@
-create keyspace if not exists fis with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-use fis;
+create keyspace if not exists fistest with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+use fistest;
 create table if not exists userevent(id uuid, tenantid uuid, regionid uuid , profileid uuid, itemid uuid,accountid uuid,localeid uuid,deviceid uuid,sessionid uuid, eventtype text,timestamp bigint,devicetype text,searchtype text,searchstring text,resultpagenumber int,useraction text,rankofitem int,sourceofimpression text,playpercentage double,rentStartTimeStamp bigint,rentEndTimeStamp bigint,purchaseStartTimeStamp bigint, attributevaluepair map<text,varchar>, eventrequired int,date timestamp,ratescore int ,searchfilters map<text,varchar>,primary key (id));
 create index if not exists n2usereventeventrequired on userevent (eventrequired);
 create index if not exists n2usereventdate on userevent (date);
