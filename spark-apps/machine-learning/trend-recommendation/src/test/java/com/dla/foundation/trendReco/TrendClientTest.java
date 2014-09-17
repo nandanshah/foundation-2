@@ -56,7 +56,7 @@ public class TrendClientTest {
 			}
 
 		}
-		assertEquals(2.5, sum, 0);
+		assertEquals(1.4, sum, 0);
 
 		ResultSet trendScoreResult = cassandra.getRows("fis",
 				"trend_reco");
