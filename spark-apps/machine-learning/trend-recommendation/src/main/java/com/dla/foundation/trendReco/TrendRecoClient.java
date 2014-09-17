@@ -31,7 +31,7 @@ public class TrendRecoClient {
 		logger.info("initializing spark context");
 		JavaSparkContext sparkContext = new JavaSparkContext(
 				userEventProp.getValue(CommonPropKeys.spark_host.getValue()),
-				TrendRecoProp.TREND_RECO_APP_NAME); 
+				TrendRecoProp.TREND_RECO_APP_NAME);
 
 		// initializing spark-cassandra connector
 		logger.info("initializing spark-cassandra connector");

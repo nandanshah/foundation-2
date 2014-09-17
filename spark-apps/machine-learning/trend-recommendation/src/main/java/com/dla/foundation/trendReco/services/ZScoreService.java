@@ -131,14 +131,14 @@ public class ZScoreService implements Serializable, ITrendScore {
 								itemTrendScore = new TrendScore(itemDayScore
 										.getTenantId(), itemDayScore
 										.getRegionId(), itemDayScore
-										.getItemId(),TRENDING,
-										zscore, currentTrendDate);
+										.getItemId(), TRENDING, zscore,
+										currentTrendDate);
 							} else {
 								itemTrendScore = new TrendScore(itemDayScore
 										.getTenantId(), itemDayScore
 										.getRegionId(), itemDayScore
-										.getItemId(), REASON_NA,
-										zscore, currentTrendDate);
+										.getItemId(), REASON_NA, zscore,
+										currentTrendDate);
 							}
 						}
 						return itemTrendScore;

@@ -70,23 +70,23 @@ public class DayScoreTransformation implements Serializable {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns
 					.entrySet()) {
 
-				if (column.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerItem.TENANT.getColumn()) == 0) {
+				if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerItem.TENANT.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setTenantId(UUIDType.instance.compose(column
-								.getValue()).toString());
+						dayScore.setTenantId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
-				} else if (column.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerItem.REGION.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerItem.REGION.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setRegionId(UUIDType.instance.compose(column
-								.getValue()).toString());
+						dayScore.setRegionId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
-				} else if (column.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerItem.ITEM.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerItem.ITEM.getColumn()) == 0) {
 					if (null != column.getValue())
-						dayScore.setItemId(UUIDType.instance.compose(column
-								.getValue()).toString());
+						dayScore.setItemId(UUIDType.instance.compose(
+								column.getValue()).toString());
 
 				}
 
@@ -96,14 +96,13 @@ public class DayScoreTransformation implements Serializable {
 		if (otherColumns != null) {
 
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column
-						.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerItem.DAY_SCORE.getColumn()) == 0) {
+				if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerItem.DAY_SCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						dayScore.setDayScore(ByteBufferUtil.toDouble(column
 								.getValue()));
-				} else if (column.getKey()
-						.compareToIgnoreCase(DailyEventSummaryPerItem.DATE.getColumn()) == 0) {
+				} else if (column.getKey().compareToIgnoreCase(
+						DailyEventSummaryPerItem.DATE.getColumn()) == 0) {
 					if (null != column.getValue())
 						dayScore.setTimestamp(timestampType.compose(
 								column.getValue()).getTime());
