@@ -32,6 +32,8 @@ import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 public class CrawlerPostProcecssing implements Serializable {
 	private static final long serialVersionUID = 8018799352410655286L;
 	private static final String NOT_AVALAIBLE = "NA";
+	private static final String DELIMITER_PROPERTY = "#";
+	
 
 	/**
 	 * This function run post Processing for friends info crawled. It converts
@@ -69,7 +71,10 @@ public class CrawlerPostProcecssing implements Serializable {
 					@Override
 					public Tuple2<Tuple2<String, String>, String> call(
 							Tuple2<String, Friend> tuple) throws Exception {
-						String profileId = tuple._1;
+						String[] keys = tuple._1.split(DELIMITER_PROPERTY);
+						String profileId = keys[0];
+						
+						//String profileId = tuple._1;
 						Friend friend = tuple._2;
 						String friendUserId = friend.UID;
 						Tuple2<String, String> userids = new Tuple2<String, String>(
@@ -90,7 +95,7 @@ public class CrawlerPostProcecssing implements Serializable {
 		Configuration conf = new Configuration();
 		// Reading profile table from Cassandra
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileRDD = cassandraCon
-				.read(conf, sparkContext, crawlerConf.analyticsKeyspace,
+				.read(conf, sparkContext, crawlerConf.platformKeyspace,
 						crawlerConf.profileCF, inputCQLPageRowSize);
 
 		// Getting dla and social id from profile columnfamily
@@ -224,9 +229,12 @@ public class CrawlerPostProcecssing implements Serializable {
 
 						keys = new LinkedHashMap<String, ByteBuffer>();
 						list = new ArrayList<ByteBuffer>();
-
+						
+						String[] primaryKeys = tuple._1.split(DELIMITER_PROPERTY);
+						String uid = primaryKeys[0];
+						
 						keys.put(Profile.id.getValue(),
-								UUIDType.instance.fromString(tuple._1()));
+								UUIDType.instance.fromString(uid));
 
 						UserProfileResponse response = tuple._2;
 						// Improvise on Schema (Evolving)
@@ -287,10 +295,17 @@ public class CrawlerPostProcecssing implements Serializable {
 
 						Map<String, ByteBuffer> keys = new LinkedHashMap<String, ByteBuffer>();
 						List<ByteBuffer> list = new ArrayList<ByteBuffer>();
-
+						
+						String[] primaryKeys = tuple._1.split(DELIMITER_PROPERTY);
+						String uid = primaryKeys[0];
+						String accountId = primaryKeys[1];
+						
+						keys.put(Profile.accountid.getValue(),
+								UUIDType.instance.fromString(accountId));
+						
 						keys.put(Profile.id.getValue(),
-								UUIDType.instance.fromString(tuple._1()));
-
+								UUIDType.instance.fromString(uid));
+						
 						list.add(ByteBufferUtil.bytes(newLastModified));
 						Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> retTuple = new Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>>(
 								keys, list);
