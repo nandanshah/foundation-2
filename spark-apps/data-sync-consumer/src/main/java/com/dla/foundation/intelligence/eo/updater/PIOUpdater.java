@@ -237,8 +237,10 @@ public class PIOUpdater extends Updater {
 
 	@Override
 	public void close() {
-		client.close();
-		logger.info("PredictionIO Client closed");
+		for (Client client : tenantClientMap.values()) {
+			client.close();
+		}
+		logger.info("PredictionIO Clients closed");
 	}
 
 	/**
