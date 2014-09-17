@@ -32,8 +32,12 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 	 * 
 	 */
 	private static final long serialVersionUID = 138414123858979446L;
-	private static ESWriter es_writer= new ESWriter();
-	
+	private ESWriter es_writer= new ESWriter(); 
+	private Map<String,String> map;
+	public UserRecoTransformation(final Map<String,String> map) {
+		// TODO Auto-generated constructor stub
+		this.map = map;
+	}
 	
 	@Override
 	public  JavaPairRDD<String, ESEntity> extractEntity(JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
@@ -49,7 +53,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 					public Tuple2<String, ESEntity> call(Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)	throws Exception {
 						String primaryKey = "";
 						userReco = getUserReco(record);
-						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getmediaItemId(), userReco);
+						es_writer.writeToES(userReco.getTenantId(), userReco.getprofileId(), userReco.getmediaItemId(),userReco,map);
 						if (null != userReco) {
 								if(null!=userReco.getprofileId()){
 								primaryKey = primaryKey.concat("");
@@ -140,10 +144,7 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 					if (null != column.getValue()){
 						userReco.setDate(TimestampType.instance.compose(column.getValue()));
 						
-						/*SimpleDateFormat formatter = new SimpleDateFormat("EEEE, dd/MM/yyyy/hh:mm:ss");
-						String dateInString= new SimpleDateFormat("MM/dd/yyyy").format(TimestampType.instance.compose(column.getValue()));
-						Date parsedDate = formatter.parse(dateInString);		
-				*/	}
+						}
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TRENDREASON.getColumn()) == 0) {
 					if (null != column.getValue()){

@@ -11,14 +11,14 @@ public class RecoTypeResult {
 		public String _id;
 		public long _version;
 		public boolean found;
-		
+		public boolean exists;
 		public RecoType _source;
 
 		@Override
 		public String toString() {
 			return "RecoTypeResult [_id=" + _id + ", _index=" + _index
 					+ ", _source=" + _source.toString() + ", _type=" + _type + ", _version="
-					+ _version + ", found=" + found + "]";
+					+ _version +", exists=" + exists+ ", found=" + found + "]";
 		}
 		
 		
