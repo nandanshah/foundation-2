@@ -8,6 +8,7 @@ import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -61,14 +62,19 @@ public class AsyncQueueConsumer implements Runnable {
 				Event fe = Event.fromBytes(obj);
 				//Write to an endpoint (such as Cassandra, ElasticSearch, PredictionIO etc.)
 				updater.updateAsyncEvent(fe);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			} finally {
 				//Default acknowledgment
 				try {
 					asyncChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 				} catch (IOException e) {
 					logger.error(e.getMessage(), e);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				try {
+					//Sent Negative ACK to broker in case of exception
+					asyncChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, true);
+				} catch (IOException e1) {
+					logger.error(e1.getMessage(), e1);
 				}
 			}
 		}
