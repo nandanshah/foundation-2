@@ -116,6 +116,17 @@ public class UserItemSummaryCalc implements Serializable {
 
 	}
 
+	/**
+	 * This function will fetch the PIO column family ,transform and filter it
+	 * and then perform left outer join with provided the parameter(result of
+	 * left outer join of scoresummary,profile and social) column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param joinedSocial
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> getPioSummary(
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
@@ -138,6 +149,17 @@ public class UserItemSummaryCalc implements Serializable {
 		return poiCombined;
 	}
 
+	/**
+	 * This function will fetch the social column family ,transform and filter
+	 * it and then perform left outer join with provided the parameter(result of
+	 * left outer join of scoresummary & profile) column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param filteredUserItem
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> getUserItemSocialSummary(
 			CassandraSparkConnector cassandraSparkConnector,
 			JavaSparkContext sparkContext,
@@ -163,9 +185,16 @@ public class UserItemSummaryCalc implements Serializable {
 		return joinedSocial;
 	}
 
+	/**
+	 * This function will combine the result of all the join into user-item
+	 * summary.
+	 * 
+	 * @param pioCombined
+	 * @return
+	 */
 	private JavaPairRDD<String, UserItemSummary> comibneUserItemSocialPio(
-			JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> poiCombined) {
-		JavaPairRDD<String, UserItemSummary> filteredUserItem = poiCombined
+			JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> pioCombined) {
+		JavaPairRDD<String, UserItemSummary> filteredUserItem = pioCombined
 				.mapToPair(new PairFunction<Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>>, String, UserItemSummary>() {
 
 					/**
@@ -385,7 +414,7 @@ public class UserItemSummaryCalc implements Serializable {
 	}
 
 	/**
-	 * This function returns a single user for a tenant-region *
+	 * This function returns a single user for a tenant-region
 	 * 
 	 * @param mapRegionTenant_to_User
 	 * @return

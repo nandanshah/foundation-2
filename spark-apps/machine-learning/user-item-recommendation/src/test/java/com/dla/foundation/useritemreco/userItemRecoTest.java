@@ -42,7 +42,8 @@ public class userItemRecoTest {
 
 		userItemRecoDriver.runUserItemRecoDriver(current_dir
 				+ "/../../commons/src/test/resources/common.properties");
-		ResultSet userItemResult = cassandra.getRows("fis", "user_item_reco");
+		ResultSet userItemResult = cassandra.getRows("fistest",
+				"user_item_reco");
 		for (Row row : userItemResult) {
 			try {
 				if (0 == row
@@ -142,7 +143,7 @@ public class userItemRecoTest {
 
 	@After
 	public void afterClass() throws InterruptedException {
-		cassandra.executeCommand("drop keyspace IF EXISTS fis;");
+		cassandra.executeCommand("drop keyspace IF EXISTS fistest;");
 		cassandra.close();
 		Thread.sleep(20000);
 	}
