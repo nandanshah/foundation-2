@@ -8,7 +8,6 @@ import com.dla.foundation.data.entities.event.Event;
 import com.dla.foundation.intelligence.eo.updater.Updater;
 import com.dla.foundation.intelligence.eo.util.BlockedListenerLogger;
 import com.dla.foundation.intelligence.eo.util.QueueListenerConfigHandler.QueueConfig;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -72,7 +71,8 @@ public class AsyncQueueConsumer implements Runnable {
 				logger.error(e.getMessage(), e);
 				try {
 					//Sent Negative ACK to broker in case of exception
-					asyncChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, true);
+					//TODO Forward rejected message to dead letter exchange
+					asyncChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
 				} catch (IOException e1) {
 					logger.error(e1.getMessage(), e1);
 				}

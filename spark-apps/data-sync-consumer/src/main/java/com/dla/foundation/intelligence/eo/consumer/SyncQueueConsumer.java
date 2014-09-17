@@ -80,6 +80,7 @@ public class SyncQueueConsumer implements Runnable {
 				logger.error(e.getMessage(), e);
 				try {
 					//Sent Negative ACK to broker in case of exception
+					//TODO Forward rejected message to dead letter exchange
 					syncChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, true);
 				} catch (IOException e1) {
 					logger.error(e1.getMessage(), e1);
