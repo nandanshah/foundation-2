@@ -1,0 +1,25 @@
+package com.dla.foundation.socialReco.model;
+
+public enum FriendsInfo {
+
+	profileid("profileid"), friendid("friendprofileid"), relation("relation ");
+
+	private String value;
+
+	FriendsInfo(String value) {
+		this.value = value;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public String toString() {
+		return value;
+	}
+
+}
+
+
+
