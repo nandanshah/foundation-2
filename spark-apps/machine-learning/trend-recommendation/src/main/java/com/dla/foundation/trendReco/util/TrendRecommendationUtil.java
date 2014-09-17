@@ -108,12 +108,12 @@ public class TrendRecommendationUtil implements Serializable {
 
 	public static String getWhereClause(Date startDate, int historyPeriod) {
 		long startTimestamp = TrendRecommendationUtil
-				.getFormattedDate(startDate.getTime());
+				.getFormattedDate(DateUtils.addDays(startDate, 1).getTime());
 		long endTimestamp = TrendRecommendationUtil.getFormattedDate(DateUtils
 				.addDays(startDate, (-1) * historyPeriod).getTime());
 
 		return EVENTREQUIRED + "=" + REQUIRED_EVENT_VALUE + " and " + DATE
-				+ " >= " + endTimestamp + " and " + DATE + "<= "
+				+ " >= " + endTimestamp + " and " + DATE + "< "
 				+ startTimestamp;
 	}
 
