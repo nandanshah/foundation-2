@@ -165,7 +165,6 @@ public class UserEventSummaryDriver implements Serializable {
 						TrendRecommendationUtil.getDate(input_date_user_event,
 								DATE_FORMAT));
 
-
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module of user summary");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -188,7 +187,10 @@ public class UserEventSummaryDriver implements Serializable {
 
 			} else {
 				throw new Exception(
-						"Please provide input date (input_date) for incremental processing or start date (start_date) for full recalculation with incremental_flag (true will be for incremental processing of input date and false will be for full recalculation from specified start date to end date");
+						"Please provide input date (input_date) for incremental processing or"
+						+ " start date (start_date) for full recalculation with incremental_flag "
+						+ "(true will be for incremental processing of input date and"
+						+ " false will be for full recalculation from specified start date to end date");
 
 			}
 
@@ -315,7 +317,7 @@ public class UserEventSummaryDriver implements Serializable {
 				if (i + 1 == dates.size()) {
 					userSummaryConfig.startDate = dates.get(i);
 					userSummaryConfig.endDate = DateUtils.addDays(endDate, 1);
-								
+
 					userEvtSummaryCalculator(sparkContext, cassandraService,
 							userSummaryService, userSummaryConfig,
 							userSummCassandraProp);

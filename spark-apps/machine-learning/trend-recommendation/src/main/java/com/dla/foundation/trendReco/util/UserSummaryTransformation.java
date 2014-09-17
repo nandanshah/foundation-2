@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -133,8 +132,8 @@ public class UserSummaryTransformation implements Serializable {
 					if (null != column.getValue()) {
 
 						userSummary.setEventTypeAggregate(MapType.getInstance(
-								UTF8Type.instance, DoubleType.instance).compose(
-								column.getValue()));
+								UTF8Type.instance, DoubleType.instance)
+								.compose(column.getValue()));
 					}
 
 				}

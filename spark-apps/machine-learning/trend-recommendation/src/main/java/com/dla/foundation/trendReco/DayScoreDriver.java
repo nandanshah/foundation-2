@@ -143,7 +143,7 @@ public class DayScoreDriver implements Serializable {
 				logger.info("Executing day score calculator");
 				dayScoreCalculator(sparkContext, cassandraSparkConnector,
 						dayScoreService, dayScoreConfig, dataScoreCassandraProp);
-				
+
 				Date input_date_daily_event = DateUtils.addDays(
 						TrendRecommendationUtil.getDate(dailyEventSumProp
 								.getValue(PropKeys.INPUT_DATE.getValue()),
@@ -152,7 +152,7 @@ public class DayScoreDriver implements Serializable {
 				dailyEventSumProp.writeToCassandra(PropKeys.INPUT_DATE
 						.getValue(), TrendRecommendationUtil.getDate(
 						input_date_daily_event, DATE_FORMAT));
-								
+
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(

@@ -93,7 +93,7 @@ public class TrendScoreDriver implements Serializable {
 							trendScoreProp.getValue(CommonPropKeys.cs_hostList
 									.getValue()), ","),
 					TrendRecoProp.PARTITIONER);
-					
+
 			runTrendScoreDriver(sparkContext, cassandraSparkConnector,
 					trendScoreProp);
 
@@ -118,8 +118,8 @@ public class TrendScoreDriver implements Serializable {
 					+ Trend.NORMALIZED_SCORE.getColumn() + " =?,"
 					+ Trend.TREND_SCORE_REASON.getColumn() + " =?,"
 					+ Trend.DATE.getColumn() + "=?,"
-					+ Trend.EVENTREQUIRED.getColumn() + "=?"; 
-																
+					+ Trend.EVENTREQUIRED.getColumn() + "=?";
+
 			logger.info("initializing cassandra config for zscore service");
 			// initializing cassandra config for zscore service
 			CassandraConfig trendScoreCassandraProp = new CassandraConfig(
@@ -162,7 +162,7 @@ public class TrendScoreDriver implements Serializable {
 				trendScoreCalculator(sparkContext, cassandraSparkConnector,
 						zScoreService, trendScoreCassandraProp,
 						trendScoreConfig);
-				
+
 				Date input_date_trend_score = DateUtils.addDays(
 						TrendRecommendationUtil.getDate(trendScoreProp
 								.getValue(PropKeys.CURRENT_TREND_DATE
@@ -171,7 +171,7 @@ public class TrendScoreDriver implements Serializable {
 				trendScoreProp.writeToCassandra(PropKeys.CURRENT_TREND_DATE
 						.getValue(), TrendRecommendationUtil.getDate(
 						input_date_trend_score, DATE_FORMAT));
-												
+
 			} else if (incrementalFlag.toLowerCase().compareTo(FALSE) == 0) {
 				logger.info("Executing Recalculation module");
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
@@ -193,8 +193,10 @@ public class TrendScoreDriver implements Serializable {
 
 			} else {
 				throw new Exception(
-						"Please provide input date (input_date) for incremental processing or start date (start_date) for full recalculation with incremental_flag (true will be for incremental processing of input date and false will be for full recalculation from specified start date to end date");
-
+						"Please provide input date (input_date) for incremental processing or"
+						+ " start date (start_date) for full recalculation with incremental_flag "
+						+ "(true will be for incremental processing of input date and "
+						+ "false will be for full recalculation from specified start date to end date");
 			}
 
 		} catch (NumberFormatException e) {
@@ -274,7 +276,8 @@ public class TrendScoreDriver implements Serializable {
 							trendScoreConfig.periodForHistoryData));
 		} else {
 			throw new Exception(
-					"Start & Date Cannot be Different in Trend Recommendation when incremental processing is running or make incremental processing false");
+					"Start & Date Cannot be Different in Trend Recommendation "
+					+ "when incremental processing is running or make incremental processing false");
 		}
 		logger.info("Executing trend score calculator");
 		// calling trend score
