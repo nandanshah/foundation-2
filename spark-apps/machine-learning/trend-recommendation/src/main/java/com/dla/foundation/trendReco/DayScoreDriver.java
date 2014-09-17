@@ -288,7 +288,7 @@ public class DayScoreDriver implements Serializable {
 			for (int i = 0; i < dates.size(); i++) {
 				if (i + 1 == dates.size()) {
 					dayScoreConfig.startDate = dates.get(i);
-					dayScoreConfig.endDate = endDate;
+					dayScoreConfig.endDate = DateUtils.addDays(endDate, 1);
 					dayScoreCalculator(sparkContext, cassandraSparkConnector,
 							dayScoreService, dayScoreConfig,
 							dataScoreCassandraProp);
