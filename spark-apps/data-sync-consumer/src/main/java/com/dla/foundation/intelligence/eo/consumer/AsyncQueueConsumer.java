@@ -70,7 +70,7 @@ public class AsyncQueueConsumer implements Runnable {
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				try {
-					//Sent Negative ACK to broker in case of exception
+					//Send Negative ACK to broker in case of exception
 					//TODO Forward rejected message to dead letter exchange
 					asyncChannel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
 				} catch (IOException e1) {
