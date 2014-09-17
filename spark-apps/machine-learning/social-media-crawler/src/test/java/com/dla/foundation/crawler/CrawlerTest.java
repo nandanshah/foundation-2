@@ -20,14 +20,16 @@ import com.dla.foundation.crawler.util.CrawlerStaticPropKeys;
 public class CrawlerTest {
 
 	static CassandraContext context;
-	public static final String propertisFilePath = "D:/GigyaCrawler_workspace/foundation-intelligence-system-master (1)/"
-			+ "foundation-intelligence-system-master/spark-apps/commons/src/main/resources/local/common.properties";
-			//"src/test/resources/crawler_test.properties";
+	private static String current_dir = System.getProperty("user.dir");
+	final static String propertisFilePath = current_dir 
+			+ "/../../commons/src/test/resources/common.properties";
+	
 	public static final String commandsFile = "src/test/resources/crawlercommands.txt";
 	private static String socialProfileCF, friendsCF, keySpace;
 
 	@BeforeClass
 	public static void beforeTest() throws IOException, InterruptedException {
+		
 		initCassandra();
 	}
 
