@@ -49,7 +49,7 @@ public class SparkGigyaConnector implements Serializable {
 
 						String uid = tuple._1;
 						String userid = tuple._2;
-
+						
 						UserProfileResponse userProfileResponse = null;
 						// Calling Gigya to get Social Profile
 						logger.info("Calling Gigya to get User Profile for userid: "
