@@ -17,7 +17,7 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	private double popularityScore;
 	private double fpScore;
 	private double newScore;
-	private double recoByFoundation;
+	private double recoByFoundationScore;
 	private String trendReason;
 	private String socialReason;
 	private String popularityReason;
@@ -75,11 +75,11 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public void setNewScore(double newScore) {
 		this.newScore = newScore;
 	}
-	public double getRecoByFoundation() {
-		return recoByFoundation;
+	public double getRecoByFoundationScore() {
+		return recoByFoundationScore;
 	}
-	public void setRecoByFoundation(double recoByFoundation) {
-		this.recoByFoundation = recoByFoundation;
+	public void setRecoByFoundationScore(double recoByFoundationScore) {
+		this.recoByFoundationScore = recoByFoundationScore;
 	}
 
 	public String getTrendreason() {
@@ -119,8 +119,8 @@ public class UserRecommendation extends ESEntity implements Serializable{
 				+ mediaItemId + ", socialScore=" + socialScore
 				+ ", trendScore=" + trendScore + ", popularityScore="
 				+ popularityScore + ", fpScore=" + fpScore + ", newScore="
-				+ newScore + ", recoByFoundation=" + recoByFoundation
-				+ ", trendReason=" + trendReason + ", socialReason="
+				+ newScore + ", recoByFoundationScore=" + recoByFoundationScore
+				+ ", newReason=" + newReason +", trendReason=" + trendReason + ", socialReason="
 				+ socialReason + ", popularityReason=" + popularityReason
 				+ ", fpReason=" + fpReason + ", recoByfoundationReason="
 				+ recoByfoundationReason + "]";

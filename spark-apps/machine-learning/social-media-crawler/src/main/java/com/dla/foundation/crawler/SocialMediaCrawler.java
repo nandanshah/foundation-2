@@ -93,6 +93,10 @@ public class SocialMediaCrawler {
 		JavaPairRDD<String, String> userSocialPair = SparkCrawlerUtils
 				.getIDLAandSocialID(profileRDD, crawlerConf.profileIdKey,
 						crawlerConf.socialIdKey);
+		
+		// Filtering null records
+		JavaPairRDD<String, String> filteredUserSocialPair = SparkCrawlerUtils
+						.filterSocialIds(userSocialPair);
 
 		SparkGigyaConnector gigyaConnector = new SparkGigyaConnector(
 				gigyaConf.apiKey, gigyaConf.secretKey, gigyaConf.apiScheme,
@@ -100,7 +104,7 @@ public class SocialMediaCrawler {
 		
 		// Calling Gigya to get social data for user
 		JavaPairRDD<String, UserProfileResponse> rawsocialProfile = gigyaConnector
-				.getSocialProfile(userSocialPair, gigyaConf.timeoutMillis);
+				.getSocialProfile(filteredUserSocialPair, gigyaConf.timeoutMillis);
 		
 		// Filtering null records
 		JavaPairRDD<String, UserProfileResponse> socialProfile = CrawlerPostProcecssing
@@ -126,7 +130,7 @@ public class SocialMediaCrawler {
 		
 		// Calling gigya to get friends info
 		JavaPairRDD<String, Friend> friendsInfo = gigyaConnector.getFriends(
-				userSocialPair, gigyaConf.timeoutMillis);
+				filteredUserSocialPair, gigyaConf.timeoutMillis);
 
 		// PostProcessing data to resolve Friend's Social id to DLA user id
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> filteredFriendsInfo = CrawlerPostProcecssing

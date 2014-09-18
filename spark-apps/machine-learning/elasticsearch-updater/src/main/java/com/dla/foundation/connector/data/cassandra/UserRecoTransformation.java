@@ -119,7 +119,14 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 						else
 							userReco.setPopularityScore(ByteBufferUtil.toDouble((column.getValue())));
 						
-				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALSCORE.getColumn()) == 0) {
+				} else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.RECOBYFOUNDATIONSCORE.getColumn()) == 0) {
+				if (null != column.getValue())
+					if (ByteBufferUtil.toDouble(column.getValue()) < 0)
+						userReco.setRecoByFoundationScore(0);
+					else
+						userReco.setRecoByFoundationScore(ByteBufferUtil.toDouble((column.getValue())));
+					
+			}else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
 							userReco.setSocialScore(0);
@@ -149,6 +156,11 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TRENDREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
 						userReco.setTrendreason(ByteBufferUtil.string(column.getValue()));
+								
+					}
+				}else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.NEWREASON.getColumn()) == 0) {
+					if (null != column.getValue()){
+						userReco.setNewReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
