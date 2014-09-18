@@ -160,11 +160,11 @@ public class UserEvtSummaryService implements Serializable {
 	 * records shown as below: 1. insert into
 	 * usereventsummarytable(id,tenantid,regionid,userid, eventtype,
 	 * movieid,timestamp,avp,flag,date) values (
-	 * 0BA3ECD3-51A8-4B52-BDC0-00C628649B4D,1,1,1,3,122,1404111596,{'watchperc':'0'},1,'2014-06-30'
-	 * ) ; 2. insert into usereventsummarytable(id,tenantid,regionid,userid,
+	 * 0BA3ECD3-51A8-4B52-BDC0-00C628649B4D,1,1,1,3,122,1404111596,{'watchperc':'0'},1,'2014-06-30
+	 * ' ) ; 2. insert into usereventsummarytable(id,tenantid,regionid,userid,
 	 * eventtype, movieid,timestamp,avp,flag,date) values (
-	 * 8EB93354-1B9E-4BB9-B87A-E113D02986F5,1,1,1,3,122,1404111596,{'watchperc':'20'},1,'2014-06-30'
-	 * ) ;
+	 * 8EB93354-1B9E-4BB9-B87A-E113D02986F5,1,1,1,3,122,1404111596,{'watchperc':'20'},1,'2014-06-30
+	 * ' ) ;
 	 * 
 	 * Same as above records it will have progress till 100 if watch completes.
 	 * We need to emit count as 1 only when threshold(in watch consider
@@ -298,7 +298,7 @@ public class UserEvtSummaryService implements Serializable {
 			if (userEvent.getRatescore() >= 0) {
 
 				rateEventFlag = true;
-				if(maxTimestamp <= userEvent.getTimestamp()) {
+				if (maxTimestamp <= userEvent.getTimestamp()) {
 					maxTimestamp = userEvent.getTimestamp();
 					rateScore = userEvent.getRatescore();
 				}
@@ -314,7 +314,7 @@ public class UserEvtSummaryService implements Serializable {
 					(1 * eventType.getWeight().get(VALUE)) / 100);
 
 		} else {
-			
+
 			countWeight.put(COUNT, 1.0);
 			countWeight
 					.put(WEIGHT,
