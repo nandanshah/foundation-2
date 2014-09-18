@@ -143,9 +143,9 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.NEWSCORE.getColumn()) == 0) {
 					if (null != column.getValue())
 						if (ByteBufferUtil.toDouble(column.getValue()) < 0)
-							userReco.setNewScore(0);
+							userReco.setNewReleaseScore(0);
 						else
-							userReco.setNewScore(ByteBufferUtil.toDouble((column.getValue())));
+							userReco.setNewReleaseScore(ByteBufferUtil.toDouble((column.getValue())));
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue()){
@@ -155,37 +155,37 @@ public class UserRecoTransformation implements Serializable, CassandraESTransfor
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.TRENDREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setTrendreason(ByteBufferUtil.string(column.getValue()));
+						userReco.setTrendScoreReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.NEWREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setNewReason(ByteBufferUtil.string(column.getValue()));
+						userReco.setNewReleaseScoreReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.FPREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setFpreason(ByteBufferUtil.string(column.getValue()));
+						userReco.setFpScoreReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.SOCIALREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setSocialreason(ByteBufferUtil.string(column.getValue()));
+						userReco.setSocialScoreReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.RECOBYFOUNDATIONREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
 						System.out.println("reco col value"+ByteBufferUtil.string(column.getValue()));
-						userReco.setRecoByfoundationreason(ByteBufferUtil.string(column.getValue()));
+						userReco.setRecoByFoundationReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
 				else if (column.getKey().toLowerCase().compareTo(UserRecoSummary.POULARITYREASON.getColumn()) == 0) {
 					if (null != column.getValue()){
-						userReco.setPopularityreason(ByteBufferUtil.string(column.getValue()));
+						userReco.setPopularityScoreReason(ByteBufferUtil.string(column.getValue()));
 								
 					}
 				}
