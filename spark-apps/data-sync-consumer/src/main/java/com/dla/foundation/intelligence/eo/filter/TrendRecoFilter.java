@@ -39,14 +39,14 @@ public class TrendRecoFilter implements Filter {
 	private static final String EVENTREQUIRED_COL_NAME = "required";
 	private static CassandraContext csContext;
 
-	static {
+	public TrendRecoFilter() throws IOException {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
 		String nodeIpList = null;
 		String dataKeyspace = null;
 
-		PropertiesHandler phandler;
+		PropertiesHandler phandler = null;
 		try {
 			csContext = new CassandraContext(null);
 			phandler = new PropertiesHandler(propertiesFilePath);
@@ -59,8 +59,10 @@ public class TrendRecoFilter implements Filter {
 				trendEventRequiredMap.put(EventType.valueOf(row.getString(EVENTTYPE_COL_NAME)),row.getInt(EVENTREQUIRED_COL_NAME));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
+			if(phandler!=null)
+				phandler.close();
 			csContext.close();
 		}
 	}

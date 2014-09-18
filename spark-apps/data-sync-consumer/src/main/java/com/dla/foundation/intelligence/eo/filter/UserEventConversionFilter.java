@@ -26,12 +26,8 @@ public class UserEventConversionFilter implements Filter {
 	public <TEntity extends SimpleFoundationEntity> TEntity doFilter(TEntity e)
 			throws FilterException {
 		UserEvent ue = null;
-		try {
-			Event ee = (Event) e;
-			ue = UserEvent.copy(ee);
-		} catch (Exception e1) {
-			throw e1;
-		}
+		Event ee = (Event) e;
+		ue = UserEvent.copy(ee);
 		return (TEntity) ue;
 	}
 }
