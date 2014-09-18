@@ -37,7 +37,7 @@ public class CassandraUpdater extends Updater {
 		CassandraUpdater.dataService = dependencyLocator.get(FISDataService.class);
 	}
 
-	public CassandraUpdater() {
+	public CassandraUpdater() throws Exception {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
@@ -52,18 +52,18 @@ public class CassandraUpdater extends Updater {
 			dataKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace);
 			entityPackagePrefix = phandler.getValue(CommonPropKeys.cs_fisEntityPackagePrefix);
 		} catch (IOException e) {
-			logger.error(e.getMessage(),e);
+			throw e;
 		} finally {
 			try {
 				phandler.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 
 		String[] nodeIps = nodeIpList.split(",");
 		dataContext = CassandraContext.create(entityPackagePrefix, dataKeyspace, nodeIps);
-		CassandraUpdater.dataService= new FISDataServiceImpl(dataContext);
+		CassandraUpdater.dataService = new FISDataServiceImpl(dataContext);
 		logger.info("Connected to Cassandra Cluster");
 	}
 
