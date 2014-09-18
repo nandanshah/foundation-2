@@ -214,9 +214,9 @@ public class PIOUpdater extends Updater {
 
 				String playPercentage = pioEvent.playPercentage;
 				if (playPercentage == null
-						|| Integer.parseInt(playPercentage) < 70) {
+						|| Double.parseDouble(playPercentage) < 80.0) {
 
-					logger.warn("UserItemPlayPercentage event requires play percenatge >= 70 to push into PIO");
+					logger.warn("UserItemPlayPercentage event requires play percenatge >= 80 to push into PIO");
 
 				} else {
 					client.userActionItem(pioEvent.visitorProfileId,
