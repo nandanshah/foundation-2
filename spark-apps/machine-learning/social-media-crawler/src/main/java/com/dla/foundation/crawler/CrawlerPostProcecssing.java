@@ -102,13 +102,18 @@ public class CrawlerPostProcecssing implements Serializable {
 		JavaPairRDD<String, String> userSocialPair = SparkCrawlerUtils
 				.getSocialIDLAandID(profileRDD, crawlerConf.profileIdKey,
 						crawlerConf.socialIdKey);
+		
+		// Filtering null records
+		JavaPairRDD<String, String> filteredUserSocialPair = SparkCrawlerUtils
+								.filterSocialIds(userSocialPair);
+
 
 		// Transforming data to have social auth as a key and rest as value
 		JavaPairRDD<String, Tuple2<String, String>> transformedFriendsInfo = transformFriendsInfo(friendsInfo);
 
 		// Joining dataset on social auth(key) to get dlaid for friend
 		// socialauth
-		JavaPairRDD<String, Tuple2<String, Tuple2<String, String>>> joinedSet = userSocialPair
+		JavaPairRDD<String, Tuple2<String, Tuple2<String, String>>> joinedSet = filteredUserSocialPair
 				.join(transformedFriendsInfo);
 
 		// Format data in the Cassandra format

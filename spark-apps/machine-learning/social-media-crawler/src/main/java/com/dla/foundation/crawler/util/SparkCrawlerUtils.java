@@ -96,9 +96,12 @@ public class SparkCrawlerUtils {
 												.getValue()).toString();
 							}
 						}
-							
-						socialID = ByteBufferUtil.string(tuple._2
-									.get(socialIdKey));
+						
+						ByteBuffer buff = tuple._2.get(socialIdKey);
+						
+						if(buff != null)
+							socialID = ByteBufferUtil.string(buff);
+						
 						primaryKey = profileId+"#"+accountId;
 						
 						return new Tuple2<String, String>(primaryKey,
@@ -148,8 +151,11 @@ public class SparkCrawlerUtils {
 								profileId = UUIDType.instance.compose(buff)
 										.toString();
 
-							socialID = ByteBufferUtil.string(tuple._2
-									.get(socialIdKey));
+							ByteBuffer buff1 = tuple._2
+									.get(socialIdKey);
+							
+							if (buff1 != null)
+								socialID = ByteBufferUtil.string(buff1);
 
 							return new Tuple2<String, String>(socialID,
 									profileId);
@@ -294,6 +300,30 @@ public class SparkCrawlerUtils {
 
 		return new CassandraConfig(cassandraIP, cassandraPort,
 				inputPartitioner, outputPartitioner, inputCQLPageRowSize);
+	}
+
+	public static JavaPairRDD<String, String> filterSocialIds(
+			JavaPairRDD<String, String> userSocialPair) {
+		
+		JavaPairRDD<String, String> outputRDD = userSocialPair
+				.filter(new Function<Tuple2<String, String>, Boolean>() {
+
+					private static final long serialVersionUID = -1406718619849210965L;
+
+								
+					@Override
+					public Boolean call(Tuple2<String, String> tuple)
+							throws Exception {
+						if (tuple != null) {
+							if (tuple._1 != null && tuple._2 != null)
+								return true;
+						}
+						return false;
+					}
+				});
+
+		return outputRDD;
+
 	}
 
 }
