@@ -29,16 +29,12 @@ public class RMQQueueReceiver extends Receiver<SimpleFoundationEntity> {
 	private List<Updater> updaters;
 	private boolean canStartAllConsumers = true;
 
-	public RMQQueueReceiver(StorageLevel storageLevel) {
-		super(storageLevel);
-		try {
-			qConfig = new QueueListenerConfigHandler();
-			logger.info("QueueListenerConfig read");
-			consumerThreads = new ArrayList<Thread>();
-			updaters = new ArrayList<Updater>();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+	public RMQQueueReceiver(StorageLevel storageLevel) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+		super(storageLevel);		
+		qConfig = new QueueListenerConfigHandler();
+		logger.info("QueueListenerConfig read");
+		consumerThreads = new ArrayList<Thread>();
+		updaters = new ArrayList<Updater>();		
 	}
 
 	@Override
