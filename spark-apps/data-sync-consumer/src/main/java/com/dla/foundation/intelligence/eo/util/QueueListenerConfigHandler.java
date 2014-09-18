@@ -54,7 +54,7 @@ public class QueueListenerConfigHandler implements Serializable {
 		}
 	}
 
-	public QueueListenerConfigHandler() throws IOException {
+	public QueueListenerConfigHandler() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
@@ -74,7 +74,7 @@ public class QueueListenerConfigHandler implements Serializable {
 			int port = oneQ.has(QueueConfigKeys.rabbitmq_server_port.getValue()) ? oneQ.getInt(QueueConfigKeys.rabbitmq_server_port.getValue()) : rabbitmq_server_port;
 			String exch_name = oneQ.has(QueueConfigKeys.exchange_name.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_name.getValue()) : exchange_name;
 			String exch_type = oneQ.has(QueueConfigKeys.exchange_type.getValue()) ? oneQ.getString(QueueConfigKeys.exchange_type.getValue()) : exchange_type;
-			
+
 			String username = oneQ.has(QueueConfigKeys.rabbitmq_username.getValue()) ? oneQ.getString(QueueConfigKeys.rabbitmq_username.getValue()) : rabbitmq_username;
 			String password = oneQ.has(QueueConfigKeys.rabbitmq_password.getValue()) ? oneQ.getString(QueueConfigKeys.rabbitmq_password.getValue()) : rabbitmq_password;
 
@@ -84,13 +84,9 @@ public class QueueListenerConfigHandler implements Serializable {
 				String[] filters = oneQ.getString(QueueConfigKeys.updater_filters.getValue()).split(",");
 				for (String filter : filters) {
 					Class<? extends Updater> filterClass = null;
-					try {
-						filterClass = (Class<Updater>) Class.forName(filter);
-						Filter f = (Filter) filterClass.newInstance();
-						uc.filters.add(f);
-					} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-						e.printStackTrace();
-					}
+					filterClass = (Class<Updater>) Class.forName(filter);
+					Filter f = (Filter) filterClass.newInstance();
+					uc.filters.add(f);
 				}
 			}
 

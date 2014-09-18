@@ -41,7 +41,7 @@ public abstract class Updater {
 	/**
 	 * Release resources used by updater if any
 	 */
-	abstract void close();
+	public abstract void close();
 
 	protected abstract <TEntity extends SimpleFoundationEntity> TEntity filterEvent(TEntity event, ArrayList<Filter> filters) 
 			throws FilterException;
