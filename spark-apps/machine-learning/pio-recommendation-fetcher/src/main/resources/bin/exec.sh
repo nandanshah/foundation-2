@@ -30,4 +30,4 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, pio-recommendation-fetcher, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.pio.RecommendationFetcher $SH_DIR/../lib/pio-recommendation-fetcher-1.0.0.jar $SH_DIR/../conf/PIO_props.properties --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.pio.RecommendationFetcher $SH_DIR/../lib/pio-recommendation-fetcher-1.0.0.jar $SH_DIR/../conf/common.properties b011406b-cbae-417f-84d6-c81772850118 --jars $JAR_LIST
