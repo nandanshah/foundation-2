@@ -55,15 +55,14 @@ public class FriendsInfoCalc implements Serializable {
 			JavaPairRDD<String, UserScore> requiredFormat = convertPrimaryKey(userScore);
 			
 			//Join between dayScoreRDDPerUserMovie and userScore
-			JavaPairRDD<String, Tuple2<UserScore, UserScore>> joinResult = dayScoreRDDPerUserMovie.join(requiredFormat);
-			
+		        JavaPairRDD<String, Tuple2<UserScore, Optional<UserScore>>> joinResult = dayScoreRDDPerUserMovie.leftOuterJoin(requiredFormat);	
 			// Final user score considering the self recommendation
 			JavaPairRDD<String, UserScore> dayScoreRDDPerUserMovie1 = calculateFinalUserMovieScoreByConsideringSelfReco(joinResult);
 			dayScoreRDDPerUserMovie = dayScoreRDDPerUserMovie1;
 		}
 		
 		return dayScoreRDDPerUserMovie;
-			}
+	}
 
 	/**
 	 * 
@@ -243,34 +242,33 @@ public class FriendsInfoCalc implements Serializable {
 	 * @return
 	 */
 	  
-	 
-	public static JavaPairRDD<String, UserScore> calculateFinalUserMovieScoreByConsideringSelfReco(JavaPairRDD<String, 
-	 
-			Tuple2<UserScore, UserScore>> dayScoreRDDPerUserMovie) {
-		JavaPairRDD<String, UserScore> finalUserScoreRDD = dayScoreRDDPerUserMovie
-				.mapToPair(new PairFunction<Tuple2<String, Tuple2<UserScore, UserScore>>, String, UserScore>() {
+	public static JavaPairRDD<String, UserScore> calculateFinalUserMovieScoreByConsideringSelfReco(JavaPairRDD<String, Tuple2<UserScore, Optional<UserScore>>> joinResult) {
+		JavaPairRDD<String, UserScore> finalUserScoreRDD = joinResult
+				.mapToPair(new PairFunction<Tuple2<String, Tuple2<UserScore, Optional<UserScore>>>, String, UserScore>() {
 					/**
 					 * 
 					 */
 					private static final long serialVersionUID = 1L;
 					UserScore finalUserScore = null;
 					public Tuple2<String, UserScore> call(
-							Tuple2<String, Tuple2<UserScore, UserScore>> records)
+							Tuple2<String, Tuple2<UserScore, Optional<UserScore>>> records)
 									throws Exception {
 						Map<String, Double> movieScore = new HashMap<String, Double>();
 						String primary_key = records._1;
-
-						for(String key : records._2._1.getMovieScore().keySet()){
-							if(records._2._2.getMovieScore().keySet().contains(key))
-							{
-								Double newScore = records._2._1.getMovieScore().get(key)/2;
-								movieScore.put(key, newScore);
-							}else {
-							movieScore.put(key, records._2._1.getMovieScore().get(key));
+						
+						if(records._2._2.isPresent()){
+							for(String key : records._2._1.getMovieScore().keySet()){
+								if(records._2._2.get().getMovieScore().keySet().contains(key))
+								{
+									Double newScore = records._2._1.getMovieScore().get(key)/2;
+									movieScore.put(key, newScore);
+								}else {
+								movieScore.put(key, records._2._1.getMovieScore().get(key));
+								}
 							}
-							
+							records._2._1.setMovieScore(movieScore);
 						}
-						records._2._1.setMovieScore(movieScore);
+
 						finalUserScore = new UserScore(records._2._1.getTenantId(), records._2._1.getRegionId(),
 								primary_key, records._2._1.getMovieScore(), records._2._1.getEventTypeAggregate());
 						return new Tuple2<String, UserScore>(primary_key , finalUserScore);
@@ -279,6 +277,6 @@ public class FriendsInfoCalc implements Serializable {
 				});
 
 		return finalUserScoreRDD;
-	}
+	}	 
 
 }
