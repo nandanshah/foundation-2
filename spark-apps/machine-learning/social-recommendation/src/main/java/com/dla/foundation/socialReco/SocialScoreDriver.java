@@ -220,7 +220,10 @@ public class SocialScoreDriver  implements Serializable{
 
 		} catch (Exception e) {
 			logger.error(e);
-		}
+			throw e;
+		} finally {
+                        socialScoreProp.close();
+                }
 	}
 
 

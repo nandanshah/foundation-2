@@ -49,9 +49,9 @@ public class SocialTest {
 
 		countTest();
 
-		ResultSet socialRecoResult = cassandra.getRows("fis", "social_reco");
+		ResultSet socialRecoResult = cassandra.getRows("fistest", "social_reco");
 
-		ResultSet sparkAppPropResult = cassandra.getRows("fis",
+		ResultSet sparkAppPropResult = cassandra.getRows("fistest",
 				"eo_spark_app_prop");
 
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,7 +89,7 @@ public class SocialTest {
 	{
 		int count=0;
 
-		ResultSet socialRecoResult = cassandra.getRows("fis", "social_reco");
+		ResultSet socialRecoResult = cassandra.getRows("fistest", "social_reco");
 		for (Row row : socialRecoResult)
 		{
 			count++;

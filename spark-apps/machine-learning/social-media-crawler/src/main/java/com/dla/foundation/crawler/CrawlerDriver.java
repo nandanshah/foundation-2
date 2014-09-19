@@ -42,46 +42,52 @@ public class CrawlerDriver {
 		PropertiesHandler phandler = null;
 		try {
 			phandler = new PropertiesHandler(propertiesFilePath, CrawlerStaticPropKeys.SOCIAL_MEDIA_CRAWLER_APP_NAME);
+		
+			long outDatedThresholdTime = Long.parseLong(phandler
+					.getValue(CrawlerPropKeys.OUT_DATED_THRESHOLD_TIME
+							.getValue()));
+				
+			// Initializing values from properties file
+			String master = phandler.getValue(CommonPropKeys.spark_host
+					.getValue());
+
+			CassandraConfig cassandraConf = SparkCrawlerUtils
+					.initCassandraConfig(phandler);
+
+			GigyaConfig gigyaConf = SparkCrawlerUtils.initGigyaConfig(phandler);
+
+			CrawlerConfig crawlerConf = SparkCrawlerUtils
+					.initCrawlerConfig(phandler);
+		
+			if(outDatedThresholdTime == DEF_INITIAL_THREASHOLDTIME){
+				String lastruntime = phandler.getValue(LAST_CRAWLER_RUN_KEY);
+				if(lastruntime != null)
+					outDatedThresholdTime = Long.parseLong(lastruntime);
+			}
+		
+
+			logger.info("Starting Crawler with input properties file: "
+					+ propertiesFilePath + " with outdatedTimeThreshold: "
+					+ outDatedThresholdTime);
+
+			SocialMediaCrawler crawler = new SocialMediaCrawler();
+
+			crawler.runSocialMediaCrawler(master, appName, crawlerConf,
+					cassandraConf, gigyaConf, outDatedThresholdTime);
+		
+			phandler.writeToCassandra(LAST_CRAWLER_RUN_KEY, String.valueOf(System.currentTimeMillis()));
+		
+			logger.info("Social Media Crawler run complete");
 		} catch (IOException e) {
 			logger.fatal("Error getting properties file", e);
 			throw e;
-		}
+		}catch (Exception e) {
+                        logger.error(e);
+                        throw e;
+                } finally {
+                        phandler.close();
+                }
 
-		long outDatedThresholdTime = Long.parseLong(phandler
-				.getValue(CrawlerPropKeys.OUT_DATED_THRESHOLD_TIME
-						.getValue()));
-				
-		// Initializing values from properties file
-		String master = phandler.getValue(CommonPropKeys.spark_host
-				.getValue());
-
-		CassandraConfig cassandraConf = SparkCrawlerUtils
-				.initCassandraConfig(phandler);
-
-		GigyaConfig gigyaConf = SparkCrawlerUtils.initGigyaConfig(phandler);
-
-		CrawlerConfig crawlerConf = SparkCrawlerUtils
-				.initCrawlerConfig(phandler);
-		
-		if(outDatedThresholdTime == DEF_INITIAL_THREASHOLDTIME){
-			String lastruntime = phandler.getValue(LAST_CRAWLER_RUN_KEY);
-			if(lastruntime != null)
-				outDatedThresholdTime = Long.parseLong(lastruntime);
-		}
-		
-
-		logger.info("Starting Crawler with input properties file: "
-				+ propertiesFilePath + " with outdatedTimeThreshold: "
-				+ outDatedThresholdTime);
-
-		SocialMediaCrawler crawler = new SocialMediaCrawler();
-
-		crawler.runSocialMediaCrawler(master, appName, crawlerConf,
-				cassandraConf, gigyaConf, outDatedThresholdTime);
-		
-		phandler.writeToCassandra(LAST_CRAWLER_RUN_KEY, String.valueOf(System.currentTimeMillis()));
-		
-		logger.info("Social Media Crawler run complete");
 	}
 
 }
