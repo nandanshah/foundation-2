@@ -4,6 +4,11 @@ import java.io.Serializable;
 
 public class TrendRecoProp implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public final static String TREND_RECO_APP_NAME = "TrendRecommendation";
 
 	public final static String USER_EVENT_SUM_APP_NAME = "userevent";

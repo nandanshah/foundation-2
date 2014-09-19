@@ -16,14 +16,14 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	private double trendScore;
 	private double popularityScore;
 	private double fpScore;
-	private double newScore;
-	private double recoByFoundation;
-	private String trendReason;
-	private String socialReason;
-	private String popularityReason;
-	private String fpReason;
-	private String recoByfoundationReason;
-	private String newReason;
+	private double newReleaseScore;
+	private double recoByFoundationScore;
+	private String trendScoreReason;
+	private String socialScoreReason;
+	private String popularityScoreReason;
+	private String fpScoreReason;
+	private String recoByFoundationReason;
+	private String newReleaseScoreReason;
 	
 	public String getprofileId() {
 		return profileId;
@@ -69,67 +69,67 @@ public class UserRecommendation extends ESEntity implements Serializable{
 	public void setFpScore(double fpScore) {
 		this.fpScore = fpScore;
 	}
-	public double getNewScore() {
-		return newScore;
+	public double getNewReleaseScore() {
+		return newReleaseScore;
 	}
-	public void setNewScore(double newScore) {
-		this.newScore = newScore;
+	public void setNewReleaseScore(double newReleaseScore) {
+		this.newReleaseScore = newReleaseScore;
 	}
-	public double getRecoByFoundation() {
-		return recoByFoundation;
+	public double getRecoByFoundationScore() {
+		return recoByFoundationScore;
 	}
-	public void setRecoByFoundation(double recoByFoundation) {
-		this.recoByFoundation = recoByFoundation;
+	public void setRecoByFoundationScore(double recoByFoundationScore) {
+		this.recoByFoundationScore = recoByFoundationScore;
 	}
 
-	public String getTrendreason() {
-		return trendReason;
+	public String getTrendScoreReason() {
+		return trendScoreReason;
 	}
-	public void setTrendreason(String trendreason) {
-		this.trendReason = trendreason;
+	public void setTrendScoreReason(String trendScoreReason) {
+		this.trendScoreReason = trendScoreReason;
 	}
-	public String getSocialreason() {
-		return socialReason;
+	public String getSocialScoreReason() {
+		return socialScoreReason;
 	}
-	public void setSocialreason(String socialreason) {
-		this.socialReason = socialreason;
+	public void setSocialScoreReason(String socialScoreReason) {
+		this.socialScoreReason = socialScoreReason;
 	}
-	public String getPopularityreason() {
-		return popularityReason;
+	public String getPopularityScoreReason() {
+		return popularityScoreReason;
 	}
-	public void setPopularityreason(String popularityreason) {
-		this.popularityReason = popularityreason;
+	public void setPopularityScoreReason(String popularityScoreReason) {
+		this.popularityScoreReason = popularityScoreReason;
 	}
-	public String getFpreason() {
-		return fpReason;
+	public String getFpScoreReason() {
+		return fpScoreReason;
 	}
-	public void setFpreason(String fpreason) {
-		this.fpReason = fpreason;
+	public void setFpScoreReason(String fpScoreReason) {
+		this.fpScoreReason = fpScoreReason;
 	}
-	public String getRecoByfoundationreason() {
-		return recoByfoundationReason;
+	public String getRecoByFoundationReason() {
+		return recoByFoundationReason;
 	}
-	public void setRecoByfoundationreason(String recoByfoundationreason) {
-		System.out.println("recoByFoundation"+recoByfoundationreason);
-		this.recoByfoundationReason = recoByfoundationreason;
+	public void setRecoByFoundationReason(String recoByFoundationReason) {
+		System.out.println("recoByFoundation"+recoByFoundationReason);
+		this.recoByFoundationReason = recoByFoundationReason;
 	}
 	@Override
 	public String toString() {
 		return "UserRecommendation [profileId=" + profileId + ", mediaItemId="
 				+ mediaItemId + ", socialScore=" + socialScore
 				+ ", trendScore=" + trendScore + ", popularityScore="
-				+ popularityScore + ", fpScore=" + fpScore + ", newScore="
-				+ newScore + ", recoByFoundation=" + recoByFoundation
-				+ ", trendReason=" + trendReason + ", socialReason="
-				+ socialReason + ", popularityReason=" + popularityReason
-				+ ", fpReason=" + fpReason + ", recoByfoundationReason="
-				+ recoByfoundationReason + "]";
+				+ popularityScore + ", fpScore=" + fpScore + ", newReleaseScore="
+				+ newReleaseScore + ", recoByFoundationScore=" + recoByFoundationScore
+				+ ", newReleaseScoreReason=" + newReleaseScoreReason +", trendScoreReason=" + trendScoreReason + ", socialScoreReason="
+				+ socialScoreReason + ", popularityScoreReason=" + popularityScoreReason
+				+ ", fpScoreReason=" + fpScoreReason + ", recoByFoundationReason="
+				+ recoByFoundationReason + "]";
 	}
-	public String getNewReason() {
-		return newReason;
+	public String getNewReleaseScoreReason() {
+		return newReleaseScoreReason;
 	}
-	public void setNewReason(String newReason) {
-		this.newReason = newReason;
+	public void setNewReleaseScoreReason(String newReleaseScoreReason) {
+		this.newReleaseScoreReason = newReleaseScoreReason;
 	}
 	
 }

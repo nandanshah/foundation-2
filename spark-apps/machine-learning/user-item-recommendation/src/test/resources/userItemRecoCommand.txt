@@ -1,8 +1,8 @@
-drop keyspace if exists fis;
-drop keyspace if exists n2;
-create keyspace if not exists fis with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-create keyspace if not exists n2 with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-use n2;
+drop keyspace if exists fistest;
+drop keyspace if exists n2test;
+create keyspace if not exists fistest with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+create keyspace if not exists n2test with replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+use n2test;
 create table item (id uuid,tenantid uuid,regionid uuid,localeid uuid,credits_id uuid,datecreated text,duration int,episodecount int,fidelities list<text>,fullimg text,genres_id list<uuid>,largethumbnail text,licensing_id uuid,likecnt int,likedpct double,longdesc text,moods_id list<uuid>,permissions text,progress int,recommendationreason text,reviews_id list<uuid>,seasons_id list<uuid>,shortdesc text,thumbnail text,title text,trailerurl text,type_id uuid,userrating text,viewcnt int,year int,PRIMARY KEY (id));
 create table account (id uuid,tenant_id uuid,type text,PRIMARY KEY (id));
 create table profile (accountid uuid,id uuid,homeregionid uuid,preferredlocaleid uuid,avatarimageurl text,birthdate timestamp,defaultcolor text,emailaddress text,emailaddress_lower text,firstname text,gender text,isadmin boolean,isrootprofile boolean,lastname text,notfiyfriendregistration boolean,notifyfriendlike boolean,notifynewrelease boolean,notifypromotional boolean,notifywatchlistexpiration boolean,passwordhash text,passwordsalt text,pinhash text,pinsalt text,profiletype text,socialauthtoken text,watchlist_id uuid,PRIMARY KEY (accountid, id));
@@ -11,7 +11,7 @@ insert into account(id,tenant_id) values(C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C9
 insert into account(id,tenant_id) values(C979CA35-B58D-434B-B2D6-EA0316BCC9A2,C979CA35-B58D-434B-B2D6-EA0316BCC9A2);
 insert into item(id,tenantid,regionid,localeid) values(C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1);
 insert into item(id,tenantid,regionid,localeid) values(C979CA35-B58D-434B-B2D6-EA0316BCC9A5,C979CA35-B58D-434B-B2D6-EA0316BCC9A5,C979CA35-B58D-434B-B2D6-EA0316BCC9A5,C979CA35-B58D-434B-B2D6-EA0316BCC9A1);
-use fis;
+use fistest;
 create table if not exists trend_reco(periodid timeuuid,tenantid uuid,regionid uuid,itemid uuid,trendscore double,normalizedtrendscore double,trendscorereason text,eventrequired int,date timestamp, primary key (periodid,tenantid,regionid,itemid));
 create table if not exists popularity_reco(periodid timeuuid,tenantid uuid,regionid uuid,itemid uuid,popularityscore double,normalizedpopularityscore double,popularityscorereason text,eventrequired int,date timestamp,primary key (periodid,tenantid,regionid,itemid));
 create table if not exists fnp_reco(periodid timeuuid,tenantid uuid,regionid uuid,itemid uuid,fnpscore double,normalizedfnpscore double,fnpscorereason text,eventrequired int,date timestamp, primary key (periodid,tenantid,regionid,itemid));

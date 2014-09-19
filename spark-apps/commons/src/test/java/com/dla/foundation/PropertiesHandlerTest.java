@@ -45,15 +45,18 @@ public class PropertiesHandlerTest {
 				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol)
 				+ " text, properties map<text,text>, primary key ("
 				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol) + "));");
-		csContext.executeCommand("INSERT INTO "
-				+ handler.getValue(CommonPropKeys.cs_fisKeyspace) + "."
-				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCF) + " ("
-				+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol)
-				+ ", properties) VALUES ('gs', {'host':'localhost'});");
+		csContext
+				.executeCommand("INSERT INTO "
+						+ handler.getValue(CommonPropKeys.cs_fisKeyspace)
+						+ "."
+						+ handler.getValue(CommonPropKeys.cs_sparkAppPropCF)
+						+ " ("
+						+ handler.getValue(CommonPropKeys.cs_sparkAppPropCol)
+						+ ", properties) VALUES ('test_appname', {'host':'localhost'});");
 
 		try {
 			pHandler = new PropertiesHandler(
-					"src/main/resources/local/common.properties", "gs");
+					"src/test/resources/common.properties", "test_appname");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -64,7 +67,8 @@ public class PropertiesHandlerTest {
 	public void commonPropTest() {
 		try {
 			final String cs_entityPackagePrefix = "com.dla.foundation";
-			assertEquals(cs_entityPackagePrefix,
+			assertEquals(
+					cs_entityPackagePrefix,
 					handler.getValue(CommonPropKeys.cs_platformEntityPackagePrefix));
 		} catch (IOException e) {
 			fail(e.getMessage());
@@ -73,10 +77,20 @@ public class PropertiesHandlerTest {
 
 	@Test
 	public void readFromCSTest() {
-		ResultSet rs = csContext.getRows("fis", "eo_spark_app_prop", "sparkappname",
-				"gs");
-		String hostValue = rs.one()
-				.getMap("properties", String.class, String.class).get("host");
+		ResultSet rs;
+		String hostValue = null;
+		try {
+			rs = csContext.getRows(
+					handler.getValue(CommonPropKeys.cs_fisKeyspace),
+					handler.getValue(CommonPropKeys.cs_sparkAppPropCF),
+					handler.getValue(CommonPropKeys.cs_sparkAppPropCol),
+					"test_appname");
+			hostValue = rs.one()
+					.getMap("properties", String.class, String.class)
+					.get("host");
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
 
 		try {
 			assertEquals(hostValue, pHandler.getValue("host"));
@@ -91,7 +105,7 @@ public class PropertiesHandlerTest {
 		String cs_entityPackagePrefix = "com.dla.foundation";
 		try {
 			assertEquals(cs_entityPackagePrefix,
-					pHandler.getValue("cs_entityPackagePrefix"));
+					pHandler.getValue("cs_platformEntityPackagePrefix"));
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

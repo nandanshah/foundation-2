@@ -3,7 +3,7 @@ package com.dla.foundation.pio.util;
 import java.io.Serializable;
 
 public class RecoFetcherConstants implements Serializable{
-	public static final double RECO_SCORE = 1.5;
+	public static final double RECO_SCORE = 1;
 	public static final String RECO_REASON = "By Machine Learning";
 	public static final int EVENT_REQ_FLAG = 1;
 	public static final String DEFAULT_API_PORT_NUM = "8000";

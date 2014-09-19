@@ -1,6 +1,6 @@
-drop keyspace IF EXISTS fis;
-CREATE KEYSPACE IF NOT EXISTS fis WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
-use fis;
+drop keyspace IF EXISTS fistest;
+CREATE KEYSPACE IF NOT EXISTS fistest WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+use fistest;
 create table if not exists user_item_reco(periodid timeuuid,tenantid uuid,regionid uuid,profileid uuid,itemid uuid,trendscore double,trendscorereason text,popularityscore double,popularityscorereason text,fnpscore double,fnpscorereason text,newreleasescore double,newreleasescorereason text,socialscore double,socialscorereason text,recobyfoundationscore double,recobyfoundationreason text,eventrequired int,date timestamp,primary key (periodid,tenantid, regionid,profileid,itemid));
 create index index_event_required on user_item_reco (eventrequired);
 create index index_date on user_item_reco (date);

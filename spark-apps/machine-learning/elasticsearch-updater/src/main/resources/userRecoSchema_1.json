@@ -51,7 +51,7 @@
                        {
                            "type": "string", "index" : "no"
                        },
-                       "recoByFoundation":
+                       "recoByFoundationScore":
                        {
                            "type": "double", "index" : "no"
                        },

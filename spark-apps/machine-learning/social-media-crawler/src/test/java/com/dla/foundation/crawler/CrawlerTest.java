@@ -13,18 +13,23 @@ import org.junit.Test;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.dla.foundation.analytics.utils.CassandraContext;
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-import com.dla.foundation.crawler.util.CrawlerPropKeys;
+import com.dla.foundation.crawler.util.CrawlerStaticPropKeys;
 
 public class CrawlerTest {
 
 	static CassandraContext context;
-	public static final String propertisFilePath = "src/test/resources/crawler_test.properties";
+	private static String current_dir = System.getProperty("user.dir");
+	final static String propertisFilePath = current_dir 
+			+ "/../../commons/src/test/resources/common.properties";
+	
 	public static final String commandsFile = "src/test/resources/crawlercommands.txt";
 	private static String socialProfileCF, friendsCF, keySpace;
 
 	@BeforeClass
 	public static void beforeTest() throws IOException, InterruptedException {
+		
 		initCassandra();
 	}
 
@@ -38,13 +43,11 @@ public class CrawlerTest {
 			throw e;
 		}
 
-		keySpace = phandler.getValue(CrawlerPropKeys.fisKeyspace.getValue());
+		keySpace = phandler.getValue(CommonPropKeys.cs_fisKeyspace.getValue());
 
-		socialProfileCF = phandler
-				.getValue(CrawlerPropKeys.socialProfileColumnFamily.getValue());
+		socialProfileCF = CrawlerStaticPropKeys.SOCIALPROFILE_OUT_CF;
 
-		friendsCF = phandler.getValue(CrawlerPropKeys.friendsColumnFamily
-				.getValue());
+		friendsCF = CrawlerStaticPropKeys.FRIENDSINFO_OUT_CF;
 
 		String current_dir = System.getProperty("user.dir");
 		context = new CassandraContext(current_dir
@@ -59,10 +62,12 @@ public class CrawlerTest {
 	public void testCrawler() throws IOException {
 
 		String columnName = "username";
-		long outdatedTime = 1402857000002L;
-
+		//long outdatedTime = 1402857000002L;
+		//long outdatedTime = 1402857123452L;
+		
 		CrawlerDriver driver = new CrawlerDriver();
-		driver.run(propertisFilePath, outdatedTime);
+//		driver.run(propertisFilePath, outdatedTime);
+		driver.run(propertisFilePath);
 
 		String outputUsername = getUserName(socialProfileCF, columnName);
 		Assert.assertTrue("Username must not be null", outputUsername != null);

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.broadcast.Broadcast;
 
 import scala.Tuple2;
 
@@ -43,17 +45,22 @@ public class CassandraEntityReader implements Serializable{
 	PropertiesHandler cassandraESProp;
 	public static String DATE_FORMAT ="yyyy-MM-dd";
 	final private Logger logger = Logger.getLogger(CassandraEntityReader.class);
+	public static Broadcast<ESWriter> bv = null;
+	
+	/*
+	 * Reads dynamic and static properties using property handler
+	 * Initializes cassandra connector with configuration like cassandra keyspace, ip, etc.
+	 */
+	
 	public void runUserRecoDriver( String commonFilePath ) throws IOException, ParseException{
 		cassandraESProp = new PropertiesHandler(commonFilePath,StaticProps.APP_NAME.getValue());
 		cassandraSparkConnector= initializeCassandraConnector(commonFilePath);
 		userRecoConfig= initializeCassandraConfig(commonFilePath);
-		//ESWriter.init(esFilePath); //As already initialized at start of app
 		readData();
-		
-	Date input_date = DateUtils.addDays(
-				DateUtil.getDate(cassandraESProp
-						.getValue(PropKeys.INPUT_DATE.getValue()),
-						DATE_FORMAT), 1);
+		/* After the reading-inserting job is done the input date stored as dynamic property
+		 * in eo_spark_app_prop column family is increamented. 
+		 */
+		Date input_date = DateUtils.addDays(DateUtil.getDate(cassandraESProp.getValue(PropKeys.INPUT_DATE.getValue()),DATE_FORMAT), 1);
 
 		cassandraESProp.writeToCassandra(StaticProps.INPUT_DATE
 				.getValue(), DateUtil.getDateInFormat(input_date,DATE_FORMAT));
@@ -61,13 +68,20 @@ public class CassandraEntityReader implements Serializable{
 	}
 
 	private void readData() throws IOException, ParseException {
-		//PropertiesHandler appProp = new PropertiesHandler(filePath);
 		JavaSparkContext sparkContext = new JavaSparkContext(cassandraESProp.getValue(PropKeys.MODE_PROPERTY.getValue()),StaticProps.APP_NAME.getValue());
+		/*
+		 * While running app in distributed mode, the worker nodes need to have ES specific info so 
+		 * all the requiired things stored in a map and broadcasted here by master.
+		 */
+		Map<String,String> map = createMapToBeBroadcasted();
+		Broadcast<Map<String,String>> bv = sparkContext.broadcast(map);
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD;
 		Configuration conf= new Configuration();
 	    
-		
-		
+		/*
+		 * Here the records with date equal to input date, stored as dynamic property, are fetched from cassandra 
+		 * so used a filter clause here.
+		 */
 		long day_timestamp = 	DateUtil.getDateInLong(cassandraESProp.getValue(StaticProps.INPUT_DATE.getValue()),DATE_FORMAT);
 				//DateUtil.getPreviousDay();
 		
@@ -81,28 +95,40 @@ public class CassandraEntityReader implements Serializable{
 		logger.info("InputColumnfamily" + userRecoConfig.getInputColumnfamily());
 		
 		logger.info("cassandraRDD count"+cassandraRDD.count());
-		transformData(cassandraRDD);
+		transformData(cassandraRDD,bv.value());
 	}
 
-	private void transformData(JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
-		 CassandraESTransformer transformer = new UserRecoTransformation();
+	private Map<String,String> createMapToBeBroadcasted() {
+		// TODO Auto-generated method stub
+		Map<String,String> map= new HashMap<String,String>();
+		map.put("esHost", ESWriter.esHost);
+		logger.info("reco type from master"+ESWriter.reco_type.getActive() +ESWriter.reco_type.getPassive()+"buff threshold"+map.get("buffer_threshold"));
+		map.put("PassiveRecoType",ESWriter.reco_type.getPassive());
+		map.put("ActiveRecoType",ESWriter.reco_type.getActive());
+		map.put("type",ESWriter.reco_type.getPassive());
+		map.put("createIndex",String.valueOf(ESWriter.createIndex));
+		map.put("schemaFilePath",ESWriter.schemaFilePath);
+		map.put("buffer_threshold", String.valueOf(ESWriter.buffer_threshold));
+		return map;
+	}
+
+	private void transformData(JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD, final Map<String,String> map) {
+		 CassandraESTransformer transformer = new UserRecoTransformation(map);
 		 JavaPairRDD<String, ESEntity> userEventRDD = transformer.extractEntity(cassandraRDD);
 		 List<Tuple2<String, ESEntity>> lst=	userEventRDD.collect();
-		 if (ESWriter.bulkEvents !=null && ESWriter.bulkEvents.length()>0){	
-			 logger.info("Writing remaining records to ES");
-			 ESWriter writer= new ESWriter();
-			 writer.postBulkData(ESWriter.bulkEvents.toString());
-		 }
+		 logger.info("RDD list size after collecting "+lst.size());
+		 /*
+		  * After insertion of records into passive reco type, it swaps the reco type. i.e 
+		  * active becomes passive and passive becomes active.
+		  */
 		 ESWriter.swapRecoType();
-		
-		 
 	}
 	
 	
 	
 	private CassandraSparkConnector initializeCassandraConnector(String filePath) throws IOException{
 		logger.info("Initializing cassandra connector");
-		
+		logger.info("cs hostlist "+cassandraESProp.getValue(PropKeys.INPUT_HOST_LIST.getValue()));
 		cassandraSparkConnector = new CassandraSparkConnector(
 				getList(cassandraESProp.getValue(PropKeys.INPUT_HOST_LIST.getValue()),IP_SEPARATOR),
 				StaticProps.INPUT_PARTITIONER.getValue(),
@@ -113,8 +139,9 @@ public class CassandraEntityReader implements Serializable{
 	
 
 	private CassandraConfig initializeCassandraConfig(String userReco)throws IOException{
-		logger.info("initializing cassandra config for  user Summary service");
-		
+		logger.info("initializing cassandra config");
+		logger.info("input keyspace"+cassandraESProp.getValue(PropKeys.INPUT_KEYSPACE.getValue()));
+		logger.info("input column family"+StaticProps.INPUT_COLUMNFAMILY.getValue());
 		userRecoConfig = new CassandraConfig(
 				cassandraESProp.getValue(PropKeys.INPUT_KEYSPACE.getValue()),
 				null,
