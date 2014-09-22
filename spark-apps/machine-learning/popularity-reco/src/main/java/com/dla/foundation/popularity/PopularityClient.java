@@ -29,8 +29,16 @@ public class PopularityClient implements Serializable {
 	public static String startDate;
 	public static String last_execution;
 	private static final String CONFIG_DELIM = ",";
+	private static final String FIRST_DATE = "0000-00-00";
+	protected static boolean updatedModetoFullCompute;
 	private static Logger logger = Logger.getLogger(PopularityClient.class
 			.getName());
+	public static boolean firstExecution;
+
+	public PopularityClient() {
+		updatedModetoFullCompute = false;
+		firstExecution = false;
+	}
 
 	public void init(PropertiesHandler phandler) throws IOException,
 			ParseException, InvalidDataException {
@@ -39,6 +47,8 @@ public class PopularityClient implements Serializable {
 		logger.info("Initialized Popularity-Reco at "
 				+ new Date(System.currentTimeMillis()));
 		last_execution = phandler.getValue(PopularityConstants.LAST_EXECUTION);
+		if (last_execution.equalsIgnoreCase(FIRST_DATE))
+			firstExecution = true;
 		CassandraSparkConnector cassandraSparkConnector = new CassandraSparkConnector(
 				getCassnadraIPArray(phandler.getValue(CommonPropKeys.cs_hostList
 						.getValue())), PopularityConstants.INPUT_PARTITIONER,
@@ -63,7 +73,13 @@ public class PopularityClient implements Serializable {
 				phandler);
 
 		phandler.writeToCassandra(PopularityConstants.LAST_EXECUTION, endDate);
-		System.out.println("Mode :"+executionMode);
+		if(updatedModetoFullCompute)
+			logger.info("Due to difference between input_date and last_execution date, app has executed in "+PopularityConstants
+					.FULLCOMPUTE +" mode ");	
+		if(executionMode.equalsIgnoreCase(PopularityConstants.FULLCOMPUTE))
+			logger.info("Popularity Reco has executed successfully from start date : "+startDate +" to end date : "+endDate +" in "+executionMode+".");
+		if(executionMode.equalsIgnoreCase(PopularityConstants.INCREMENTAL))
+			logger.info("Popularity Reco has executed successfully fort date : "+endDate +" in "+executionMode+".");
 	}
 
 	public static Date getDate(String date, String dateFormat)
@@ -86,7 +102,8 @@ public class PopularityClient implements Serializable {
 			CassandraConfig cassandraConfig, PropertiesHandler phandler)
 			throws ParseException, IOException, InvalidDataException {
 		JavaSparkContext javaSparkContext = initSparkContext(sparkHost);
-		decideExecutionMode();
+		if (!firstExecution)
+			decideExecutionMode();
 		PopularityCalcDriver popularityCalcDriver = new PopularityCalcDriver();
 		if (executionMode.equalsIgnoreCase(PopularityConstants.INCREMENTAL)) {
 			popularityCalcDriver.popularityCalc(javaSparkContext,
@@ -130,24 +147,25 @@ public class PopularityClient implements Serializable {
 		if (executionMode.equalsIgnoreCase(PopularityConstants.INCREMENTAL)) {
 			Date executionDate = getDate(endDate,
 					PopularityConstants.DATE_FORMAT);
-			// Date afterProcessedDate = DateUtils
-			// .addDays(
-			// getDate(last_execution,
-			// PopularityConstants.DATE_FORMAT), 1);
-			Date afterProcessedDateInc = DateUtils.addDays(getDate(last_execution,PopularityConstants.DATE_FORMAT),1);
+			Date afterProcessedDateInc = DateUtils
+					.addDays(
+							getDate(last_execution,
+									PopularityConstants.DATE_FORMAT), 1);
 
-			if (executionDate == getDate(last_execution,PopularityConstants.DATE_FORMAT)) {
+			if (executionDate == getDate(last_execution,
+					PopularityConstants.DATE_FORMAT)) {
 				logger.info("Starting execution in "
 						+ PopularityConstants.INCREMENTAL + " mode for "
 						+ executionDate);
 				return true;
-			}else if (executionDate ==afterProcessedDateInc ){
+			} else if (executionDate == afterProcessedDateInc) {
 				logger.info("Starting execution in "
 						+ PopularityConstants.INCREMENTAL + " mode for "
 						+ executionDate);
 				return true;
-				
-			}else if (executionDate.getTime() > afterProcessedDateInc.getTime()) {
+
+			} else if (executionDate.getTime() > afterProcessedDateInc
+					.getTime()) {
 				for (int i = 0; i < 10; i++) {
 					logger.warn("User provided execution mode as '"
 							+ PopularityConstants.INCREMENTAL
@@ -157,7 +175,9 @@ public class PopularityClient implements Serializable {
 							+ " Popularity reco is changing its mode to '"
 							+ PopularityConstants.FULLCOMPUTE + "'");
 				}
-				startDate = last_execution;
+				updatedModetoFullCompute = true;
+				startDate = addDaysToDate(last_execution,
+						PopularityConstants.DATE_FORMAT, 1);
 				executionMode = PopularityConstants.FULLCOMPUTE;
 			}
 		}
@@ -181,13 +201,9 @@ public class PopularityClient implements Serializable {
 	public static void main(String[] args) throws IOException, ParseException,
 			InvalidDataException {
 		PopularityClient popularityClient = new PopularityClient();
-		PropertiesHandler phanHandler = new PropertiesHandler(
-				"/home/dlauser/DLA/mayur/foundation-intelligence-system/spark-apps/commons/src/test/resources/common.properties",
+		PropertiesHandler phanHandler = new PropertiesHandler(args[0],
 				PopularityConstants.APP_NAME);
-		//
 		popularityClient.init(phanHandler);
-//		 insert into eo_spark_app_prop(sparkappname,properties)
-//		 values('popularityReco',{'executionMode':'incremental','date':'2014-06-27','fullcompute_start_date':'2014-06-27','fullcompute_end_date':'2014-06-30','last_execution':'0000-00-00'});
-
+		
 	}
 }

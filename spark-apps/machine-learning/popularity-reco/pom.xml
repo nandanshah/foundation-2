@@ -7,4 +7,8 @@
   </parent>
   <artifactId>popularity-reco</artifactId>
   <name>popularity-reco</name>
+<properties>
+                <main.basedir>${project.parent.parent.basedir}</main.basedir>
+        </properties>
+
 </project>

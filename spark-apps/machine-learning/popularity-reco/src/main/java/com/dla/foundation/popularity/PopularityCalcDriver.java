@@ -1,7 +1,6 @@
 package com.dla.foundation.popularity;
 
 import java.io.Serializable;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,12 +11,11 @@ import java.util.UUID;
 
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UUIDType;
-import com.datastax.driver.core.utils.UUIDs;
 import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.cassandra.utils.UUIDGen;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
+import org.apache.spark.Accumulator;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -28,6 +26,7 @@ import org.apache.spark.storage.StorageLevel;
 
 import scala.Tuple2;
 
+import com.datastax.driver.core.utils.UUIDs;
 import com.dla.foundation.analytics.utils.CassandraSparkConnector;
 import com.dla.foundation.popularity.exception.InvalidDataException;
 import com.dla.foundation.popularity.utils.CassandraConfig;
@@ -38,7 +37,8 @@ public class PopularityCalcDriver implements Serializable {
 	private static final long serialVersionUID = -4763334583151269669L;
 	private static final String EQUALITY_STRING = "date = ";
 	private static final String VALUE_DELIMETER = "#";
-	private static Date executionDate;
+	private final int RECORD_INC = 1;
+	private Date executionDate;
 	private static Logger logger = Logger.getLogger(PopularityCalcDriver.class
 			.getName());
 
@@ -46,14 +46,19 @@ public class PopularityCalcDriver implements Serializable {
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig cassandraConfig, Date date)
 			throws InvalidDataException {
-		// PopularityCalcDriver.executionDate = DateUtils.addDays(date, -1);
-		PopularityCalcDriver.executionDate = date;
+
+		Accumulator<Integer> accumEventSummaryRecords = javaSparkContext
+				.accumulator(0);
+		Accumulator<Integer> accumPopularityRecords = javaSparkContext
+				.accumulator(0);
+		executionDate = DateUtils.addDays(date, -1);
 		logger.info("Started reading dayScores from "
 				+ cassandraConfig.analyticsKeySpace + "."
 				+ PopularityConstants.EVENT_SUMMARY_CF + " for Date "
 				+ executionDate);
 		JavaPairRDD<String, String> dayScoreSummary = getDayScoreSummary(
-				javaSparkContext, cassandraSparkConnector, cassandraConfig);
+				javaSparkContext, cassandraSparkConnector, cassandraConfig,
+				accumEventSummaryRecords);
 		logger.info("Completed reading dayScores from "
 				+ cassandraConfig.analyticsKeySpace + "."
 				+ PopularityConstants.EVENT_SUMMARY_CF + " for Date "
@@ -63,17 +68,39 @@ public class PopularityCalcDriver implements Serializable {
 				+ PopularityConstants.POPULARITY_CF + " for Date "
 				+ executionDate);
 		JavaPairRDD<String, String> popularityScore = getPopularityScore(
-				javaSparkContext, cassandraSparkConnector, cassandraConfig);
+				javaSparkContext, cassandraSparkConnector, cassandraConfig,
+				accumPopularityRecords);
 		logger.info("Completed reading popularity data from "
 				+ cassandraConfig.analyticsKeySpace + "."
 				+ PopularityConstants.POPULARITY_CF + " for Date "
 				+ executionDate);
 		logger.info("Started calculating aggregate popularity scores.");
+
 		JavaPairRDD<String, String> aggregatePopularityScores = getAggregatePopularityScore(
 				javaSparkContext, dayScoreSummary, popularityScore);
 		logger.info("Completed calculating aggregate popularity scores.");
 		logger.info("Started calculating normalized popularity scores.");
 		JavaPairRDD<String, String> normalizedPopularityScores = getNormalizedPopularityScores(aggregatePopularityScores);
+		if (accumEventSummaryRecords.value() <= 0) {
+			throw new InvalidDataException(accumEventSummaryRecords.value()
+					+ "No day-scores data available for date : "
+					+ executionDate
+					+ ". Please make sure data is available for date '"
+					+ executionDate + "' in "
+					+ PopularityConstants.EVENT_SUMMARY_CF);
+		}
+		if (((accumPopularityRecords.value() <= 0
+				&& PopularityClient.executionMode
+						.equalsIgnoreCase(PopularityConstants.INCREMENTAL) && !PopularityClient.firstExecution) || (accumPopularityRecords
+				.value() <= 0
+				&& PopularityClient.executionMode
+						.equalsIgnoreCase(PopularityConstants.FULLCOMPUTE) && PopularityClient.updatedModetoFullCompute))) {
+			throw new InvalidDataException(
+					"No popularuty data available in Cassandra for Date : "
+							+ executionDate + ". You can retry running in '"
+							+ PopularityConstants.FULLCOMPUTE + "' mode.");
+		}
+
 		logger.info("Completed calculating normalized popularity scores.");
 		logger.info("Started writting calculated popularity scores to "
 				+ cassandraConfig.analyticsKeySpace + "."
@@ -83,12 +110,21 @@ public class PopularityCalcDriver implements Serializable {
 		logger.info("Completed writting calculated popularity scores to "
 				+ cassandraConfig.analyticsKeySpace + "."
 				+ PopularityConstants.POPULARITY_CF);
+
+		logger.info("Poplarity Reco has considered "
+				+ accumPopularityRecords.value() + " records from "
+				+ PopularityConstants.POPULARITY_CF + " with Date " + date);
+		logger.info("Poplarity Reco has considered "
+				+ accumEventSummaryRecords.value() + " records from "
+				+ PopularityConstants.EVENT_SUMMARY_CF + " with Date " + date);
 	}
 
 	private JavaPairRDD<String, String> getDayScoreSummary(
 			JavaSparkContext javaSparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
-			CassandraConfig cassandraConfig) throws InvalidDataException {
+			CassandraConfig cassandraConfig,
+			final Accumulator<Integer> accumEventSummaryRecords)
+			throws InvalidDataException {
 
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraDayScore = cassandraSparkConnector
 				.read(new Configuration(),
@@ -98,7 +134,7 @@ public class PopularityCalcDriver implements Serializable {
 						cassandraConfig.pageRowSize,
 						EQUALITY_STRING
 								+ PopularityClient
-										.getFormattedDate(PopularityCalcDriver.executionDate
+										.getFormattedDate(executionDate
 												.getTime()));
 		logger.info("Started pushing dayScores data into RDDs");
 		JavaPairRDD<String, String> dayScores = cassandraDayScore
@@ -122,7 +158,7 @@ public class PopularityCalcDriver implements Serializable {
 						String valueDayScore = Double.toString(ByteBufferUtil
 								.toDouble(valueMap
 										.get(ColumnCollections.DAY_SCORE)));
-
+						accumEventSummaryRecords.add(RECORD_INC);
 						String key = UUIDType.instance
 								.compose(bytesItemid)
 								.toString()
@@ -132,17 +168,11 @@ public class PopularityCalcDriver implements Serializable {
 								.concat(VALUE_DELIMETER)
 								.concat(UUIDType.instance
 										.compose(bytesRegionid).toString());
+
 						return new Tuple2<String, String>(key, valueDayScore);
 					}
 
 				});
-		if (dayScores.count() <= 0) {
-			throw new InvalidDataException(
-					"No day-scores data available for date : " + executionDate
-							+ ". Please make sure data is available for date '"
-							+ executionDate + "' in "
-							+ PopularityConstants.EVENT_SUMMARY_CF);
-		}
 
 		return dayScores;
 	}
@@ -150,7 +180,9 @@ public class PopularityCalcDriver implements Serializable {
 	private JavaPairRDD<String, String> getPopularityScore(
 			JavaSparkContext javaSparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
-			CassandraConfig cassandraConfig) throws InvalidDataException {
+			CassandraConfig cassandraConfig,
+			final Accumulator<Integer> accumPopularityRecords)
+			throws InvalidDataException {
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraPopularityScore = cassandraSparkConnector
 				.read(new Configuration(),
 						javaSparkContext,
@@ -159,10 +191,8 @@ public class PopularityCalcDriver implements Serializable {
 						cassandraConfig.pageRowSize,
 						EQUALITY_STRING
 								+ PopularityClient
-										.getFormattedDate(DateUtils
-												.addDays(
-														PopularityCalcDriver.executionDate,
-														-1).getTime()));
+										.getFormattedDate(executionDate
+												.getTime()));
 
 		logger.info("Started pushing popularity data into RDDs");
 		JavaPairRDD<String, String> popularityScore = cassandraPopularityScore
@@ -184,7 +214,7 @@ public class PopularityCalcDriver implements Serializable {
 								.get(ColumnCollections.REGION_ID);
 						String popularityScore = Double.toString(ByteBufferUtil.toDouble(valueMap
 								.get(ColumnCollections.POPULARITY_SCORE)));
-
+						accumPopularityRecords.add(RECORD_INC);
 						String key = UUIDType.instance
 								.compose(bytesItemid)
 								.toString()
@@ -194,18 +224,11 @@ public class PopularityCalcDriver implements Serializable {
 								.concat(VALUE_DELIMETER)
 								.concat(UUIDType.instance
 										.compose(bytesRegionid).toString());
+
 						return new Tuple2<String, String>(key, popularityScore);
 
 					}
 				});
-		popularityScore.persist(StorageLevel.MEMORY_AND_DISK());
-		// if (popularityScore.count() <= 0) {
-		// throw new InvalidDataException(
-		// "No popularuty data available in Cassandra for Date : "
-		// + executionDate + ". You can retry running in '"
-		// + PopularityConstants.FULLCOMPUTE + "' mode.");
-		// }
-
 		return popularityScore;
 
 	}
@@ -295,7 +318,6 @@ public class PopularityCalcDriver implements Serializable {
 				+ ColumnCollections.NORMALIZED_SCORE + "=?, "
 				+ ColumnCollections.POPULARITY_SCORE + "=?, "
 				+ ColumnCollections.RECO_REASON + "=?";
-
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> cassandraWriteRDD = normalizedPopularityScores
 				.mapToPair(new PairFunction<Tuple2<String, String>, Map<String, ByteBuffer>, List<ByteBuffer>>() {
 
@@ -306,12 +328,11 @@ public class PopularityCalcDriver implements Serializable {
 						List<ByteBuffer> valueList = new ArrayList<ByteBuffer>();
 						long updateTime = PopularityClient
 								.getFormattedDate(DateUtils.addDays(
-										PopularityCalcDriver.executionDate, 0)
-										.getTime());
+										executionDate, 1).getTime());
 						Date updateDate = new Date(PopularityClient
 								.getFormattedDate(updateTime));
-						ByteBuffer periodid = UUIDType.instance
-								.decompose(UUIDs.startOf((updateTime)));
+						ByteBuffer periodid = UUIDType.instance.decompose(UUIDs
+								.startOf((updateTime)));
 						String[] keysString = record._1.split(VALUE_DELIMETER);
 						String[] valuesString = record._2
 								.split(VALUE_DELIMETER);
