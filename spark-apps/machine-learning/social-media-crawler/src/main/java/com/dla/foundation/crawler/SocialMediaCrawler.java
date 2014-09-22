@@ -24,6 +24,7 @@ public class SocialMediaCrawler {
 	private static final long NULLTHRESHOLDTIME = -1L;
 	private static final String DEF_RELATION = "friend";
 	private static final int DEF_DUMMYFLAG_VALUE = 1;
+	
 
 	public void runSocialMediaCrawler(String master, String appName,
 			CrawlerConfig crawlerConf, CassandraConfig cassandraConf,
@@ -45,7 +46,7 @@ public class SocialMediaCrawler {
 		String friendsInfoQuery = "UPDATE  " + crawlerConf.fisKeyspace + "."
 				+ crawlerConf.friendsCF + " SET " + FriendsInfo.relation + "=?";
 
-		String lastModifedUpdateQuery = "UPDATE " + crawlerConf.analyticsKeyspace + "."
+		String lastModifedUpdateQuery = "UPDATE " + crawlerConf.platformKeyspace + "."
 				+ crawlerConf.profileCF + " SET " + crawlerConf.lastCrawlerRunTimeKey
 				+ "=?";
 
@@ -54,7 +55,7 @@ public class SocialMediaCrawler {
 		String whereClause = Profile.isSocialCrawlRequired + " = " + DEF_DUMMYFLAG_VALUE
 				+ " AND " + Profile.lastcrawlerruntime + " < "
 				+ outDatedThresholdTime;
-
+		
 		String relation = DEF_RELATION;
 
 		Configuration conf = new Configuration();
@@ -85,47 +86,51 @@ public class SocialMediaCrawler {
 
 		// Reading profile table from Cassandra
 		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> profileRDD = cassandraCon
-				.read(conf, sparkContext, crawlerConf.analyticsKeyspace,
+				.read(conf, sparkContext, crawlerConf.platformKeyspace,
 						crawlerConf.profileCF, inputCQLPageRowSize, whereClause);
-
+		
 		// Getting dla and social id from columnfamily (Cassandra)
 		JavaPairRDD<String, String> userSocialPair = SparkCrawlerUtils
 				.getIDLAandSocialID(profileRDD, crawlerConf.profileIdKey,
 						crawlerConf.socialIdKey);
+		
+		// Filtering null records
+		JavaPairRDD<String, String> filteredUserSocialPair = SparkCrawlerUtils
+						.filterSocialIds(userSocialPair);
 
 		SparkGigyaConnector gigyaConnector = new SparkGigyaConnector(
 				gigyaConf.apiKey, gigyaConf.secretKey, gigyaConf.apiScheme,
 				gigyaConf.apiDomain);
-
+		
 		// Calling Gigya to get social data for user
 		JavaPairRDD<String, UserProfileResponse> rawsocialProfile = gigyaConnector
-				.getSocialProfile(userSocialPair, gigyaConf.timeoutMillis);
-
+				.getSocialProfile(filteredUserSocialPair, gigyaConf.timeoutMillis);
+		
 		// Filtering null records
 		JavaPairRDD<String, UserProfileResponse> socialProfile = CrawlerPostProcecssing
 				.filterSocialProfile(rawsocialProfile);
-
+	
 		// Caching data otherwise the stream runs twice once for social profile
 		// table update and second for profile table update
 		socialProfile.cache();
-
+		
 		// Formatting stream for writing data to cassandra
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> formattedSocialProfile = CrawlerPostProcecssing
 				.formatSocialProfileForCassandra(socialProfile);
-
+		
 		// Filtering null records, in case there is error to get details from
 		// Gigya
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> filteredSocialProfile = SparkCrawlerUtils
 				.filter(formattedSocialProfile);
-
+		
 		// Writing social data to Cassandra
 		cassandraCon.write(conf, crawlerConf.fisKeyspace,
 				crawlerConf.socialProfileCF, socialProfileOuputQuery,
 				filteredSocialProfile);
-
+		
 		// Calling gigya to get friends info
 		JavaPairRDD<String, Friend> friendsInfo = gigyaConnector.getFriends(
-				userSocialPair, gigyaConf.timeoutMillis);
+				filteredUserSocialPair, gigyaConf.timeoutMillis);
 
 		// PostProcessing data to resolve Friend's Social id to DLA user id
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> filteredFriendsInfo = CrawlerPostProcecssing
@@ -142,14 +147,15 @@ public class SocialMediaCrawler {
 		// fail. There are no guarantees here but no other way since cassandra
 		// write does not return any stream after write
 		long newLastModified = System.currentTimeMillis();
-
+		
 		// Preparing data for cassandra write
 		JavaPairRDD<Map<String, ByteBuffer>, List<ByteBuffer>> updatedProfile = CrawlerPostProcecssing
 				.prepareForProfileUpdate(socialProfile, newLastModified);
 
 		// Updating last modified of profile table in cassandra
-		cassandraCon.write(conf, crawlerConf.analyticsKeyspace, crawlerConf.profileCF,
-				lastModifedUpdateQuery, updatedProfile);
+		cassandraCon.write(conf, crawlerConf.platformKeyspace, crawlerConf.profileCF,
+				lastModifedUpdateQuery, updatedProfile);		
+
 	}
 
 }

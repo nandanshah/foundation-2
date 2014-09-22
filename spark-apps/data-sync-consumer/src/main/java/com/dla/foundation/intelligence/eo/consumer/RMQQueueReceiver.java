@@ -3,6 +3,8 @@ package com.dla.foundation.intelligence.eo.consumer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.storage.StorageLevel;
@@ -23,19 +25,21 @@ public class RMQQueueReceiver extends Receiver<SimpleFoundationEntity> {
 	private static final Logger logger = Logger.getLogger(RMQQueueReceiver.class);
 
 	private QueueListenerConfigHandler qConfig;
+	private List<Thread> consumerThreads;
+	private List<Updater> updaters;
+	private boolean canStartAllConsumers = true;
 
-	public RMQQueueReceiver(StorageLevel storageLevel) {
-		super(storageLevel);
-		try {
-			qConfig = new QueueListenerConfigHandler();
-			logger.info("QueueListenerConfig read");
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+	public RMQQueueReceiver(StorageLevel storageLevel) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+		super(storageLevel);		
+		qConfig = new QueueListenerConfigHandler();
+		logger.info("QueueListenerConfig read");
+		consumerThreads = new ArrayList<Thread>();
+		updaters = new ArrayList<Updater>();		
 	}
 
 	@Override
 	public void onStart() {
+
 		Updater updater = null;
 		for (QueueConfig oneQConfig : qConfig.getqConfigs()) {
 			updater = null;
@@ -51,22 +55,49 @@ public class RMQQueueReceiver extends Receiver<SimpleFoundationEntity> {
 				} catch (NoSuchMethodException | SecurityException | IllegalAccessException 
 						| IllegalArgumentException | InvocationTargetException e1) {
 					logger.error(e1.getMessage(), e1);
+					canStartAllConsumers = false;
+					break;
 				}
-			} catch (ClassNotFoundException | InstantiationException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
+				canStartAllConsumers = false;
+				break;
 			}
 
 			if(updater!=null) {
+				updaters.add(updater);
 				logger.info("Instantiated Updater: " + updater.getClass().getCanonicalName());
 				updater.conf = oneQConfig.getUpdaterConf();
-				if(oneQConfig.getType() == QueueListenerConfigHandler.queue_type.sync) {
-					logger.info("Starting Synchronous consumer with updater: " + updater.getClass().getCanonicalName());
-					new Thread(new SyncQueueConsumer(oneQConfig,updater)).start();
-				} else if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.async) {
-					logger.info("Starting ASynchronous consumer with updater: " + updater.getClass().getCanonicalName());
-					new Thread(new AsyncQueueConsumer(oneQConfig,updater)).start();
+				try {
+					if(oneQConfig.getType() == QueueListenerConfigHandler.queue_type.sync) {
+						logger.info("Starting Synchronous consumer with updater: " + updater.getClass().getCanonicalName());
+						consumerThreads.add(new Thread(new SyncQueueConsumer(oneQConfig,updater)));
+					} else if(oneQConfig.getType()==QueueListenerConfigHandler.queue_type.async) {
+						logger.info("Starting ASynchronous consumer with updater: " + updater.getClass().getCanonicalName());
+						consumerThreads.add(new Thread(new AsyncQueueConsumer(oneQConfig,updater)));
+					}
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					canStartAllConsumers = false;
+					break;
 				}
 			}
+		}
+
+		//Start all consumers at once.
+		if(canStartAllConsumers) {
+			for (Thread thread : consumerThreads) {
+				thread.start();
+			}
+		} 
+		//If any of the consumer has failed initialization, don't start any other consumer if it's initialized successfully
+		//Close updaters and stop this receiver in this case
+		else if(!canStartAllConsumers || consumerThreads.size() == 0) {
+			for (Updater u : updaters) {
+				u.close();
+			}
+			logger.warn("No consumer to start. Stopping this receiver.");
+			this.stop("No consumer to start. Stopping this receiver.");
 		}
 	}
 

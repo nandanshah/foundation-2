@@ -85,7 +85,7 @@ public class GigyaConnectorApi implements Serializable {
 	 */
 	public FriendsInfoResponse getFriends(String uid, boolean siteOnlyUsers,
 			int timeout) throws IOException, URISyntaxException, GSException {
-
+		
 		GSRequest request = new GSRequest(_apiKey, _secretKey,
 				Operations.socialize_getFriendsInfo, false);
 
@@ -103,6 +103,7 @@ public class GigyaConnectorApi implements Serializable {
 		}
 
 		String response_json = response.getResponseText();
+		
 		ObjectMapper mapper = new ObjectMapper();
 		FriendsInfoResponse friendsInfoResponse = mapper.readValue(
 				response_json, FriendsInfoResponse.class);

@@ -58,9 +58,9 @@ public class ElasticSearchRepo {
 
 			
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			System.err.println("Malformed URL Exception at "+url + e.getMessage());
 		} catch (IOException e) {			
-			e.printStackTrace();
+			System.err.println("IOException for creating mapping at "+url + e.getMessage());
 		}
 
 	}
@@ -88,7 +88,9 @@ public class ElasticSearchRepo {
 		}
 		return deleted;
 	}
-
+	/*
+	 * Create index in ES with HTTP PUT call
+	 */
 	public boolean createESIndex(String indexName, String urlHost) {
 		boolean exists=false;
 		try {
@@ -104,8 +106,7 @@ public class ElasticSearchRepo {
 			}
 			
 		} catch (IOException e) {
-			System.out.println("Error while creating index:");
-			e.printStackTrace();
+			System.err.println("Error while creating index:" + indexName + e.getMessage());
 		}
 		return exists;
 	}
@@ -215,28 +216,12 @@ public class ElasticSearchRepo {
 		return result;
 	}
 	
-	public boolean checkESIndexIfExists(String indexName, String urlHost) {
-		try {
-			URL url =new URL(urlHost + indexName);
-			//logger.info("Creating " + indexName + " index in ES:" + url+ "\n");
-			
-			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-			httpConnection.setRequestMethod("PUT");
-			httpConnection.setRequestProperty("Content-Type", "application/json");
-			if(httpConnection.getResponseCode() ==400)
-			{   return true;
-			} else if(httpConnection.getResponseCode() ==200)
-				return false;
-			
-		}  catch (IOException e) {
-			System.out.println("Error while creating index:");
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
+	/*
+	 * Does a HTTP GET call to check if index/type exists. 
+	 */
 	public boolean checkESIndexTypeIfExists(String indexTypename, String urlHost){
 		try {
+			logger.info("urlHost and indexTypeName"+urlHost+"indextype name"+indexTypename);
 			URL url =new URL(urlHost + indexTypename);
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 			httpConnection.setRequestMethod("GET");
@@ -245,7 +230,7 @@ public class ElasticSearchRepo {
 		                                    httpConnection.getInputStream()));
 		        String inputLine;
 		        while ((inputLine = in.readLine()) != null) {
-		            System.out.println(inputLine);
+		            System.out.println("Mapping is : "+inputLine);
 		            if(inputLine.length()>2)
 		            	return true;
 		        }
@@ -253,11 +238,15 @@ public class ElasticSearchRepo {
 				return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("error in checking index/type at: "+indexTypename + e.getMessage());
 		}
 		return false;
 	}
-	
+	/*
+	 * Add an item to ES using HTTP POST call 
+	 * @param urlString
+	 * @param entity
+	 */
 	public ElasticSearchResult addItem(String urlString, Object entity) throws IOException{
 		System.out.println("url"+urlString);
 		URL url = new URL(urlString);
@@ -273,14 +262,24 @@ public class ElasticSearchRepo {
 		try (OutputStream outputStream = conn.getOutputStream()) {
 		
 			mapper.writeValue(outputStream, entity);
+		}catch (Exception e) {
+			// TODO: handle exception
+			System.err.println("Error in adding an item to ES at : "+url+e.getMessage());
 		}
-		ElasticSearchResult esResult;
+		ElasticSearchResult esResult = null;
 		try (InputStream inputStream = conn.getInputStream()) {
 				esResult = mapper.readValue(inputStream, ElasticSearchResult.class);
+		}catch (Exception e) {
+			// TODO: handle exception
+			System.err.println("Error in reading an item from ES at : "+url+e.getMessage());
 		}
 
 		return esResult;
 	}
+	
+	/*
+	 * Get an item from ES using a HTTP GET call
+	 */	
 	public RecoType getItem(String index, String type, String id) throws IOException {
 		URL url = generateUrl(index, type, id, null);
 		HttpURLConnection conn;

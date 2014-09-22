@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
@@ -11,8 +12,9 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 
+import com.dla.foundation.analytics.utils.CommonPropKeys;
 import com.dla.foundation.analytics.utils.PropertiesHandler;
-
+import com.dla.foundation.model.Profile;
 import scala.Tuple2;
 
 public class SparkCrawlerUtils {
@@ -75,22 +77,40 @@ public class SparkCrawlerUtils {
 					public Tuple2<String, String> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> tuple)
 							throws Exception {
-						String socialID = null, profileId = null;
+						String socialID = null, profileId = null, accountId = null, primaryKey = null;
 						Map<String, ByteBuffer> keys = tuple._1();
 
 						if (keys != null) {
-							profileId = UUIDType.instance.compose(
-									keys.get(profileIdKey)).toString();
+							for (Entry<String, ByteBuffer> column : keys
+									.entrySet()) {
 
-							socialID = ByteBufferUtil.string(tuple._2
-									.get(socialIdKey));
-
-							return new Tuple2<String, String>(profileId,
+								if (column.getKey().toLowerCase()
+										.compareTo(Profile.id.getValue()) == 0) {
+									if (null != column.getValue())
+										profileId = UUIDType.instance.compose(column
+												.getValue()).toString();
+								}else if(column.getKey().toLowerCase()
+										.compareTo(Profile.accountid.getValue()) == 0) {
+									if (null != column.getValue())
+										accountId = UUIDType.instance.compose(column
+												.getValue()).toString();
+							}
+						}
+						
+						ByteBuffer buff = tuple._2.get(socialIdKey);
+						
+						if(buff != null)
+							socialID = ByteBufferUtil.string(buff);
+						
+						primaryKey = profileId+"#"+accountId;
+						
+						return new Tuple2<String, String>(primaryKey,
 									socialID);
 						} else {
 							return new Tuple2<String, String>(null, null);
 						}
 					}
+				
 				});
 		return pairs;
 	}
@@ -131,8 +151,11 @@ public class SparkCrawlerUtils {
 								profileId = UUIDType.instance.compose(buff)
 										.toString();
 
-							socialID = ByteBufferUtil.string(tuple._2
-									.get(socialIdKey));
+							ByteBuffer buff1 = tuple._2
+									.get(socialIdKey);
+							
+							if (buff1 != null)
+								socialID = ByteBufferUtil.string(buff1);
 
 							return new Tuple2<String, String>(socialID,
 									profileId);
@@ -152,7 +175,7 @@ public class SparkCrawlerUtils {
 	 */
 	public static class CrawlerConfig {
 		public final String lastCrawlerRunTimeKey;
-		public final String fisKeyspace, analyticsKeyspace;
+		public final String fisKeyspace, platformKeyspace;
 		public final String profileIdKey, socialIdKey;
 		public final String profileCF, socialProfileCF, friendsCF;
 
@@ -161,13 +184,13 @@ public class SparkCrawlerUtils {
 		}
 
 		public CrawlerConfig(String lastCrawlerRunTimeKey, String fisKeyspace,
-				String analyticsKeyspace, String profileIdKey,
+				String platformKeyspace, String profileIdKey,
 				String socialIdKey, String profileCF, String socialProfileCF,
 				String friendsCF) {
 			super();
 			this.lastCrawlerRunTimeKey = lastCrawlerRunTimeKey;
 			this.fisKeyspace = fisKeyspace;
-			this.analyticsKeyspace = analyticsKeyspace;
+			this.platformKeyspace = platformKeyspace;
 			this.profileIdKey = profileIdKey;
 			this.socialIdKey = socialIdKey;
 			this.profileCF = profileCF;
@@ -231,40 +254,34 @@ public class SparkCrawlerUtils {
 
 	public static CrawlerConfig initCrawlerConfig(PropertiesHandler phandler)
 			throws IOException {
-		String fisKeyspace = phandler.getValue(CrawlerPropKeys.fisKeyspace
+		String fisKeyspace = phandler.getValue(CommonPropKeys.cs_fisKeyspace
 				.getValue());
-		String analyticsKeyspace = phandler
-				.getValue(CrawlerPropKeys.analyticsKeyspace.getValue());
-		String profileIdKey = phandler.getValue(CrawlerPropKeys.profileIdKey
-				.getValue());
-		String socialIdKey = phandler.getValue(CrawlerPropKeys.socialIdKey
-				.getValue());
-		String profileCF = phandler.getValue(CrawlerPropKeys.profilColumnFamily
-				.getValue());
-		String socialProfileCF = phandler
-				.getValue(CrawlerPropKeys.socialProfileColumnFamily.getValue());
-		String friendsCF = phandler
-				.getValue(CrawlerPropKeys.friendsColumnFamily.getValue());
-		String lastCrawlerRunTimeKey = phandler
-				.getValue(CrawlerPropKeys.lastCrawlerRunTimeKey.getValue());
+		String platformKeyspace = phandler
+				.getValue(CommonPropKeys.cs_platformKeyspace.getValue());
+		String profileIdKey = CrawlerStaticPropKeys.PROFILE_ID_KEY;
+		String socialIdKey = CrawlerStaticPropKeys.SOCIAL_ID_KEY;
+		String profileCF = CrawlerStaticPropKeys.PROFILE_INP_CF;
+		String socialProfileCF = CrawlerStaticPropKeys.SOCIALPROFILE_OUT_CF;
+		String friendsCF = CrawlerStaticPropKeys.FRIENDSINFO_OUT_CF;
+		String lastCrawlerRunTimeKey = CrawlerStaticPropKeys.LAST_CRAWLER_RUN_TIME_KEY;
 
 		return new CrawlerConfig(lastCrawlerRunTimeKey, fisKeyspace,
-				analyticsKeyspace, profileIdKey, socialIdKey, profileCF,
+				platformKeyspace, profileIdKey, socialIdKey, profileCF,
 				socialProfileCF, friendsCF);
 	}
 
 	public static GigyaConfig initGigyaConfig(PropertiesHandler phandler)
 			throws IOException {
-		String apiKey = phandler.getValue(CrawlerPropKeys.gigyaApiKey
+		String apiKey = phandler.getValue(CommonPropKeys.gigya_ApiKey
 				.getValue());
-		String secretKey = phandler.getValue(CrawlerPropKeys.gigyaSecretKey
+		String secretKey = phandler.getValue(CommonPropKeys.gigya_SecretKey
 				.getValue());
-		String apiScheme = phandler.getValue(CrawlerPropKeys.gigyaApiScheme
+		String apiScheme = phandler.getValue(CommonPropKeys.gigya_ApiScheme
 				.getValue());
-		String apiDomain = phandler.getValue(CrawlerPropKeys.gigyaApiDomain
+		String apiDomain = phandler.getValue(CommonPropKeys.gigya_ApiDomain
 				.getValue());
 		int timeoutMillis = Integer.parseInt(phandler
-				.getValue(CrawlerPropKeys.gigyaTimeoutMillis.getValue()));
+				.getValue(CommonPropKeys.gigya_TimeoutMillis.getValue()));
 		return new GigyaConfig(apiKey, secretKey, apiScheme, apiDomain,
 				timeoutMillis);
 	}
@@ -273,18 +290,40 @@ public class SparkCrawlerUtils {
 			throws IOException {
 
 		String[] cassandraIP = phandler.getValue(
-				CrawlerPropKeys.cassandraIPList.getValue()).split(DEFAULT_SEP);
-		String cassandraPort = phandler.getValue(CrawlerPropKeys.cassandraPort
+				CommonPropKeys.cs_hostList.getValue()).split(DEFAULT_SEP);
+		String cassandraPort = phandler.getValue(CommonPropKeys.cs_rpcPort
 				.getValue());
-		String inputPartitioner = phandler
-				.getValue(CrawlerPropKeys.inputPartitioner.getValue());
-		String outputPartitioner = phandler
-				.getValue(CrawlerPropKeys.outputPartitioner.getValue());
+		String inputPartitioner = CrawlerStaticPropKeys.PARTITIONER;
+		String outputPartitioner = CrawlerStaticPropKeys.PARTITIONER;
 		String inputCQLPageRowSize = phandler
-				.getValue(CrawlerPropKeys.inputCQLPageRowSize.getValue());
+				.getValue(CommonPropKeys.cs_pageRowSize.getValue());
 
 		return new CassandraConfig(cassandraIP, cassandraPort,
 				inputPartitioner, outputPartitioner, inputCQLPageRowSize);
+	}
+
+	public static JavaPairRDD<String, String> filterSocialIds(
+			JavaPairRDD<String, String> userSocialPair) {
+		
+		JavaPairRDD<String, String> outputRDD = userSocialPair
+				.filter(new Function<Tuple2<String, String>, Boolean>() {
+
+					private static final long serialVersionUID = -1406718619849210965L;
+
+								
+					@Override
+					public Boolean call(Tuple2<String, String> tuple)
+							throws Exception {
+						if (tuple != null) {
+							if (tuple._1 != null && tuple._2 != null)
+								return true;
+						}
+						return false;
+					}
+				});
+
+		return outputRDD;
+
 	}
 
 }

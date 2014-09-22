@@ -1,24 +1,44 @@
-drop keyspace if exists testn2;
-drop keyspace if exists testfis;
+drop keyspace if exists n2test;
+drop keyspace if exists fistest;
 
-CREATE KEYSPACE IF NOT EXISTS testn2 WITH replication={'class':'SimpleStrategy','replication_factor':1};
-use testn2;
+CREATE KEYSPACE IF NOT EXISTS n2test WITH replication={'class':'SimpleStrategy','replication_factor':1};
+use n2test;
 drop columnfamily IF EXISTS profile;
-create table profile(id uuid, lastcrawlerruntime timestamp, socialauthtoken text, issocialcrawlrequired int, primary key(id) );
+
+create table profile (accountid uuid,id uuid,homeregionid uuid,preferredlocaleid uuid,avatarimageurl text,birthdate timestamp,defaultcolor text,emailaddress text,emailaddress_lower text,firstname text,gender text,isadmin boolean,isrootprofile boolean,lastname text,notfiyfriendregistration boolean,notifyfriendlike boolean,notifynewrelease boolean,notifypromotional boolean,notifywatchlistexpiration boolean,passwordhash text,passwordsalt text,pinhash text,pinsalt text,profiletype text,socialauthtoken text, lastcrawlerruntime timestamp,issocialcrawlrequired int,watchlist_id uuid,PRIMARY KEY (accountid, id));
 create index flagindex on profile(issocialcrawlrequired);
 create index modifiedindex on profile(lastcrawlerruntime);
 
-insert into profile (id, lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (C979CA35-B58D-434B-B2D6-EA0316BCC9A1,1402857000000, '_guid_qTs9AocOF0kG8U-r-6AG6A==',1);
-insert into profile (id, lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (C979CA35-B58D-434B-B2D6-EA0316BCC9A8,1402857000000, '_guid_T_bwgHm81Ezab6uvtnUd4A==',1);
+insert into profile (id, accountid, homeregionid, lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (2a561241-f72b-4ae5-8ec3-fdf5c792cd8e,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-07-13 05:18:16', '_guid_yBAsEplnW6413tJVg7lbyuhM6BDsgK9VbcRhrbgddQc=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (2bec0ad6-d58d-4a5c-b99d-28186549dfbd,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '62167441161', '_guid_7rouOvaN5EA0y-bGUl14TiDf0depX1HRNugCEjATVbM=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (cf3db140-2117-42cc-8745-4cb0fa893435,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-07-13 05:18:16', '_guid_FyhODu_xynim5NT0283buns-CWP3DLOTOr5qdqtWqsY=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (4aa44f93-ccb6-43a1-b91a-c1dec9262f2e,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '62167441161', '_guid_r_8mlktmPnjQVRHnzeznJtCZTsle6Ta0ds1rQYfUZ1M=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (c574171b-5280-45e9-97ef-954278369d9e,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-07-13 05:18:16', '_guid__m6dMxSI4MRL9axDQhP6kvLcBID3P8CnGDQNSvKVdHg=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (b98a985f-9b18-4f13-8423-02eb35623404,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '62167441161', '_guid_Qqrks2X_-L3nVKO4AhAheM1sb51f0qzBJEclhHgVLO0=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (d2fbc352-ca31-4a79-8820-70f58fe65c4b,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-06-16', '_guid_oDx2RyhAVurfLU-UWcFtvVOwn3i-UHyPxJqEmlzsCwc=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (64f7e6a5-ee5d-48db-8ff0-4870524ab043,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-06-16', '_guid_m3sokZpnBxfmkOELE_Lz6QD4v9gj2JTBZDaoudiOTDE=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (aacad789-8dd8-42e3-9b4d-e38b1ae898a2,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-06-16', '_guid_isJT-sVpWPbk-p5AVH8xmK-JA7Iq5hjmXr7osY3UTjg=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (42d0d378-8a11-448b-a287-1a615da7260a,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-06-16', '_guid_aFI-KrZISndBcyJW7LfJxEZSt1tp3Xqhn5WmBlTdzc0=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (20f211b7-7f24-47df-b3b2-cfa4192a94d2,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01112, '2014-06-16', '_guid_ft_PBrDxyuf0wui1Mg5xPgXDHW03O0zf8p_WX995C7g=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (27f419de-f8b7-475e-897f-1452184de055,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_0GaJU837XzCpL9dnK6KVXifFwIw9Bed-FCuDo6FWRUs=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (000160a4-5e12-4fdb-8a2f-6a73b77476e0,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_ph3PYXDoOe2T4lizOK-h1gdElN3iMLEgXJhGI5m_gwA=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (73e9d0ba-c204-4a92-8797-3b0a1eaf2bc1,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_kHbKtNeDv8oEp3Sq2AGoZFc_GjubotkIujOZ8A-6mUw=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (82775a92-e820-4c6c-adcd-779a2ae6945c,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_qlwWMamynbqmp1x-es73HbvklCbHnGM37WJGj5rd6QI=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (3a217617-7f86-4138-a531-e5e5069fa3f8,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_kJ-A1BKOVrif4U8J1-GpFjdnm8Dp2_n3J04iVOQmYoE=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (1dc2e9f4-ec1b-416b-b953-b38676a98ee8,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_WVD79I2Rkwvuzo4GHcywKHQqXtc-RnBF4wRzR2Rdp0s=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (b9d8e8b4-f5a8-4590-ba5b-d9660c98564e,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_AaIvb-sK4TgZnAXvMPRWb3jTfXtH6-T9fvAb2Zpu6PA=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (0fbbe287-9ebb-4cc5-98e9-a9b5e1fce0de,C979CA35-B58D-434B-B2D6-EA0316BCC9A1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_dIPomEH60a8J-8w10TJl9KhWAJAgIJrYrR3c-DaLVUw=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (ab03b0f1-7843-40b7-bd14-6f9950f915ae,C979CA35-B58D-434B-B2D6-EA0316BCC9C1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_9TwMiVSwbDhWVP8IS2GNSmBj73nRnp3JHi4jCnNKC-s=',1);
+insert into profile (id, accountid, homeregionid,lastcrawlerruntime, socialauthtoken, issocialcrawlrequired) values (2768dbc9-85ce-4b76-a60e-4a37b9201679,C979CA35-B58D-434B-B2D6-EA0316BCC9C1, 6ebf22fd-3ffd-452c-9c8e-c538e8f01113, '2014-06-16', '_guid_RmahlJ1EAufCmptCrBcuV4jt36lxTPYNNFVKGSkkxtk=',1);
 
+CREATE KEYSPACE IF NOT EXISTS fistest WITH replication={'class':'SimpleStrategy','replication_factor':1};
+USE fistest;
 
-CREATE KEYSPACE IF NOT EXISTS testfis WITH replication={'class':'SimpleStrategy','replication_factor':1};
-USE testfis;
-CREATE TABLE IF NOT EXISTS sparkappprop (sparkappname text, properties map<text,text>, primary key (sparkappname));
-INSERT INTO sparkappprop (sparkappname, properties) VALUES ('social-media-crawler', {'lastcrawlerruntime':'1672334234234'});
+CREATE TABLE IF NOT EXISTS eo_spark_app_prop (sparkappname text, properties map<text,text>, primary key (sparkappname));
+INSERT INTO eo_spark_app_prop (sparkappname, properties) VALUES ('SocialMediaCrawler', {'lastcrawlerruntime':'1402857123452'});
 
-drop columnfamily IF EXISTS socialprofile;
-drop columnfamily IF EXISTS friendsinfo;
+drop columnfamily IF EXISTS social_profile;
+drop columnfamily IF EXISTS social_friends_info;
 
-create table if not exists friendsinfo( profileid uuid, friendid uuid, relation text, primary key(profileid,friendid));
-create table if not exists socialprofile(id uuid, name text, username text, location text, gender text, country text, timezone text, primary key(id));
+create table if not exists social_friends_info( profileid uuid,friendprofileid uuid , relation text, primary key(profileid,friendprofileid));
+create table if not exists social_profile(id uuid, name text, username text, location text, gender text, country text, timezone text, primary key(id));

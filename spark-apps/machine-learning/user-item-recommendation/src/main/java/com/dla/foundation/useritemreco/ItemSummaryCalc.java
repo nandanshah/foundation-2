@@ -271,6 +271,17 @@ public class ItemSummaryCalc implements Serializable {
 		}
 	}
 
+	/**
+	 * This function will fetch the F&P column family ,transform and filter it
+	 * and then perform left outer join with provided the parameter(result of
+	 * left outer join of item,trend and popularity) column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param itemTrendPopRDD
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> joinFP(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
@@ -300,6 +311,18 @@ public class ItemSummaryCalc implements Serializable {
 		}
 	}
 
+	/**
+	 * This function will fetch the popularity column family ,transform and
+	 * filter it and then perform left outer join with provided the
+	 * parameter(result of left outer join of item,trend,popularity and F&p)
+	 * column family
+	 * 
+	 * @param sparkContext
+	 * @param cassandraSparkConnector
+	 * @param itemTrendPopFpRDD
+	 * @return
+	 * @throws Exception
+	 */
 	private JavaPairRDD<String, Tuple2<Tuple2<Tuple2<Tuple2<String, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>, Optional<ItemSummary>>> joinNewRelease(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,

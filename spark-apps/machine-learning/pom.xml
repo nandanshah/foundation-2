@@ -27,6 +27,7 @@
 		<module>pio-item-similarity-fetcher</module>
 		<module>elasticsearch-updater</module>
 		<module>popularity-reco</module>
+		<module>social-recommendation</module>
 	</modules>
 
 	<dependencies>

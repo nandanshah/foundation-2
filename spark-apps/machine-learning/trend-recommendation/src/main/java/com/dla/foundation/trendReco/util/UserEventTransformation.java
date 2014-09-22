@@ -92,15 +92,13 @@ public class UserEventTransformation implements Serializable {
 			for (Entry<String, ByteBuffer> column : priamryKeyColumns
 					.entrySet()) {
 
-
-
 			}
 		}
 		Map<String, ByteBuffer> otherColumns = record._2;
 		if (otherColumns != null) {
 
 			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				
+
 				if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.TENANT.getColumn()) == 0) {
 					if (null != column.getValue()) {
@@ -137,7 +135,7 @@ public class UserEventTransformation implements Serializable {
 						return null;
 					}
 
-				}else if (column.getKey().compareToIgnoreCase(
+				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
 					if (null != column.getValue()) {
 						userEvent.setEventType(ByteBufferUtil.string(
@@ -145,16 +143,16 @@ public class UserEventTransformation implements Serializable {
 					} else {
 						return null;
 					}
-					
-				}else if (column.getKey().compareToIgnoreCase(
+
+				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.TIMESTAMP.getColumn()) == 0) {
 					if (null != column.getValue()) {
-						userEvent.setTimestamp(ByteBufferUtil.toLong(
-								column.getValue()));
+						userEvent.setTimestamp(ByteBufferUtil.toLong(column
+								.getValue()));
 					} else {
 						return null;
 					}
-					
+
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.DATE.getColumn()) == 0) {
 					if (null != column.getValue()) {
@@ -177,7 +175,7 @@ public class UserEventTransformation implements Serializable {
 					}
 				} else if (column.getKey().compareToIgnoreCase(
 						UserEventSummary.RATE_SCORE.getColumn()) == 0) {
-										
+
 					if (null != column.getValue()) {
 						userEvent.setRatescore(ByteBufferUtil.toInt(column
 								.getValue()));
