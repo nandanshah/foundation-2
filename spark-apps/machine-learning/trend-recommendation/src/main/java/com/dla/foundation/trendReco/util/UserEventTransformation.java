@@ -157,6 +157,8 @@ public class UserEventTransformation implements Serializable {
 						.get(UserEventSummary.RATE_SCORE.getColumn()
 								.toLowerCase())));
 			}
+		} else {
+			return null;
 		}
 		return userEvent;
 	}

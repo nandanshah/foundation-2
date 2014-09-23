@@ -107,7 +107,11 @@ public class DayScoreTransformation implements Serializable {
 								otherColumns.get(DailyEventSummaryPerItem.DATE
 										.getColumn().toLowerCase())).getTime()));
 
+			} else {
+				return null;
 			}
+		} else {
+			return null;
 		}
 		return dayScore;
 	}

@@ -162,7 +162,11 @@ public class UserSummaryTransformation implements Serializable {
 														.getColumn()
 														.toLowerCase())));
 
+			} else {
+				return null;
 			}
+		} else {
+			return null;
 		}
 		return userSummary;
 	}
