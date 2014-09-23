@@ -219,5 +219,24 @@
 				</resources>
 			</build>
 		</profile>
+		<profile>
+			<id>qa</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+					</resource>
+					<resource>
+						<directory>src/main/resources/qa</directory>
+					</resource>
+					<resource>
+						<directory>${user.dir}/commons/src/main/resources/qa</directory>
+					</resource>
+				</resources>
+			</build>
+		</profile>
 	</profiles>
 </project>
