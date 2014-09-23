@@ -26,5 +26,8 @@ public class TrendRecoProp implements Serializable {
 	public final static String TREND_SCORE_OUT_CF = "trend_reco";
 
 	public final static String PARTITIONER = "Murmur3Partitioner";
+	
+	public final static String TRENDING_REASON = "Trending in your region";
+	public final static String TRENDING_REASON_NA = "NA";
 
 }

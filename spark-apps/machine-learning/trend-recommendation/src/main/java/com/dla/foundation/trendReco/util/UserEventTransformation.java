@@ -129,7 +129,7 @@ public class UserEventTransformation implements Serializable {
 								.toLowerCase())).toString());
 				userEvent.setEventType(ByteBufferUtil.string(otherColumns
 						.get(UserEventSummary.EVENT_TYPE.getColumn()
-								.toLowerCase())));
+								.toLowerCase())).toLowerCase());
 				userEvent.setTimestamp(ByteBufferUtil.toLong(otherColumns
 						.get(UserEventSummary.TIMESTAMP.getColumn()
 								.toLowerCase())));

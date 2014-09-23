@@ -3,6 +3,7 @@ package com.dla.foundation.connector.model;
 public class RecoType {
 	String active;
 	String passive;
+	public final String defaultProfileId  = "9769e61f-238f-11b2-7f7f-7f7f7f7f7f7f";
 	
 	public RecoType(){}
 	public RecoType(String active, String passive){

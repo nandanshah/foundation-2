@@ -50,7 +50,6 @@ public class ElasticSearchRepo {
 
 			logger.info("Creating mapping for " + indexType
 					+ " index type in ES:" + url + "\n");
-
 			jsonContent = readFile(schemaFileName);
 			doHttpRequest(url, jsonContent, "POST", true);
 
@@ -190,7 +189,6 @@ public class ElasticSearchRepo {
 		httpConnection.setDoOutput(writeToHttpStream);
 		httpConnection.setRequestMethod(requestMethod);
 		httpConnection.setRequestProperty("Content-Type", "application/json");
-
 		if (writeToHttpStream == true) {
 			OutputStream outputStream = httpConnection.getOutputStream();
 			outputStream.write(jsonContent.getBytes());
