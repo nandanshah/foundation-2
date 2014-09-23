@@ -19,9 +19,8 @@ import com.dla.foundation.data.entities.event.EventContextType;
 import com.dla.foundation.data.entities.event.EventNetworkType;
 import com.dla.foundation.data.entities.event.EventType;
 import com.dla.foundation.data.entities.event.SearchType;
-import com.dla.foundation.data.entities.event.UserActions;
-import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 import com.dla.foundation.data.entities.social.SocialProvider;
+import com.dla.foundation.data.persistence.SimpleFoundationEntity;
 
 /**
  * Represents events used by Foundation Intelligence System
@@ -52,7 +51,7 @@ public class UserEvent extends SimpleFoundationEntity {
 	public SearchType searchType;
 	public String searchString;
 	public int resultPageNumber;
-	public UserActions useraction;
+	//public UserActions useraction;
 	public int rankOfItem;
 	public EventContextType sourceOfImpression;
 	public double playPercentage;
@@ -122,7 +121,8 @@ public class UserEvent extends SimpleFoundationEntity {
 		userEvent.purchaseStartTimestamp = strToLong(ue.startTimestamp);
 		userEvent.purchaseTimestamp = strToLong(ue.startTimestamp);
 		userEvent.rateScore = strToInt(ue.rateScore);
-		userEvent.regionID = strToUUID(ue.currentRegionId);
+		//userEvent.regionID = strToUUID(ue.currentRegionId);
+		userEvent.regionID = strToUUID(ue.homeRegionId);
 		userEvent.rentEndTimestamp = strToLong(ue.endTimestamp);
 		userEvent.rentStartTimestamp = strToLong(ue.startTimestamp);
 		//userEvent.useraction = ue.action;

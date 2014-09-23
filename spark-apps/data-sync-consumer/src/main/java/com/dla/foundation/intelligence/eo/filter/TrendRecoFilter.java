@@ -39,7 +39,8 @@ public class TrendRecoFilter implements Filter {
 	private static final String EVENTREQUIRED_COL_NAME = "required";
 	private static CassandraContext csContext;
 
-	public TrendRecoFilter() throws IOException {
+	//public TrendRecoFilter() throws IOException {
+	static {
 		if(propertiesFilePath == null)
 			propertiesFilePath = SparkFiles.get(PROPERTIES_FILE_NAME);
 
@@ -59,10 +60,11 @@ public class TrendRecoFilter implements Filter {
 				trendEventRequiredMap.put(EventType.valueOf(row.getString(EVENTTYPE_COL_NAME)),row.getInt(EVENTREQUIRED_COL_NAME));
 			}
 		} catch (IOException e) {
-			throw e;
+			//throw e;
+			e.printStackTrace();
 		} finally {
-			if(phandler!=null)
-				phandler.close();
+			//if(phandler!=null)
+			//phandler.close();
 			csContext.close();
 		}
 	}
@@ -71,11 +73,12 @@ public class TrendRecoFilter implements Filter {
 	@Override
 	public <TEntity extends SimpleFoundationEntity> TEntity doFilter(TEntity e)
 			throws FilterException {
-		UserEvent ue = (UserEvent) e; 
+		UserEvent ue = (UserEvent) e;
 		if(trendEventRequiredMap.containsKey(ue.eventType)) {
 			ue.eventrequired = trendEventRequiredMap.get(ue.eventType);
-		} else 
+		} else {
 			ue.eventrequired = 0;
+		}
 		return (TEntity) ue;
 	}
 }
