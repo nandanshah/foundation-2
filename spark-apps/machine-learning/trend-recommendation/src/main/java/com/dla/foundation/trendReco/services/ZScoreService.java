@@ -15,6 +15,7 @@ import scala.Tuple2;
 
 import com.dla.foundation.trendReco.model.DayScore;
 import com.dla.foundation.trendReco.model.TrendScore;
+import com.dla.foundation.trendReco.util.TrendRecoProp;
 
 /**
  * This class will calculate zscore for the items. zscore = (current trend -
@@ -32,8 +33,8 @@ public class ZScoreService implements Serializable, ITrendScore {
 	 */
 	private static final long serialVersionUID = 7875760927306722697L;
 	private static final Logger logger = Logger.getLogger(ZScoreService.class);
-	private static final String TRENDING = "Trending in your region";
-	private static final String REASON_NA = "NA";
+	private static final String TRENDING = TrendRecoProp.TRENDING_REASON;
+	private static final String REASON_NA = TrendRecoProp.TRENDING_REASON_NA;
 	/**
 	 * 
 	 */
