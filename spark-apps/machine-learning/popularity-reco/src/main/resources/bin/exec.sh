@@ -24,8 +24,9 @@ if [ -z $SPARK_HOME ]; then
 fi
 
 if [ -z $EXECUTOR_MEMORY ]; then
-    EXECUTOR_MEMORY=2GB
+    EXECUTOR_MEMORY=2G
 fi
+
 
 #Get script directory
 SH_DIR="$( cd "$( dirname "$0" )" && pwd )"

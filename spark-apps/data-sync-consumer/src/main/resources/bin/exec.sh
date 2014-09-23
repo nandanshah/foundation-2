@@ -1,11 +1,21 @@
 #!/bin/bash
 
 #Checkf for sufficient arguments
-if [ "$#" -lt 1 ]; then
-    echo -e "Spark cluster URL not set.\nUsage: exec.sh <spark-cluster-url> <spark-home>(optional)"
+if [ "$#" -lt 2 ]; then
+    echo -e "Spark cluster URL or SPARK_HOME not set.\nUsage: exec.sh <spark-cluster-url> <spark-home>(optional)"
     exit 1
 elif [ "$#" -eq 2 ]; then
+    SPARK_CLUSTER=$1
     SPARK_HOME=$2
+elif [ "$#" -eq 3 ]; then
+    SPARK_CLUSTER=$1	
+    SPARK_HOME=$2
+    EXECUTOR_MEMORY=$3
+fi
+
+if [ -z $SPARK_CLUSTER ]; then
+    echo -e "Spark cluster URL not set.\nUsage: exec.sh <spark-cluster-url> <spark-home>(optional)"
+    exit 1
 fi
 
 if [ -z $SPARK_HOME ]; then
@@ -13,7 +23,9 @@ if [ -z $SPARK_HOME ]; then
     exit 1
 fi
 
-SPARK_CLUSTER=$1
+if [ -z $EXECUTOR_MEMORY ]; then
+    EXECUTOR_MEMORY=2G
+fi
 
 #Get script directory
 SH_DIR="$( cd "$( dirname "$0" )" && pwd )"
