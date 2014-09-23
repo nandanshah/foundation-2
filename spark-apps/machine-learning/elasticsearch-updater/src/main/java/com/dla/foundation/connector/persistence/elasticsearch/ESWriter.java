@@ -214,7 +214,6 @@ public class ESWriter implements Serializable {
 				repository.addESSchemaMapping(indexName, indexType, path+StaticProps.SCHEMA_PATH3.getValue(), esHost);
 				reco_type = new RecoType("user_reco_1", "user_reco_2");
 				try {
-					
 					repository.addItem(esHost+indexName+"/"+indexType+"/"+"_show", reco_type);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
