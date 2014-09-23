@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.DoubleType;
 import org.apache.cassandra.db.marshal.MapType;
@@ -83,60 +82,85 @@ public class UserSummaryTransformation implements Serializable {
 		UserSummary userSummary = new UserSummary();
 		Map<String, ByteBuffer> priamryKeyColumns = record._1();
 		if (priamryKeyColumns != null) {
-			for (Entry<String, ByteBuffer> column : priamryKeyColumns
-					.entrySet()) {
 
-				if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.TENANT.getColumn()) == 0) {
-					if (null != column.getValue())
-						userSummary.setTenantId(UUIDType.instance.compose(
-								column.getValue()).toString());
+			if (priamryKeyColumns.get(DailyEventSummaryPerUserItem.TENANT
+					.getColumn().toLowerCase()) != null
+					&& priamryKeyColumns
+							.get(DailyEventSummaryPerUserItem.REGION
+									.getColumn().toLowerCase()) != null
+					&& priamryKeyColumns
+							.get(DailyEventSummaryPerUserItem.PROFILE
+									.getColumn().toLowerCase()) != null
+					&& priamryKeyColumns.get(DailyEventSummaryPerUserItem.ITEM
+							.getColumn().toLowerCase()) != null) {
 
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.REGION.getColumn()) == 0) {
-					if (null != column.getValue())
-						userSummary.setRegionId(UUIDType.instance.compose(
-								column.getValue()).toString());
+				userSummary
+						.setTenantId(UUIDType.instance
+								.compose(
+										priamryKeyColumns
+												.get(DailyEventSummaryPerUserItem.TENANT
+														.getColumn()
+														.toLowerCase()))
+								.toString());
+				userSummary
+						.setRegionId(UUIDType.instance
+								.compose(
+										priamryKeyColumns
+												.get(DailyEventSummaryPerUserItem.REGION
+														.getColumn()
+														.toLowerCase()))
+								.toString());
+				userSummary
+						.setUserId(UUIDType.instance
+								.compose(
+										priamryKeyColumns
+												.get(DailyEventSummaryPerUserItem.PROFILE
+														.getColumn()
+														.toLowerCase()))
+								.toString());
+				userSummary.setItemId(UUIDType.instance.compose(
+						priamryKeyColumns.get(DailyEventSummaryPerUserItem.ITEM
+								.getColumn().toLowerCase())).toString());
 
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.ITEM.getColumn()) == 0) {
-					if (null != column.getValue())
-						userSummary.setItemId(UUIDType.instance.compose(
-								column.getValue()).toString());
-
-				}
-
+			} else {
+				return null;
 			}
+		} else {
+			return null;
 		}
+
 		Map<String, ByteBuffer> otherColumns = record._2;
+
 		if (otherColumns != null) {
 
-			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()) == 0) {
-					if (null != column.getValue())
-						userSummary.setDayScore(ByteBufferUtil.toDouble(column
-								.getValue()));
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.DATE.getColumn()) == 0) {
-					if (null != column.getValue())
+			if (otherColumns.get(DailyEventSummaryPerUserItem.DAY_SCORE
+					.getColumn().toLowerCase()) != null
+					&& otherColumns.get(DailyEventSummaryPerUserItem.DATE
+							.getColumn().toLowerCase()) != null
+					&& otherColumns
+							.get(DailyEventSummaryPerUserItem.EVENT_AGGREGATE
+									.getColumn().toLowerCase()) != null) {
 
-						userSummary.setTimestamp(TrendRecommendationUtil
-								.getFormattedDate(TimestampType.instance
-										.compose(column.getValue()).getTime()));
+				userSummary.setDayScore(ByteBufferUtil.toDouble(otherColumns
+						.get(DailyEventSummaryPerUserItem.DAY_SCORE.getColumn()
+								.toLowerCase())));
 
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerUserItem.EVENT_AGGREGATE
-								.getColumn()) == 0) {
+				userSummary.setTimestamp(TrendRecommendationUtil
+						.getFormattedDate(TimestampType.instance.compose(
+								otherColumns
+										.get(DailyEventSummaryPerUserItem.DATE
+												.getColumn().toLowerCase()))
+								.getTime()));
 
-					if (null != column.getValue()) {
-
-						userSummary.setEventTypeAggregate(MapType.getInstance(
-								UTF8Type.instance, DoubleType.instance)
-								.compose(column.getValue()));
-					}
-
-				}
+				userSummary
+						.setEventTypeAggregate(MapType
+								.getInstance(UTF8Type.instance,
+										DoubleType.instance)
+								.compose(
+										otherColumns
+												.get(DailyEventSummaryPerUserItem.EVENT_AGGREGATE
+														.getColumn()
+														.toLowerCase())));
 
 			}
 		}

@@ -13,6 +13,12 @@ if [ -z $SPARK_HOME ]; then
     exit 1
 fi
 
+EXECUTOR_MEMORY=$3
+
+if [ -z $EXECUTOR_MEMORY ]; then
+    EXECUTOR_MEMORY=2GB
+fi
+
 SPARK_CLUSTER=$1
 
 #Get script directory
@@ -30,7 +36,7 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, trend-recommendation-UserEventSummaryDriver, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.UserEventSummaryDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.UserEventSummaryDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST --executor-memory $EXECUTOR_MEMORY
 
 echo -e "Submitting Spark Application, trend-recommendation-DayScoreDriver, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --master $SPARK_CLUSTER --class com.dla.foundation.trendReco.DayScoreDriver $SH_DIR/../lib/trend-recommendation-1.0.0.jar $SH_DIR/../conf/common.properties --jars $JAR_LIST --executor-memory $EXECUTOR_MEMORY

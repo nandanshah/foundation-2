@@ -16,7 +16,7 @@ public class PopularityConstants implements Serializable{
 	public static final String OUTPUT_PARTITIONER = "Murmur3Partitioner";
 	public static final String DATE_FORMAT = "yyyy-MM-dd";
 	public static final int EVENT_REQUIRED = 1;
-	public static final String RECO_REASON = "Score by Machine Learning";
+	public static final String RECO_REASON = "Popular in your region";
 	
 	
 

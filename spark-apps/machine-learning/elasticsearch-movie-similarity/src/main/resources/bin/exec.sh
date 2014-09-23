@@ -13,6 +13,12 @@ if [ -z $SPARK_HOME ]; then
     exit 1
 fi
 
+EXECUTOR_MEMORY=$3
+
+if [ -z $EXECUTOR_MEMORY ]; then
+    EXECUTOR_MEMORY=2G
+fi
+
 SPARK_CLUSTER=$1
 
 #Get script directory
@@ -30,4 +36,4 @@ JAR_LIST=`echo $JAR_LIST | sed -r 's/^.{1}//'`
 
 #Submit application to Spark cluster
 echo -e "Submitting Spark Application, data-sync-consumer-1.0.0, to Spark Cluster $SPARK_CLUSTER"
-$SPARK_HOME/bin/spark-submit --class com.dla.foundation.ESMovieSimilarity --master $SPARK_CLUSTER $SH_DIR/../lib/elasticsearch-movie-similarity-1.0.0.jar $SH_DIR/../conf/ES.properties $SH_DIR/../conf/Cassandra.properties $SH_DIR/../conf/Spark.properties --deploy-mode client --jars $JAR_LIST
+$SPARK_HOME/bin/spark-submit --class com.dla.foundation.ESMovieSimilarity --master $SPARK_CLUSTER $SH_DIR/../lib/elasticsearch-movie-similarity-1.0.0.jar $SH_DIR/../conf/ES.properties $SH_DIR/../conf/Cassandra.properties $SH_DIR/../conf/Spark.properties --deploy-mode client --jars $JAR_LIST --executor-memory $EXECUTOR_MEMORY

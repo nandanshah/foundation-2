@@ -3,7 +3,6 @@ package com.dla.foundation.trendReco.util;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UUIDType;
@@ -14,6 +13,7 @@ import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 
 import com.dla.foundation.trendReco.model.DailyEventSummaryPerItem;
+import com.dla.foundation.trendReco.model.DailyEventSummaryPerUserItem;
 import com.dla.foundation.trendReco.model.DayScore;
 
 /**
@@ -64,49 +64,49 @@ public class DayScoreTransformation implements Serializable {
 			Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record) {
 
 		DayScore dayScore = new DayScore();
-		TimestampType timestampType = TimestampType.instance;
 		Map<String, ByteBuffer> priamryKeyColumns = record._1();
 		if (priamryKeyColumns != null) {
-			for (Entry<String, ByteBuffer> column : priamryKeyColumns
-					.entrySet()) {
 
-				if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerItem.TENANT.getColumn()) == 0) {
-					if (null != column.getValue())
-						dayScore.setTenantId(UUIDType.instance.compose(
-								column.getValue()).toString());
+			if (priamryKeyColumns.get(DailyEventSummaryPerItem.TENANT
+					.getColumn().toLowerCase()) != null
+					&& priamryKeyColumns.get(DailyEventSummaryPerItem.REGION
+							.getColumn().toLowerCase()) != null
+					&& priamryKeyColumns.get(DailyEventSummaryPerItem.ITEM
+							.getColumn().toLowerCase()) != null) {
 
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerItem.REGION.getColumn()) == 0) {
-					if (null != column.getValue())
-						dayScore.setRegionId(UUIDType.instance.compose(
-								column.getValue()).toString());
+				dayScore.setTenantId(UUIDType.instance.compose(
+						priamryKeyColumns.get(DailyEventSummaryPerItem.TENANT
+								.getColumn().toLowerCase())).toString());
+				dayScore.setRegionId(UUIDType.instance.compose(
+						priamryKeyColumns.get(DailyEventSummaryPerItem.REGION
+								.getColumn().toLowerCase())).toString());
+				dayScore.setItemId(UUIDType.instance.compose(
+						priamryKeyColumns.get(DailyEventSummaryPerItem.ITEM
+								.getColumn().toLowerCase())).toString());
 
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerItem.ITEM.getColumn()) == 0) {
-					if (null != column.getValue())
-						dayScore.setItemId(UUIDType.instance.compose(
-								column.getValue()).toString());
-
-				}
-
+			} else {
+				return null;
 			}
 		}
+
 		Map<String, ByteBuffer> otherColumns = record._2;
+
 		if (otherColumns != null) {
 
-			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
-				if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerItem.DAY_SCORE.getColumn()) == 0) {
-					if (null != column.getValue())
-						dayScore.setDayScore(ByteBufferUtil.toDouble(column
-								.getValue()));
-				} else if (column.getKey().compareToIgnoreCase(
-						DailyEventSummaryPerItem.DATE.getColumn()) == 0) {
-					if (null != column.getValue())
-						dayScore.setTimestamp(timestampType.compose(
-								column.getValue()).getTime());
-				}
+			if (otherColumns.get(DailyEventSummaryPerUserItem.DAY_SCORE
+					.getColumn().toLowerCase()) != null
+					&& otherColumns.get(DailyEventSummaryPerUserItem.DATE
+							.getColumn().toLowerCase()) != null) {
+
+				dayScore.setDayScore(ByteBufferUtil.toDouble(otherColumns
+						.get(DailyEventSummaryPerItem.DAY_SCORE.getColumn()
+								.toLowerCase())));
+
+				dayScore.setTimestamp(TrendRecommendationUtil
+						.getFormattedDate(TimestampType.instance.compose(
+								otherColumns.get(DailyEventSummaryPerItem.DATE
+										.getColumn().toLowerCase())).getTime()));
+
 			}
 		}
 		return dayScore;

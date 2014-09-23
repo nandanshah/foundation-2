@@ -80,6 +80,8 @@ public class PopularityClient implements Serializable {
 			logger.info("Popularity Reco has executed successfully from start date : "+startDate +" to end date : "+endDate +" in "+executionMode+".");
 		if(executionMode.equalsIgnoreCase(PopularityConstants.INCREMENTAL))
 			logger.info("Popularity Reco has executed successfully fort date : "+endDate +" in "+executionMode+".");
+
+		phandler.close();
 	}
 
 	public static Date getDate(String date, String dateFormat)
