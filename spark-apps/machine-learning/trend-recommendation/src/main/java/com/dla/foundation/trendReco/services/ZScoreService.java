@@ -32,7 +32,7 @@ public class ZScoreService implements Serializable, ITrendScore {
 	 */
 	private static final long serialVersionUID = 7875760927306722697L;
 	private static final Logger logger = Logger.getLogger(ZScoreService.class);
-	private static final String TRENDING = "trending";
+	private static final String TRENDING = "Trending in your region";
 	private static final String REASON_NA = "NA";
 	/**
 	 * 
@@ -272,8 +272,8 @@ public class ZScoreService implements Serializable, ITrendScore {
 		JavaRDD<TrendScore> normalizedItemTrendScoreRDD = itemTrendScoreRDD
 				.map(new Function<TrendScore, TrendScore>() {
 					/**
-			 * 
-			 */
+					 * 
+					 */
 					private static final long serialVersionUID = 5709712840353707995L;
 					double trendScore;
 
@@ -292,10 +292,8 @@ public class ZScoreService implements Serializable, ITrendScore {
 						}
 						return record;
 					}
-
 				});
 		return normalizedItemTrendScoreRDD;
 
 	}
-
 }

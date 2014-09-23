@@ -93,96 +93,72 @@ public class UserEventTransformation implements Serializable {
 					.entrySet()) {
 
 			}
+		} else {
+			return null;
 		}
+
 		Map<String, ByteBuffer> otherColumns = record._2;
 		if (otherColumns != null) {
 
-			for (Entry<String, ByteBuffer> column : otherColumns.entrySet()) {
+			if (otherColumns.get(UserEventSummary.TENANT.getColumn()
+					.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.REGION.getColumn()
+							.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.PROFILE.getColumn()
+							.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.ITEM.getColumn()
+							.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.EVENT_TYPE.getColumn()
+							.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.TIMESTAMP.getColumn()
+							.toLowerCase()) != null
+					&& otherColumns.get(UserEventSummary.DATE.getColumn()
+							.toLowerCase()) != null) {
 
-				if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.TENANT.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setTenantId(UUIDType.instance.compose(
-								column.getValue()).toString());
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.REGION.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setRegionId(UUIDType.instance.compose(
-								column.getValue()).toString());
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.PROFILE.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setUserId(UUIDType.instance.compose(
-								column.getValue()).toString());
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.ITEM.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setItemid(UUIDType.instance.compose(
-								column.getValue()).toString());
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.EVENT_TYPE.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setEventType(ByteBufferUtil.string(
-								column.getValue()).toLowerCase());
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.TIMESTAMP.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent.setTimestamp(ByteBufferUtil.toLong(column
-								.getValue()));
-					} else {
-						return null;
-					}
-
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.DATE.getColumn()) == 0) {
-					if (null != column.getValue()) {
-						userEvent
-								.setDate(new Date(
-										TrendRecommendationUtil
-												.getFormattedDate(TimestampType.instance
-														.compose(
-																column.getValue())
-														.getTime())));
-					} else {
-						return null;
-					}
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.PLAY_PERCENTAGE.getColumn()) == 0) {
-
-					if (null != column.getValue()) {
-						userEvent.setPlayPercentage(ByteBufferUtil
-								.toDouble(column.getValue()));
-					}
-				} else if (column.getKey().compareToIgnoreCase(
-						UserEventSummary.RATE_SCORE.getColumn()) == 0) {
-
-					if (null != column.getValue()) {
-						userEvent.setRatescore(ByteBufferUtil.toInt(column
-								.getValue()));
-					}
-				}
-
+				userEvent.setTenantId(UUIDType.instance.compose(
+						otherColumns.get(UserEventSummary.TENANT.getColumn()
+								.toLowerCase())).toString());
+				userEvent.setRegionId(UUIDType.instance.compose(
+						otherColumns.get(UserEventSummary.REGION.getColumn()
+								.toLowerCase())).toString());
+				userEvent.setUserId(UUIDType.instance.compose(
+						otherColumns.get(UserEventSummary.PROFILE.getColumn()
+								.toLowerCase())).toString());
+				userEvent.setItemid(UUIDType.instance.compose(
+						otherColumns.get(UserEventSummary.ITEM.getColumn()
+								.toLowerCase())).toString());
+				userEvent.setEventType(ByteBufferUtil.string(otherColumns
+						.get(UserEventSummary.EVENT_TYPE.getColumn()
+								.toLowerCase())));
+				userEvent.setTimestamp(ByteBufferUtil.toLong(otherColumns
+						.get(UserEventSummary.TIMESTAMP.getColumn()
+								.toLowerCase())));
+				userEvent.setDate(new Date(TrendRecommendationUtil
+						.getFormattedDate(TimestampType.instance.compose(
+								otherColumns.get(UserEventSummary.DATE
+										.getColumn())).getTime())));
+			} else {
+				return null;
 			}
+
+			if (otherColumns.get(UserEventSummary.PLAY_PERCENTAGE.getColumn()
+					.toLowerCase()) != null) {
+
+				userEvent.setPlayPercentage(ByteBufferUtil
+						.toDouble(otherColumns
+								.get(UserEventSummary.PLAY_PERCENTAGE
+										.getColumn().toLowerCase())));
+			}
+
+			if (otherColumns.get(UserEventSummary.RATE_SCORE.getColumn()
+					.toLowerCase()) != null) {
+
+				userEvent.setRatescore(ByteBufferUtil.toInt(otherColumns
+						.get(UserEventSummary.RATE_SCORE.getColumn()
+								.toLowerCase())));
+			}
+		} else {
+			return null;
 		}
 		return userEvent;
 	}
