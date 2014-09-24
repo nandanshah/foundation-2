@@ -15,7 +15,7 @@ public class UserItemRecoProp implements Serializable {
 
 	public final static String USER_ITEM_RECO_APP_NAME = "useritemreco";
 
-	public final static String INPUT_CF_ITEM = "item";
+	public final static String INPUT_CF_ITEM = "itemdocument";
 	public final static String OUTPUT_CF_ITEM = "user_item_score_summary";
 	public final static String ITEM_LEVEL_TREND_CF = "trend_reco";
 	public final static String ITEM_LEVEL_REGION_ID = "regionid";
