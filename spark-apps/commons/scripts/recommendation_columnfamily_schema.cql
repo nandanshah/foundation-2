@@ -88,9 +88,9 @@ insert into eo_event_metadata (id, eventtype , required ) VALUES ( 2e8c17c8-1d0f
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( da667be8-6c8b-4aa4-90ac-a1cb128e8818, 'ProfileUpdatePreferredLocale', 0) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( fcc87a24-dc33-4016-98e1-e502c20886f5, 'ProfileUpdateNewSocialMediaAccountLinkage', 0) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 909f2cf6-d6db-4c6e-829e-8c608a6233ee, 'ProfileUpdateSocialMediaAccountDelete', 0) ;
-insert into eo_event_metadata (id, eventtype , required ) VALUES ( 88f04a3a-81ff-48fe-ae4f-8d01f159803b, 'AccountAdd', 0) ;
-insert into eo_event_metadata (id, eventtype , required ) VALUES ( 7100b484-9774-405a-94cb-8a3f6273f8d7, 'AccountDelete', 0) ;
-insert into eo_event_metadata (id, eventtype , required ) VALUES ( 84edf7c0-28c9-442a-bb92-a1635cda1d33, 'AccountInfoUpdate', 0) ;
+insert into eo_event_metadata (id, eventtype , required ) VALUES ( 88f04a3a-81ff-48fe-ae4f-8d01f159803b, 'AccountAdded', 0) ;
+insert into eo_event_metadata (id, eventtype , required ) VALUES ( 7100b484-9774-405a-94cb-8a3f6273f8d7, 'AccountDeleted', 0) ;
+insert into eo_event_metadata (id, eventtype , required ) VALUES ( 84edf7c0-28c9-442a-bb92-a1635cda1d33, 'AccountUpdated', 0) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 7883e709-bc77-44e0-aa9e-31ea62e31601, 'UserLogin', 0) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 4c92b814-a344-4d21-abfe-a68225d2e1db, 'UserLogout', 0) ;
 insert into eo_event_metadata (id, eventtype , required ) VALUES ( 82ac8967-c5df-4d37-8a21-f6640cb8dd5a, 'AddSession', 0) ;

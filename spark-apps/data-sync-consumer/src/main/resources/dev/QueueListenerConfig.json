@@ -3,7 +3,7 @@
 	"rabbitmq_server_port" : 5672,
 	"rabbitmq_username" : "foundation_rmq_user",
 	"rabbitmq_password" : "abc123",
-	"exchange_name" : "FOUNDATION_EXCH",
+	"exchange_name" : "foundation-events-exch",
 	"exchange_type" : "topic",
 	"queue_config" : [
 		{
