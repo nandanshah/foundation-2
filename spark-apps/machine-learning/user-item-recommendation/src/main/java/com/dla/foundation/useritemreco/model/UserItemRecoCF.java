@@ -1,6 +1,6 @@
 package com.dla.foundation.useritemreco.model;
 
-public enum userItemRecoCF {
+public enum UserItemRecoCF {
 	ID("id"), PROFILE("profileid"), TENANT("tenantid"), REGION("regionid"), ITEM(
 			"itemid"), NORMALIZED_TREND_SCORE("normalizedtrendscore"), TREND_SCORE(
 			"trendscore"), TREND_SCORE_REASON("trendscorereason"), NORMALIZED_POPULARITY_SCORE(
@@ -12,10 +12,11 @@ public enum userItemRecoCF {
 			"socialscorereason"), PIO_SCORE("recobyfoundationscore"), PIO_SCORE_REASON(
 			"recoByfoundationreason"), DATE("date"), EVENT_REQUIRED(
 			"eventrequired"), PREFERRED_REGION("preferredregion"), ACCOUNT(
-			"accountid"), PIO_DATE("lastrecofetched"), PERIOD_ID("periodid"),TENANT_ID("tenant_id");
+			"accountid"), PIO_DATE("lastrecofetched"), PERIOD_ID("periodid"), TENANT_ID(
+			"tenant_id"), JUSTIFICATION("justification");
 	private String column;
 
-	private userItemRecoCF(String s) {
+	private UserItemRecoCF(String s) {
 		column = s;
 	}
 
