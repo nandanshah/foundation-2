@@ -8,10 +8,7 @@ import java.io.Serializable;
  */
 public class UserItemRecoProp implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 464427147528049305L;
 
 	public final static String USER_ITEM_RECO_APP_NAME = "useritemreco";
 

@@ -12,22 +12,20 @@ import com.dla.foundation.useritemreco.model.UserItemSummary;
 
 public class Filter implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4155719850055225877L;
 
 	public static JavaPairRDD<String, String> filterStringPair(
 			JavaPairRDD<String, String> rdd) {
+
 		JavaPairRDD<String, String> filteredRdd = rdd
 				.filter(new Function<Tuple2<String, String>, Boolean>() {
 
 					private static final long serialVersionUID = -6021748217701617184L;
 
-					public Boolean call(Tuple2<String, String> record)
-							throws Exception {
+					public Boolean call(Tuple2<String, String> record) {
 						if (record != null) {
 							if (null != record._1 && null != record._2) {
+
 								return true;
 							}
 						}
@@ -45,8 +43,7 @@ public class Filter implements Serializable {
 
 					private static final long serialVersionUID = -6160930803403593402L;
 
-					public Boolean call(Tuple2<String, ItemSummary> record)
-							throws Exception {
+					public Boolean call(Tuple2<String, ItemSummary> record) {
 
 						if (record != null) {
 							if (null != record._1 && null != record._2) {
@@ -68,8 +65,7 @@ public class Filter implements Serializable {
 
 					private static final long serialVersionUID = 4834345712959347417L;
 
-					public Boolean call(Tuple2<String, UserItemSummary> record)
-							throws Exception {
+					public Boolean call(Tuple2<String, UserItemSummary> record) {
 						if (record != null) {
 							if (record._1 != null && record._2 != null) {
 								UserItemSummary userItem = record._2;
@@ -87,20 +83,16 @@ public class Filter implements Serializable {
 		return filteredScoreSummaryRDD;
 	}
 
-	public static JavaPairRDD<String, UserItemSummary> filterSocial(
+	public static JavaPairRDD<String, UserItemSummary> userRecos(
 			JavaPairRDD<String, UserItemSummary> javaRDD) {
 
 		JavaPairRDD<String, UserItemSummary> filteredSocialSummaryRDD = javaRDD
 				.filter(new Function<Tuple2<String, UserItemSummary>, Boolean>() {
 
-					/**
-					 * 
-					 */
-					private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = 2787884646700044351L;
 
 					@Override
-					public Boolean call(Tuple2<String, UserItemSummary> record)
-							throws Exception {
+					public Boolean call(Tuple2<String, UserItemSummary> record) {
 						if (record != null) {
 							if (record._1 != null && record._2 != null) {
 								UserItemSummary userItem = record._2;

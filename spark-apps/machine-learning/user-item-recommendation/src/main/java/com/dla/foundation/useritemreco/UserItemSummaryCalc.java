@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.cassandra.utils.UUIDGen;
 import org.apache.hadoop.conf.Configuration;
@@ -12,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 
 import scala.Tuple2;
@@ -30,9 +33,8 @@ import com.google.common.base.Optional;
 
 /**
  * This class is used to convert item level summary to user item level summary
- * by performing left outer between profile and score summary and in future, it
- * will also provide the functionality of performing left join with social reco
- * and pio reco.
+ * by performing left outer between profile and score summary and performs left
+ * join with social reco and pio reco.
  * 
  * @author shishir_shivhare
  * 
@@ -74,12 +76,11 @@ public class UserItemSummaryCalc implements Serializable {
 	 * @param cassandraSparkConnector
 	 * @param profileRDD
 	 * @return
-	 * @throws Exception
 	 */
 	public JavaRDD<UserItemSummary> calculateUserItemSummary(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
-			JavaPairRDD<String, String> profileRDD) throws Exception {
+			JavaPairRDD<String, String> profileRDD) {
 
 		logger.info("peforming left outer join between profile and score summary");
 		JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> profileItemRDD = joinItemScoreSummary(
@@ -90,15 +91,11 @@ public class UserItemSummaryCalc implements Serializable {
 		JavaPairRDD<String, UserItemSummary> filteredUserItem = Filter
 				.filterScoreSummary(userItemSummaryInfo);
 
-		logger.info("userItemSummaryInfo filtering complete");
-
-		logger.info("persorming left outer join between profile/Score-summary and social");
-
+		logger.info("performing left outer join between profile/Score-summary and social");
 		JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> joinedSocial = getUserItemSocialSummary(
 				cassandraSparkConnector, sparkContext, filteredUserItem);
 
 		logger.info("performing left outer join between profile/Score-summary/social & Pio ");
-
 		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> pioCombined = getPioSummary(
 				cassandraSparkConnector, sparkContext, joinedSocial);
 
@@ -107,13 +104,66 @@ public class UserItemSummaryCalc implements Serializable {
 
 		JavaRDD<UserItemSummary> filteredUserItemSummaryRDD = filteredUserItemScorePio
 				.values();
-		filteredUserItemSummaryRDD.cache();
 
-		JavaRDD<UserItemSummary> defaultUserDetails = addDefaultUser(filteredUserItemSummaryRDD);
-		JavaRDD<UserItemSummary> UserItemDetails = filteredUserItemSummaryRDD
+		JavaRDD<UserItemSummary> UserItemSummaryRDD = getJustification(filteredUserItemSummaryRDD);
+
+		UserItemSummaryRDD.cache();
+
+		JavaRDD<UserItemSummary> defaultUserDetails = addDefaultUser(UserItemSummaryRDD);
+		JavaRDD<UserItemSummary> UserItemDetails = UserItemSummaryRDD
 				.union(defaultUserDetails);
 		return UserItemDetails;
 
+	}
+
+	private JavaRDD<UserItemSummary> getJustification(
+			JavaRDD<UserItemSummary> filterdUserItemRDD) {
+		JavaRDD<UserItemSummary> justificationRDD = filterdUserItemRDD
+				.map(new Function<UserItemSummary, UserItemSummary>() {
+
+					private static final long serialVersionUID = -382661029200011284L;
+					UserItemSummary userItem;
+					Map<String, Score> scoreMap;
+					String reason = "";
+					double maxScore = 0.0;
+
+					Set<String> keys;
+
+					@Override
+					public UserItemSummary call(UserItemSummary record) {
+						userItem = new UserItemSummary();
+						userItem = record;
+						scoreMap = new HashMap<>();
+						scoreMap = userItem.getItemSummary().getScores();
+						/*
+						 * trendScore =
+						 * scoreMap.get(ScoreType.TREND_TYPE).getScore();
+						 * popularityScore =
+						 * scoreMap.get(ScoreType.POPULARITY_TYPE).getScore();
+						 * FPScore = scoreMap.get(ScoreType.FP_TYPE).getScore();
+						 * newReleaseScore =
+						 * scoreMap.get(ScoreType.NEW_RELEASE_TYPE).getScore();
+						 * PIOScore =
+						 * scoreMap.get(ScoreType.PIO_TYPE).getScore();
+						 * socialScore
+						 */
+						keys = new HashSet<>();
+						keys = scoreMap.keySet();
+
+						for (String values : keys) {
+							if (scoreMap.get(values).getScore() > maxScore) {
+								maxScore = scoreMap.get(values).getScore();
+								reason = scoreMap.get(values).getScoreReason();
+							}
+
+						}
+
+						userItem.setJustification(reason);
+						return userItem;
+
+					}
+				});
+		return justificationRDD;
 	}
 
 	/**
@@ -125,7 +175,6 @@ public class UserItemSummaryCalc implements Serializable {
 	 * @param cassandraSparkConnector
 	 * @param joinedSocial
 	 * @return
-	 * @throws Exception
 	 */
 	private JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> getPioSummary(
 			CassandraSparkConnector cassandraSparkConnector,
@@ -141,8 +190,10 @@ public class UserItemSummaryCalc implements Serializable {
 
 		JavaPairRDD<String, UserItemSummary> pioRDD = RecoTransformations
 				.getTransformations(cassandraPioRDD);
+		logger.debug("filtering PIO");
 		JavaPairRDD<String, UserItemSummary> filteredPioRDD = Filter
-				.filterSocial(pioRDD);
+				.userRecos(pioRDD);
+		logger.debug("performing left outer join between ScoreSummary, profile,Social & PIO");
 		JavaPairRDD<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> poiCombined = joinedSocial
 				.leftOuterJoin(filteredPioRDD);
 
@@ -158,7 +209,6 @@ public class UserItemSummaryCalc implements Serializable {
 	 * @param cassandraSparkConnector
 	 * @param filteredUserItem
 	 * @return
-	 * @throws Exception
 	 */
 	private JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> getUserItemSocialSummary(
 			CassandraSparkConnector cassandraSparkConnector,
@@ -175,11 +225,10 @@ public class UserItemSummaryCalc implements Serializable {
 		logger.info("transforming social column family");
 		JavaPairRDD<String, UserItemSummary> socialRDD = RecoTransformations
 				.getTransformations(cassandraSocialRDD);
-
 		logger.info("filtering social");
-
 		JavaPairRDD<String, UserItemSummary> filteredSocialRDD = Filter
-				.filterSocial(socialRDD);
+				.userRecos(socialRDD);
+		logger.info("performing left outer join between ScoreSummary, profile & Social");
 		JavaPairRDD<String, Tuple2<UserItemSummary, Optional<UserItemSummary>>> joinedSocial = filteredUserItem
 				.leftOuterJoin(filteredSocialRDD);
 		return joinedSocial;
@@ -197,10 +246,7 @@ public class UserItemSummaryCalc implements Serializable {
 		JavaPairRDD<String, UserItemSummary> filteredUserItem = pioCombined
 				.mapToPair(new PairFunction<Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>>, String, UserItemSummary>() {
 
-					/**
-					 * 
-					 */
-					private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = -5526483327835915185L;
 					Map<String, Score> pioScores = new HashMap<String, Score>();
 					Map<String, Score> socialScores = new HashMap<String, Score>();
 					Map<String, Score> combinedScores = new HashMap<String, Score>();
@@ -213,8 +259,7 @@ public class UserItemSummaryCalc implements Serializable {
 
 					@Override
 					public Tuple2<String, UserItemSummary> call(
-							Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> record)
-							throws Exception {
+							Tuple2<String, Tuple2<Tuple2<UserItemSummary, Optional<UserItemSummary>>, Optional<UserItemSummary>>> record) {
 
 						Score socialScoreInfo = new Score();
 						Score pioScoreInfo = new Score();
@@ -274,35 +319,28 @@ public class UserItemSummaryCalc implements Serializable {
 	 * @param cassandraSparkConnector
 	 * @param profileRDD
 	 * @return
-	 * @throws Exception
 	 */
 	private JavaPairRDD<String, Tuple2<String, Optional<ItemSummary>>> joinItemScoreSummary(
 			JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
-			JavaPairRDD<String, String> profileRDD) throws Exception {
-		if (null != scoreSummaryCF && "" != scoreSummaryCF) {
-			Configuration conf = new Configuration();
-			logger.info("reading from item summary column family");
-			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraScoreSummaryRDD = cassandraSparkConnector
-					.read(conf, sparkContext, itemLevelCFKeyspace,
-							scoreSummaryCF, pageRowSize,
-							UserItemRecommendationUtil
-									.getWhereClause(inputDate));
-			logger.info("transforming item summary column family");
-			JavaPairRDD<String, ItemSummary> scoreSummaryRDD = ScoreSummaryTransformation
-					.getScoreSummary(cassandraScoreSummaryRDD);
+			JavaPairRDD<String, String> profileRDD) {
+		Configuration conf = new Configuration();
+		logger.info("reading from item summary column family");
+		JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraScoreSummaryRDD = cassandraSparkConnector
+				.read(conf, sparkContext, itemLevelCFKeyspace, scoreSummaryCF,
+						pageRowSize,
+						UserItemRecommendationUtil.getWhereClause(inputDate));
+		logger.info("transforming item summary column family");
+		JavaPairRDD<String, ItemSummary> scoreSummaryRDD = ScoreSummaryTransformation
+				.getScoreSummary(cassandraScoreSummaryRDD);
 
-			logger.info("filtering item summary  column family");
-			JavaPairRDD<String, ItemSummary> filteredScoreSummaryRDD = Filter
-					.filterItemSummary(scoreSummaryRDD);
+		logger.info("filtering item summary  column family");
+		JavaPairRDD<String, ItemSummary> filteredScoreSummaryRDD = Filter
+				.filterItemSummary(scoreSummaryRDD);
 
-			logger.info("performing left outer join between profile and item summary  column family");
-			return profileRDD.leftOuterJoin(filteredScoreSummaryRDD);
+		logger.info("performing left outer join between profile and item summary  column family");
+		return profileRDD.leftOuterJoin(filteredScoreSummaryRDD);
 
-		} else {
-			throw new Exception(
-					"column family name for score summary is not proper");
-		}
 	}
 
 	/**
@@ -329,8 +367,7 @@ public class UserItemSummaryCalc implements Serializable {
 
 					@Override
 					public Tuple2<String, UserItemSummary> call(
-							Tuple2<String, Tuple2<String, Optional<ItemSummary>>> record)
-							throws Exception {
+							Tuple2<String, Tuple2<String, Optional<ItemSummary>>> record) {
 
 						if (record._2._2.isPresent()) {
 							itemSummary = record._2._2.get();
@@ -387,14 +424,11 @@ public class UserItemSummaryCalc implements Serializable {
 		JavaPairRDD<String, UserItemSummary> getTenantRegionId = filteredUserItemSummaryRDD
 				.mapToPair(new PairFunction<UserItemSummary, String, UserItemSummary>() {
 
-					/**
-					 * 
-					 */
-					private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = -1096538231913701100L;
 
 					@Override
 					public Tuple2<String, UserItemSummary> call(
-							UserItemSummary record) throws Exception {
+							UserItemSummary record) {
 
 						String primaryKey = null;
 						UserItemSummary otherColumns = null;
@@ -428,8 +462,7 @@ public class UserItemSummaryCalc implements Serializable {
 
 					@Override
 					public Tuple2<String, UserItemSummary> call(
-							Tuple2<String, Iterable<UserItemSummary>> record)
-							throws Exception {
+							Tuple2<String, Iterable<UserItemSummary>> record) {
 						UserItemSummary otherColumns = null;
 						String primaryKey = null;
 						primaryKey = record._1;

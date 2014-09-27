@@ -3,6 +3,7 @@ package com.dla.foundation.useritemreco;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ import com.dla.foundation.analytics.utils.PropertiesHandler;
 import com.dla.foundation.useritemreco.model.CassandraConfig;
 import com.dla.foundation.useritemreco.model.ItemSummary;
 import com.dla.foundation.useritemreco.model.UserItemSummary;
-import com.dla.foundation.useritemreco.model.userItemRecoCF;
+import com.dla.foundation.useritemreco.model.UserItemRecoCF;
 import com.dla.foundation.useritemreco.util.AccountTransformation;
 import com.dla.foundation.useritemreco.util.Filter;
 import com.dla.foundation.useritemreco.util.ItemTransformation;
@@ -47,7 +48,7 @@ public class UserItemRecoDriver implements Serializable {
 			.getLogger(UserItemRecoDriver.class);
 
 	public void runUserItemRecoDriver(String commonPropFilePath)
-			throws Exception {
+			throws IOException, ParseException {
 		PropertiesHandler userItemRecoProp = null;
 		try {
 			userItemRecoProp = new PropertiesHandler(commonPropFilePath,
@@ -63,16 +64,16 @@ public class UserItemRecoDriver implements Serializable {
 			logger.info("invoking user item summary");
 			runUserItemSummary(userItemRecoProp, sparkContext,
 					cassandraSparkConnector);
-			Date input_date = DateUtils.addDays(UserItemRecommendationUtil
+			Date outputDate = DateUtils.addDays(UserItemRecommendationUtil
 					.getDate(userItemRecoProp.getValue(PropKeys.INPUT_DATE
 							.getValue()), DATE_FORMAT), 1);
 			userItemRecoProp
 					.writeToCassandra(PropKeys.INPUT_DATE.getValue(),
-							UserItemRecommendationUtil.getDate(input_date,
+							UserItemRecommendationUtil.getDate(outputDate,
 									DATE_FORMAT));
 		} catch (IOException e) {
 			logger.error(e.getMessage());
-			throw new Exception(e.getMessage());
+			throw new IOException(e.getMessage());
 
 		} finally {
 			userItemRecoProp.close();
@@ -86,30 +87,31 @@ public class UserItemRecoDriver implements Serializable {
 	 * @param userItemRecoProp
 	 * @param sparkContext
 	 * @param cassandraSparkConnector
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws ParseException
 	 */
 	public void runUserItemSummary(PropertiesHandler userItemRecoProp,
 			JavaSparkContext sparkContext,
-			CassandraSparkConnector cassandraSparkConnector) throws Exception {
+			CassandraSparkConnector cassandraSparkConnector)
+			throws IOException, ParseException {
 
 		logger.info("initializing query for user item level summary");
 		final String USER_ITEM_LEVEL_QUERY_PROPERTY = "UPDATE "
 				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
 						.getValue()) + "." + UserItemRecoProp.OUTPUT_CF
-				+ " SET " + userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
-				+ userItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.FP_SCORE.getColumn() + " =?,"
-				+ userItemRecoCF.FP_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.NEW_RELEASE_SCORE.getColumn() + " =?,"
-				+ userItemRecoCF.NEW_RELEASE_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.SOCIAL_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.SOCIAL_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.PIO_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.PIO_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.DATE.getColumn() + "=?,"
-				+ userItemRecoCF.EVENT_REQUIRED.getColumn() + "=?";
+				+ " SET " + UserItemRecoCF.TREND_SCORE.getColumn() + " =?,"
+				+ UserItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
+				+ UserItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.NEW_RELEASE_SCORE.getColumn() + " =?,"
+				+ UserItemRecoCF.NEW_RELEASE_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.SOCIAL_SCORE.getColumn() + "=?,"
+				+ UserItemRecoCF.SOCIAL_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.PIO_SCORE.getColumn() + "=?,"
+				+ UserItemRecoCF.PIO_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.DATE.getColumn() + "=?,"
+				+ UserItemRecoCF.EVENT_REQUIRED.getColumn() + "=?,"
+				+ UserItemRecoCF.JUSTIFICATION.getColumn() + "=?";
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig userItemSummaryCassandraProp = new CassandraConfig(
@@ -138,7 +140,8 @@ public class UserItemRecoDriver implements Serializable {
 
 	}
 
-	public void runUserItemSummary(String commonPropFilePath) throws Exception {
+	public void runUserItemSummary(String commonPropFilePath)
+			throws IOException, ParseException {
 		PropertiesHandler userItemRecoProp = new PropertiesHandler(
 				commonPropFilePath, UserItemRecoProp.USER_ITEM_RECO_APP_NAME);
 		JavaSparkContext sparkContext = initSparkContext(userItemRecoProp);
@@ -154,25 +157,25 @@ public class UserItemRecoDriver implements Serializable {
 	 * @param itemSummaryPropFilePath
 	 * @param sparkContext
 	 * @param cassandraSparkConnector
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws ParseException
 	 */
 	public void runItemSummary(PropertiesHandler userItemRecoProp,
 			JavaSparkContext sparkContext,
-			CassandraSparkConnector cassandraSparkConnector) throws Exception {
+			CassandraSparkConnector cassandraSparkConnector)
+			throws IOException, ParseException {
 		logger.info("initializing query for item level summary");
 		final String ITEM_LEVEL_SUMMARY_QUERY_PROPERTY = "UPDATE "
 				+ userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
 						.getValue()) + "." + UserItemRecoProp.OUTPUT_CF_ITEM
-				+ " SET " + userItemRecoCF.TREND_SCORE.getColumn() + " =?,"
-				+ userItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.FP_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.FP_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.NEW_RELEASE_SCORE.getColumn() + "=?,"
-				+ userItemRecoCF.NEW_RELEASE_SCORE_REASON.getColumn() + "=?,"
-				+ userItemRecoCF.DATE.getColumn() + "=?,"
-				+ userItemRecoCF.EVENT_REQUIRED.getColumn() + "=?";
+				+ " SET " + UserItemRecoCF.TREND_SCORE.getColumn() + " =?,"
+				+ UserItemRecoCF.TREND_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.POPULARITY_SCORE.getColumn() + "=?,"
+				+ UserItemRecoCF.POPULARITY_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.NEW_RELEASE_SCORE.getColumn() + "=?,"
+				+ UserItemRecoCF.NEW_RELEASE_SCORE_REASON.getColumn() + "=?,"
+				+ UserItemRecoCF.DATE.getColumn() + "=?,"
+				+ UserItemRecoCF.EVENT_REQUIRED.getColumn() + "=?";
 
 		logger.info("initializing cassandra configuration");
 		CassandraConfig scoreSummaryCassandraProp = new CassandraConfig(
@@ -184,8 +187,6 @@ public class UserItemRecoDriver implements Serializable {
 				userItemRecoProp.getValue(CommonPropKeys.cs_pageRowSize
 						.getValue()), ITEM_LEVEL_SUMMARY_QUERY_PROPERTY);
 
-		logger.info("fetching all item level column families");
-
 		logger.info("initializing item summary Calc");
 		ItemSummaryCalc ItemSummaryCalc = new ItemSummaryCalc(
 				userItemRecoProp.getValue(CommonPropKeys.cs_fisKeyspace
@@ -196,7 +197,6 @@ public class UserItemRecoDriver implements Serializable {
 								.getValue()), DATE_FORMAT));
 
 		logger.info("invoking item summary calculator");
-
 		runItemSummaryCalculator(sparkContext, cassandraSparkConnector,
 				scoreSummaryCassandraProp, ItemSummaryCalc);
 
@@ -212,13 +212,11 @@ public class UserItemRecoDriver implements Serializable {
 	 * @param userItemSummaryCassandraProp
 	 * @param userItemSummaryCalc
 	 * @param accountColumnFamily
-	 * @throws Exception
 	 */
 	private void runUserItemSummaryCalculator(JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig userItemSummaryCassandraProp,
-			UserItemSummaryCalc userItemSummaryCalc, String accountColumnFamily)
-			throws Exception {
+			UserItemSummaryCalc userItemSummaryCalc, String accountColumnFamily) {
 		Configuration profileConf = new Configuration();
 
 		logger.info("reading from profile column family");
@@ -283,12 +281,11 @@ public class UserItemRecoDriver implements Serializable {
 	 * @param cassandraSparkConnector
 	 * @param scoreSummaryCassandraProp
 	 * @param itemSummaryCalc
-	 * @throws Exception
 	 */
 	private void runItemSummaryCalculator(JavaSparkContext sparkContext,
 			CassandraSparkConnector cassandraSparkConnector,
 			CassandraConfig scoreSummaryCassandraProp,
-			ItemSummaryCalc itemSummaryCalc) throws Exception {
+			ItemSummaryCalc itemSummaryCalc) {
 		Configuration conf = new Configuration();
 
 		logger.info("reading item column family");
@@ -327,9 +324,11 @@ public class UserItemRecoDriver implements Serializable {
 	 * 
 	 * @param appPropFilePath
 	 * @param scoreSummaryPropFilePath
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws ParseException
 	 */
-	public void runItemSummary(String commonPropFilePath) throws Exception {
+	public void runItemSummary(String commonPropFilePath) throws IOException,
+			ParseException {
 		PropertiesHandler commonProp = new PropertiesHandler(commonPropFilePath);
 		JavaSparkContext sparkContext = initSparkContext(commonProp);
 		CassandraSparkConnector cassandraSparkConnector = initCassandraSparkConn(commonProp);
@@ -373,12 +372,13 @@ public class UserItemRecoDriver implements Serializable {
 		return sparkContext;
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException, ParseException {
 		UserItemRecoDriver userItemRecoDriver = new UserItemRecoDriver();
 		if (args.length == 1) {
 			userItemRecoDriver.runUserItemRecoDriver(args[0]);
 		} else {
-			System.out
+			logger.error("Please provide the common properties file paths");
+			System.err
 					.println("Please provide the common properties file paths");
 		}
 	}

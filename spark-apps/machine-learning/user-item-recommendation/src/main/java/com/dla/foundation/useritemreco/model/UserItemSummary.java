@@ -8,6 +8,7 @@ public class UserItemSummary implements Serializable {
 
 	private String userId;
 	private ItemSummary itemSummary;
+	private String justification;
 
 	public String getUserId() {
 		return userId;
@@ -33,6 +34,14 @@ public class UserItemSummary implements Serializable {
 
 	public ItemSummary getItemSummary() {
 		return itemSummary;
+	}
+
+	public String getJustification() {
+		return justification;
+	}
+
+	public void setJustification(String justification) {
+		this.justification = justification;
 	}
 
 }

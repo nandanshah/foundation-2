@@ -2,6 +2,7 @@ package com.dla.foundation.useritemreco.util;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map.Entry;
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
 
@@ -18,7 +20,7 @@ import scala.Tuple2;
 import com.dla.foundation.useritemreco.model.ItemSummary;
 import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
-import com.dla.foundation.useritemreco.model.userItemRecoCF;
+import com.dla.foundation.useritemreco.model.UserItemRecoCF;
 
 /**
  * This class is used to transform record of score summary in cassandra format
@@ -29,12 +31,11 @@ import com.dla.foundation.useritemreco.model.userItemRecoCF;
  */
 public class ScoreSummaryTransformation implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2366511526756341991L;
 	private static final String DELIMITER_PROPERTY = "#";
 	private static final String NOT_AVAILABLE = "N/A";
+	private static Logger logger = Logger
+			.getLogger(ScoreSummaryTransformation.class);
 
 	public static JavaPairRDD<String, ItemSummary> getScoreSummary(
 			JavaPairRDD<Map<String, ByteBuffer>, Map<String, ByteBuffer>> cassandraRDD) {
@@ -42,16 +43,13 @@ public class ScoreSummaryTransformation implements Serializable {
 		JavaPairRDD<String, ItemSummary> trendRDD = cassandraRDD
 				.mapToPair(new PairFunction<Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>>, String, ItemSummary>() {
 
-					/**
-					 * 
-					 */
 					private static final long serialVersionUID = -5603807529160303375L;
 					Map<String, Score> scores;
 					ItemSummary itemSummary;
 
 					public Tuple2<String, ItemSummary> call(
 							Tuple2<Map<String, ByteBuffer>, Map<String, ByteBuffer>> record)
-							throws Exception {
+							throws CharacterCodingException {
 						String tenantId = null;
 						String regionId = null;
 						String itemId = null;
@@ -64,19 +62,19 @@ public class ScoreSummaryTransformation implements Serializable {
 									.entrySet()) {
 
 								if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.TENANT.getColumn()) == 0) {
+										UserItemRecoCF.TENANT.getColumn()) == 0) {
 									if (null != column.getValue())
 										tenantId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.REGION.getColumn()) == 0) {
+										UserItemRecoCF.REGION.getColumn()) == 0) {
 									if (null != column.getValue())
 										regionId = UUIDType.instance.compose(
 												column.getValue()).toString();
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.ITEM.getColumn()) == 0) {
+										UserItemRecoCF.ITEM.getColumn()) == 0) {
 									if (null != column.getValue())
 										itemId = UUIDType.instance.compose(
 												column.getValue()).toString();
@@ -92,7 +90,7 @@ public class ScoreSummaryTransformation implements Serializable {
 							for (Entry<String, ByteBuffer> column : otherColumns
 									.entrySet()) {
 								if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.TREND_SCORE.getColumn()) == 0) {
+										UserItemRecoCF.TREND_SCORE.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
 										if (scores
@@ -130,7 +128,7 @@ public class ScoreSummaryTransformation implements Serializable {
 									}
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.TREND_SCORE_REASON
+										UserItemRecoCF.TREND_SCORE_REASON
 												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
@@ -170,7 +168,7 @@ public class ScoreSummaryTransformation implements Serializable {
 									}
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.POPULARITY_SCORE
+										UserItemRecoCF.POPULARITY_SCORE
 												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
@@ -211,7 +209,7 @@ public class ScoreSummaryTransformation implements Serializable {
 									}
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.POPULARITY_SCORE_REASON
+										UserItemRecoCF.POPULARITY_SCORE_REASON
 												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
@@ -249,98 +247,11 @@ public class ScoreSummaryTransformation implements Serializable {
 											scores.put(
 													ScoreType.POPULARITY_TYPE
 															.getColumn(), score);
-										}
-									}
-
-								}
-
-								/*
-								 * 
-								 * 
-								 */
-
-								else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.FP_SCORE.getColumn()) == 0) {
-
-									if (null != column.getValue()) {
-										if (scores
-												.containsKey(ScoreType.FP_TYPE
-														.getColumn())) {
-											scores.get(
-													ScoreType.FP_TYPE
-															.getColumn())
-													.setScore(
-															ByteBufferUtil
-																	.toDouble(column
-																			.getValue()));
-										} else {
-											Score score = new Score();
-											score.setScore(ByteBufferUtil
-													.toDouble(column.getValue()));
-											scores.put(ScoreType.FP_TYPE
-													.getColumn(), score);
-										}
-
-									} else {
-										if (scores
-												.containsKey(ScoreType.FP_TYPE
-														.getColumn())) {
-											scores.get(
-													ScoreType.FP_TYPE
-															.getColumn())
-													.setScore(0);
-										} else {
-											Score score = new Score();
-											score.setScore(0);
-											scores.put(ScoreType.FP_TYPE
-													.getColumn(), score);
 										}
 									}
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.FP_SCORE_REASON
-												.getColumn()) == 0) {
-
-									if (null != column.getValue()) {
-										if (scores
-												.containsKey(ScoreType.FP_TYPE
-														.getColumn())) {
-											scores.get(
-													ScoreType.FP_TYPE
-															.getColumn())
-													.setScoreReason(
-															ByteBufferUtil
-																	.string(column
-																			.getValue()));
-										} else {
-											Score score = new Score();
-											score.setScoreReason(ByteBufferUtil
-													.string(column.getValue()));
-											scores.put(ScoreType.FP_TYPE
-													.getColumn(), score);
-										}
-
-									} else {
-										if (scores
-												.containsKey(ScoreType.FP_TYPE
-														.getColumn())) {
-											scores.get(
-													ScoreType.FP_TYPE
-															.getColumn())
-													.setScoreReason(
-															NOT_AVAILABLE);
-										} else {
-											Score score = new Score();
-											score.setScoreReason(NOT_AVAILABLE);
-											scores.put(ScoreType.FP_TYPE
-													.getColumn(), score);
-										}
-									}
-
-								}
-
-								else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.NEW_RELEASE_SCORE
+										UserItemRecoCF.NEW_RELEASE_SCORE
 												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
@@ -381,7 +292,7 @@ public class ScoreSummaryTransformation implements Serializable {
 									}
 
 								} else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.NEW_RELEASE_SCORE_REASON
+										UserItemRecoCF.NEW_RELEASE_SCORE_REASON
 												.getColumn()) == 0) {
 
 									if (null != column.getValue()) {
@@ -424,13 +335,8 @@ public class ScoreSummaryTransformation implements Serializable {
 
 								}
 
-								/*
-								 * 
-								 * 
-								 */
-
 								else if (column.getKey().compareToIgnoreCase(
-										userItemRecoCF.DATE.getColumn()) == 0) {
+										UserItemRecoCF.DATE.getColumn()) == 0) {
 									if (null != column.getValue())
 										date = UserItemRecommendationUtil
 												.processInputDate(TimestampType.instance
@@ -447,6 +353,11 @@ public class ScoreSummaryTransformation implements Serializable {
 									+ regionId;
 							itemSummary = new ItemSummary(tenantId, regionId,
 									itemId, scores, date);
+							logger.debug("Getting all details from ScoreSummary tenantId :"
+									+ tenantId
+									+ " regionId :"
+									+ regionId
+									+ " itemId :" + itemId);
 							return new Tuple2<String, ItemSummary>(primaryKey,
 									itemSummary);
 						}

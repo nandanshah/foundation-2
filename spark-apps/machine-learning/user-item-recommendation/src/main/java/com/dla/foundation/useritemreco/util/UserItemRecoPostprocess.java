@@ -20,7 +20,7 @@ import com.dla.foundation.useritemreco.model.ItemSummary;
 import com.dla.foundation.useritemreco.model.Score;
 import com.dla.foundation.useritemreco.model.ScoreType;
 import com.dla.foundation.useritemreco.model.UserItemSummary;
-import com.dla.foundation.useritemreco.model.userItemRecoCF;
+import com.dla.foundation.useritemreco.model.UserItemRecoCF;
 
 /**
  * This class is used to convert record in cassandra format before writing to
@@ -31,9 +31,6 @@ import com.dla.foundation.useritemreco.model.userItemRecoCF;
  */
 public class UserItemRecoPostprocess implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6629019652932514108L;
 	private static final Integer REQUIRED_EVENT_VALUE = 1;
 
@@ -49,21 +46,21 @@ public class UserItemRecoPostprocess implements Serializable {
 					List<ByteBuffer> otherColumns;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
-							ItemSummary record) throws Exception {
+							ItemSummary record) {
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
 						Map<String, Score> scores = record.getScores();
-						primaryKey.put(userItemRecoCF.PERIOD_ID.getColumn(),
+						primaryKey.put(UserItemRecoCF.PERIOD_ID.getColumn(),
 								ByteBufferUtil.bytes(UUIDs.startOf(record
 										.getDate().getTime())));
-						primaryKey.put(userItemRecoCF.TENANT.getColumn(),
+						primaryKey.put(UserItemRecoCF.TENANT.getColumn(),
 								UUIDType.instance.fromString(record
 										.getTenantId()));
-						primaryKey.put(userItemRecoCF.REGION.getColumn(),
+						primaryKey.put(UserItemRecoCF.REGION.getColumn(),
 								UUIDType.instance.fromString(record
 										.getRegionId()));
 						primaryKey.put(
-								userItemRecoCF.ITEM.getColumn(),
+								UserItemRecoCF.ITEM.getColumn(),
 								UUIDType.instance.fromString(record.getItemId()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.TREND_TYPE.getColumn()).getScore()));
@@ -76,12 +73,6 @@ public class UserItemRecoPostprocess implements Serializable {
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.POPULARITY_TYPE.getColumn())
 								.getScoreReason()));
-						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn()).getScore()));
-						otherColumns.add(ByteBufferUtil
-								.bytes(scores
-										.get(ScoreType.FP_TYPE.getColumn())
-										.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.NEW_RELEASE_TYPE.getColumn())
 								.getScore()));
@@ -116,26 +107,26 @@ public class UserItemRecoPostprocess implements Serializable {
 					Map<String, Score> scores;
 
 					public Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>> call(
-							UserItemSummary record) throws Exception {
+							UserItemSummary record) {
 						primaryKey = new LinkedHashMap<String, ByteBuffer>();
 						otherColumns = new ArrayList<ByteBuffer>();
 
 						scores = record.getItemSummary().getScores();
 						primaryKey.put(
-								userItemRecoCF.PERIOD_ID.getColumn(),
+								UserItemRecoCF.PERIOD_ID.getColumn(),
 								ByteBufferUtil.bytes(UUIDs.startOf(record
 										.getItemSummary().getDate().getTime())));
-						primaryKey.put(userItemRecoCF.TENANT.getColumn(),
+						primaryKey.put(UserItemRecoCF.TENANT.getColumn(),
 								UUIDType.instance.fromString(record
 										.getItemSummary().getTenantId()));
-						primaryKey.put(userItemRecoCF.REGION.getColumn(),
+						primaryKey.put(UserItemRecoCF.REGION.getColumn(),
 								UUIDType.instance.fromString(record
 										.getItemSummary().getRegionId()));
-						primaryKey.put(userItemRecoCF.ITEM.getColumn(),
+						primaryKey.put(UserItemRecoCF.ITEM.getColumn(),
 								UUIDType.instance.fromString(record
 										.getItemSummary().getItemId()));
 						primaryKey.put(
-								userItemRecoCF.PROFILE.getColumn(),
+								UserItemRecoCF.PROFILE.getColumn(),
 								UUIDType.instance.fromString(record.getUserId()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.TREND_TYPE.getColumn()).getScore()));
@@ -148,12 +139,6 @@ public class UserItemRecoPostprocess implements Serializable {
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.POPULARITY_TYPE.getColumn())
 								.getScoreReason()));
-						otherColumns.add(ByteBufferUtil.bytes(scores.get(
-								ScoreType.FP_TYPE.getColumn()).getScore()));
-						otherColumns.add(ByteBufferUtil
-								.bytes(scores
-										.get(ScoreType.FP_TYPE.getColumn())
-										.getScoreReason()));
 						otherColumns.add(ByteBufferUtil.bytes(scores.get(
 								ScoreType.NEW_RELEASE_TYPE.getColumn())
 								.getScore()));
@@ -177,6 +162,8 @@ public class UserItemRecoPostprocess implements Serializable {
 												.getTime())));
 						otherColumns.add(ByteBufferUtil
 								.bytes(REQUIRED_EVENT_VALUE));
+						otherColumns.add(ByteBufferUtil.bytes(record
+								.getJustification()));
 						return new Tuple2<Map<String, ByteBuffer>, List<ByteBuffer>>(
 								primaryKey, otherColumns);
 					}
